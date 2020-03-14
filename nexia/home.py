@@ -245,9 +245,17 @@ class NexiaHome:
             self.thermostats = []
             for thermostat_json in self.house_json:
                 self.thermostats.append(NexiaThermostat(self, thermostat_json))
-        else:
-            for themostat in self.thermostats:
-                themostat.update_thermostat_json(self.house_json)
+            return
+
+        thermostat_updates_by_id = {}
+        for thermostat_json in self.house_json:
+            thermostat_updates_by_id[thermostat_json["id"]] = thermostat_json
+
+        for thermostat in self.thermostats:
+            if thermostat.thermostat_id in thermostat_updates_by_id:
+                thermostat.update_thermostat_json(
+                    thermostat_updates_by_id[thermostat.thermostat_id]
+                )
 
     ########################################################################
     # Session Methods

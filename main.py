@@ -18,9 +18,9 @@ parser.add_argument(
 
 args = parser.parse_args()
 if args.offline_json:
-    nt = NexiaHome(offline_json=args.offline_json)
+    nexia_home = NexiaHome(offline_json=args.offline_json)
 elif args.username and args.password:
-    nt = NexiaHome(
+    nexia_home = NexiaHome(
         username=args.username, password=args.password
     )
 else:
@@ -29,14 +29,19 @@ else:
 
 print("NexiaThermostat instance can be referenced using nt.<command>.")
 print("List of available thermostats and zones:")
-for _thermostat_id in nt.get_thermostat_ids():
-    _thermostat_name = nt.get_thermostat_name(_thermostat_id)
-    _thermostat_model = nt.get_thermostat_model(_thermostat_id)
+for _thermostat_id in nexia_home.get_thermostat_ids():
+    thermostat = nexia_home.get_thermostat_by_id(_thermostat_id)
+    _thermostat_name = thermostat.get_thermostat_name()
+    _thermostat_model = thermostat.get_thermostat_model()
     print(f'{_thermostat_id} - "{_thermostat_name}" ({_thermostat_model})')
     print(f"  Zones:")
-    for _zone_id in nt.get_zone_ids(_thermostat_id):
-        _zone_name = nt.get_zone_name(_thermostat_id, _zone_id)
-        print(f'    {_zone_id} - "{_zone_name}"')
+    
+    for _zone_id in thermostat.get_zone_ids():
+        zone = thermostat.get_zone_by_id(_zone_id)
+        _zone_name = zone.get_name()
+        _zone_status = zone.get_status()
+
+        print(f'    {_zone_id} - "{_zone_name}" ({_zone_status})')
 del (
     _thermostat_id,
     _thermostat_model,
@@ -46,6 +51,9 @@ del (
     args,
     parser,
 )
+
+nexia_home.update()
+
 
 
 variables = globals()

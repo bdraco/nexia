@@ -405,19 +405,14 @@ class NexiaThermostatZone:
         response = self._nexia_home.post_url(url, payload)
         self.update_zone_json(response.json()["result"])
 
-    def update_zone_json(self, data):
+    def update_zone_json(self, zone_json):
         """Update with new json from the api"""
         if self._zone_json is None:
             return
 
-        for thermostat in data:
-            if thermostat["id"] == self._nexia_thermostat.thermostat_id:
-                for zone in thermostat["zones"]:
-                    if zone["id"] == self.zone_id:
-                        _LOGGER.debug(
-                            "Updated thermostat_id:%s zone_id:%s with new data from post",
-                            self._nexia_thermostat.thermostat_id,
-                            self.zone_id,
-                        )
-                        self._zone_json.update(data)
-                break
+        _LOGGER.debug(
+            "Updated thermostat_id:%s zone_id:%s with new data from post",
+            self._nexia_thermostat.thermostat_id,
+            self.zone_id,
+        )
+        self._zone_json.update(zone_json)

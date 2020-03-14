@@ -522,7 +522,7 @@ class NexiaThermostat:
         :return: value
         """
         data = find_dict_with_keyvalue_in_json(
-            self._get_thermostat_json()[area], area_primary_key, key
+            self._thermostat_json[area], area_primary_key, key
         )
 
         if not data:
@@ -569,7 +569,7 @@ class NexiaThermostat:
         :param key: str
         :return: value
         """
-        thermostat = self._get_thermostat_json()
+        thermostat = self._thermostat_json
         if key in thermostat:
             return thermostat[key]
         raise KeyError(f'Key "{key}" not in the thermostat JSON!')
@@ -601,7 +601,7 @@ class NexiaThermostat:
         :param zone_id: The index of the zone, defaults to 0.
         :return: dict(thermostat_json['zones'][zone_id])
         """
-        thermostat = self._get_thermostat_json()
+        thermostat = self._thermostat_json
         if not thermostat:
             return None
 
@@ -620,20 +620,20 @@ class NexiaThermostat:
         response = self._nexia_home.post_url(url, payload)
         self.update_thermostat_json(response.json()["result"])
 
-    def _get_thermostat_json(self):
-        return self._thermostat_json
-
-    def update_thermostat_json(self, data):
+    def update_thermostat_json(self, thermostat_json):
         """Update with new json from the api"""
         if self._thermostat_json is None:
             return
 
-        for thermostat in self._thermostat_json:
-            if thermostat["id"] == self.thermostat_id:
-                _LOGGER.debug(
-                    "Updated thermostat_id:%s with new data from post",
-                    self.thermostat_id,
-                )
-                self._thermostat_json.update(data)
-                for zone in self.zones:
-                    zone.update_zone_json(data)
+        _LOGGER.debug(
+            "Updated thermostat_id:%s with new data from post", self.thermostat_id,
+        )
+        self._thermostat_json.update(thermostat_json)
+
+        zone_updates_by_id = {}
+        for zone_json in thermostat_json["zones"]:
+            zone_updates_by_id[zone_json["id"]] = zone_json
+
+        for zone in self.zones:
+            if zone.zone_id in zone_updates_by_id:
+                zone.update_zone_json(zone_updates_by_id[zone.zone_id])
