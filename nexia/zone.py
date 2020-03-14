@@ -25,8 +25,8 @@ class NexiaThermostatZone:
     def __init__(self, nexia_home, nexia_thermostat, zone_json):
         """Create a nexia zone."""
         self._nexia_home = nexia_home
-        self._nexia_thermostat = nexia_thermostat
         self._zone_json = zone_json
+        self.thermostat = nexia_thermostat
         self.zone_id = zone_json["id"]
 
     def get_name(self):
@@ -149,11 +149,8 @@ class NexiaThermostatZone:
         :return: None
         """
 
-        deadband = self._nexia_thermostat.get_deadband()
-        (
-            min_temperature,
-            max_temperature,
-        ) = self._nexia_thermostat.get_setpoint_limits()
+        deadband = self.thermostat.get_deadband()
+        (min_temperature, max_temperature,) = self.thermostat.get_setpoint_limits()
 
         if heat_temperature is not None:
             heat_temperature = self.round_temp(heat_temperature)
@@ -253,7 +250,7 @@ class NexiaThermostatZone:
         :param set_temperature: int or None
         :return: None
         """
-        deadband = self._nexia_thermostat.get_deadband()
+        deadband = self.thermostat.get_deadband()
 
         if set_temperature is None:
             if heat_temperature:
@@ -356,7 +353,7 @@ class NexiaThermostatZone:
         :param temperature: temperature to round
         :return: float rounded temperature
         """
-        if self._nexia_thermostat.get_unit() == UNIT_CELSIUS:
+        if self.thermostat.get_unit() == UNIT_CELSIUS:
             temperature *= 2
             temperature = round(temperature)
             temperature /= 2
@@ -412,7 +409,7 @@ class NexiaThermostatZone:
 
         _LOGGER.debug(
             "Updated thermostat_id:%s zone_id:%s with new data from post",
-            self._nexia_thermostat.thermostat_id,
+            self.thermostat.thermostat_id,
             self.zone_id,
         )
         self._zone_json.update(zone_json)

@@ -62,6 +62,7 @@ class TestNexiaThermostat(unittest.TestCase):
         self.assertEqual(thermostat.has_humidify_support(), False)
         self.assertEqual(thermostat.get_system_status(), "System Idle")
         self.assertEqual(thermostat.get_air_cleaner_mode(), "auto")
+        self.assertEqual(thermostat.is_blower_active(), False)
 
         zone_ids = thermostat.get_zone_ids()
         self.assertEqual(zone_ids, [83261002, 83261005, 83261008, 83261011])
@@ -96,6 +97,7 @@ class TestNexiaThermostat(unittest.TestCase):
         self.assertEqual(thermostat.has_humidify_support(), False)
         self.assertEqual(thermostat.get_system_status(), "Cooling")
         self.assertEqual(thermostat.get_air_cleaner_mode(), "auto")
+        self.assertEqual(thermostat.is_blower_active(), True)
 
         zone_ids = thermostat.get_zone_ids()
         self.assertEqual(zone_ids, [83394133, 83394130, 83394136, 83394127, 83394139])
@@ -125,6 +127,8 @@ class TestNexiaThermostatZone(unittest.TestCase):
 
         thermostat = nexia.get_thermostat_by_id(2293892)
         zone = thermostat.get_zone_by_id(83394133)
+
+        self.assertEqual(zone.thermostat, thermostat)
 
         self.assertEqual(zone.get_name(), "Bath Closet")
         self.assertEqual(zone.get_cooling_setpoint(), 79)
