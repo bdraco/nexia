@@ -236,7 +236,7 @@ class NexiaThermostatZone:
             cool_temperature, heat_temperature,
         )
 
-    def set_zone_heat_cool_temp(
+    def set_heat_cool_temp(
         self, heat_temperature=None, cool_temperature=None, set_temperature=None,
     ):
         """
@@ -315,7 +315,7 @@ class NexiaThermostatZone:
                 "setpoints", {"heat": heat_temperature, "cool": cool_temperature}
             )
 
-    def set_zone_preset(self, preset):
+    def set_preset(self, preset):
         """
         Sets the preset of the specified zone.
         :param preset: str - The preset, see
@@ -331,7 +331,7 @@ class NexiaThermostatZone:
                     break
             self._post_and_update_zone_json("preset_selected", {"value": value})
 
-    def set_zone_mode(self, mode):
+    def set_mode(self, mode):
         """
         Sets the mode of the zone.
         :param mode: str - The mode, see NexiaThermostat.OPERATION_MODES
