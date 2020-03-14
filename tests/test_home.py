@@ -20,11 +20,24 @@ def load_fixture(filename):
 class TestNexiaThermostat(unittest.TestCase):
     """Tests for nexia thermostat."""
 
+    def test_update(self):
+        nexia = NexiaHome(auto_login=False)
+        house_json = json.loads(load_fixture("mobile_houses_123456.json"))
+        nexia.update_from_json(house_json)
+        thermostat = nexia.get_thermostat_by_id(2059661)
+        zone_ids = thermostat.get_zone_ids()
+        self.assertEqual(zone_ids, [83261002, 83261005, 83261008, 83261011])
+        nexia.update_from_json(house_json)
+        zone_ids = thermostat.get_zone_ids()
+        self.assertEqual(zone_ids, [83261002, 83261005, 83261008, 83261011])
+        nexia.update_from_json(house_json)
+
     def test_idle_thermo(self):
         """Get methods for an idle thermostat."""
-        nexia = NexiaHome(
-            offline_json=json.loads(load_fixture("mobile_houses_123456.json"))
-        )
+        nexia = NexiaHome(auto_login=False)
+        house_json = json.loads(load_fixture("mobile_houses_123456.json"))
+        nexia.update_from_json(house_json)
+
         thermostat = nexia.get_thermostat_by_id(2059661)
 
         self.assertEqual(thermostat.get_thermostat_model(), "XL1050")
@@ -55,9 +68,10 @@ class TestNexiaThermostat(unittest.TestCase):
 
     def test_active_thermo(self):
         """Get methods for an active thermostat."""
-        nexia = NexiaHome(
-            offline_json=json.loads(load_fixture("mobile_houses_123456.json"))
-        )
+        nexia = NexiaHome(auto_login=False)
+        house_json = json.loads(load_fixture("mobile_houses_123456.json"))
+        nexia.update_from_json(house_json)
+
         thermostat = nexia.get_thermostat_by_id(2293892)
 
         self.assertEqual(thermostat.get_thermostat_model(), "XL1050")
@@ -92,14 +106,12 @@ class TestNexiaHome(unittest.TestCase):
 
     def test_basic(self):
         """Basic tests for NexiaHome."""
-        nexia = NexiaHome(
-            offline_json=json.loads(load_fixture("mobile_houses_123456.json"))
-        )
+        nexia = NexiaHome(auto_login=False)
+        house_json = json.loads(load_fixture("mobile_houses_123456.json"))
+        nexia.update_from_json(house_json)
+
         thermostat_ids = nexia.get_thermostat_ids()
         self.assertEqual(thermostat_ids, [2059661, 2059676, 2293892, 2059652])
-
-        last_update = nexia.get_last_update()
-        self.assertEqual(last_update, "0001-01-01T00:00:00")
 
 
 class TestNexiaThermostatZone(unittest.TestCase):
@@ -107,9 +119,10 @@ class TestNexiaThermostatZone(unittest.TestCase):
 
     def test_zone_relieving_air(self):
         """Tests for nexia thermostat zone relieving air."""
-        nexia = NexiaHome(
-            offline_json=json.loads(load_fixture("mobile_houses_123456.json"))
-        )
+        nexia = NexiaHome(auto_login=False)
+        house_json = json.loads(load_fixture("mobile_houses_123456.json"))
+        nexia.update_from_json(house_json)
+
         thermostat = nexia.get_thermostat_by_id(2293892)
         zone = thermostat.get_zone_by_id(83394133)
 
@@ -135,9 +148,10 @@ class TestNexiaThermostatZone(unittest.TestCase):
 
     def test_zone_cooling_air(self):
         """Tests for nexia thermostat zone cooling."""
-        nexia = NexiaHome(
-            offline_json=json.loads(load_fixture("mobile_houses_123456.json"))
-        )
+        nexia = NexiaHome(auto_login=False)
+        house_json = json.loads(load_fixture("mobile_houses_123456.json"))
+        nexia.update_from_json(house_json)
+
         thermostat = nexia.get_thermostat_by_id(2293892)
         zone = thermostat.get_zone_by_id(83394130)
 

@@ -20,9 +20,7 @@ args = parser.parse_args()
 if args.offline_json:
     nexia_home = NexiaHome(offline_json=args.offline_json)
 elif args.username and args.password:
-    nexia_home = NexiaHome(
-        username=args.username, password=args.password
-    )
+    nexia_home = NexiaHome(username=args.username, password=args.password)
 else:
     parser.print_help()
     exit()
@@ -35,7 +33,7 @@ for _thermostat_id in nexia_home.get_thermostat_ids():
     _thermostat_model = thermostat.get_thermostat_model()
     print(f'{_thermostat_id} - "{_thermostat_name}" ({_thermostat_model})')
     print(f"  Zones:")
-    
+
     for _zone_id in thermostat.get_zone_ids():
         zone = thermostat.get_zone_by_id(_zone_id)
         _zone_name = zone.get_name()
@@ -53,7 +51,6 @@ del (
 )
 
 nexia_home.update()
-
 
 
 variables = globals()

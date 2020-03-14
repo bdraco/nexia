@@ -2,7 +2,6 @@
 
 import datetime
 import logging
-import pprint
 from threading import Lock
 
 import requests
@@ -37,7 +36,6 @@ class NexiaHome:
         password=None,
         auto_login=True,
         update_rate=None,
-        offline_json=None,
     ):
         """
         Connects to and provides the ability to get and set parameters of your
@@ -65,20 +63,6 @@ class NexiaHome:
         self.mutex = Lock()
         self.thermostats = None
 
-        self.offline_json = offline_json
-
-        # Control the update rate
-        if update_rate is None:
-            self.update_rate = datetime.timedelta(seconds=self.DEFAULT_UPDATE_RATE)
-        elif update_rate == self.DISABLE_AUTO_UPDATE:
-            self.update_rate = self.DISABLE_AUTO_UPDATE
-        else:
-            self.update_rate = datetime.timedelta(seconds=update_rate)
-
-        if self.offline_json:
-            self.update()
-            return
-
         # Create a session
         self.session = requests.session()
         self.session.max_redirects = 3
@@ -98,15 +82,6 @@ class NexiaHome:
         :param payload: dict
         :return: response
         """
-
-        if self.offline_json:
-            print(
-                f"POST:\n"
-                f"  URL: {request_url}\n"
-                f"  Data: {pprint.pformat(payload)}"
-            )
-            return None
-
         _LOGGER.debug("POST: Calling url %s with payload: %s", request_url, payload)
 
         request = self.session.post(
@@ -163,17 +138,6 @@ class NexiaHome:
                 raise Exception(f"{error_text}\n{response}")
             raise Exception(f"No response from session. {error_text}")
 
-    def _needs_update(self):
-        """
-        Returns True if an update is needed
-        :return: bool
-        """
-        if self.update_rate == self.DISABLE_AUTO_UPDATE:
-            return False
-        if self.last_update is None:
-            return True
-        return datetime.datetime.now() - self.last_update > self.update_rate
-
     def _find_house_id(self):
         """Finds the house id if none is provided."""
         request = self.post_url(self.API_MOBILE_SESSION_URL, {})
@@ -188,59 +152,41 @@ class NexiaHome:
                 "Failed to get house id JSON, session probably timed" " out", request,
             )
 
+    def update_from_json(self, json_dict: dict):
+        """Update the json from the houses endpoint if fetched externally."""
+        self.house_json = _extract_payload_from_houses_json(json_dict)
+        self._update_devices()
+
     def update(self, force_update=True):
         """
         Forces a status update from nexia
         :return: None
         """
-        if self.offline_json:
-            self.house_json = self.offline_json["result"]["_links"]["child"][0]["data"][
-                "items"
-            ]
-            self._update_devices()
-            return
-
         if not self.mobile_id:
             # not yet authenticated
             return
 
-        if (
-            self.house_json is not None
-            and not self._needs_update()
-            and force_update is False
-        ):
+        request = self._get_url(
+            self.API_MOBILE_HOUSES_URL.format(house_id=self.house_id)
+        )
+
+        if not request or request.status_code != 200:
+            self._check_response(
+                "Failed to get house JSON, session probably timed" " out", request,
+            )
             return
 
-        with self.mutex:
-            # Now that we have the mutex we check again
-            # to make an update did not happen elsewhere
-            if (
-                self.house_json is not None
-                and not self._needs_update()
-                and force_update is False
-            ):
-                return
-
-            request = self._get_url(
-                self.API_MOBILE_HOUSES_URL.format(house_id=self.house_id)
-            )
-            if request and request.status_code == 200:
-                ts_json = request.json()
-                if ts_json:
-                    self.house_json = ts_json["result"]["_links"]["child"][0]["data"][
-                        "items"
-                    ]
-                    self.last_update = datetime.datetime.now()
-                else:
-                    raise Exception("Nothing in the JSON")
-            else:
-                self._check_response(
-                    "Failed to get thermostat JSON, session probably timed" " out",
-                    request,
-                )
-            self._update_devices()
+        ts_json = request.json()
+        if ts_json:
+            self.house_json = _extract_payload_from_houses_json(ts_json)
+        else:
+            raise Exception("Nothing in the JSON")
+        self._update_devices()
+        return
 
     def _update_devices(self):
+        self.last_update = datetime.datetime.now()
+
         if self.thermostats is None:
             self.thermostats = []
             for thermostat_json in self.house_json:
@@ -334,3 +280,8 @@ class NexiaHome:
         for thermostat in self.thermostats:
             ids.append(thermostat.thermostat_id)
         return ids
+
+
+def _extract_payload_from_houses_json(json_dict: dict):
+    """Extras the payload from the houses json endpoint data."""
+    return json_dict["result"]["_links"]["child"][0]["data"]["items"]
