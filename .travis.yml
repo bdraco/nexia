@@ -26,3 +26,6 @@ deploy:
     tags: true
     repo: bdraco/nexia
     python: 3.8
+
+after_success:
+  - coveralls
