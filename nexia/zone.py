@@ -131,7 +131,7 @@ class NexiaThermostatZone:
             return run_mode_label
         return f"{run_mode_label} - {preset_label}"
 
-    def is_zone_calling(self):
+    def is_calling(self):
         """
         Returns True if the zone is calling for heat/cool.
         :return: bool
@@ -187,7 +187,7 @@ class NexiaThermostatZone:
             )
         # The heat and cool setpoints appear to be valid.
 
-    def is_zone_in_permanent_hold(self):
+    def is_in_permanent_hold(self):
         """
         Returns True if the zone is in a permanent hold.
         :return: bool
