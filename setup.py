@@ -37,7 +37,7 @@ setup(
     ],
     description="Python library for connecting to nexia",
     install_requires=requirements,
-    license="GPL3",
+    license="Apache Software License 2.0",
     long_description=readme + "\n\n" + history,
     include_package_data=True,
     keywords="nexia",
