@@ -112,6 +112,7 @@ class TestNexiaHome(unittest.TestCase):
         house_json = json.loads(load_fixture("mobile_houses_123456.json"))
         nexia.update_from_json(house_json)
 
+        self.assertEqual(nexia.get_name(), "Hidden")
         thermostat_ids = nexia.get_thermostat_ids()
         self.assertEqual(thermostat_ids, [2059661, 2059676, 2293892, 2059652])
 

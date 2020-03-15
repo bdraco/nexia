@@ -60,7 +60,7 @@ class NexiaHome:
         self.api_key = None
         self.house_json = None
         self.last_update = None
-        self.mutex = Lock()
+        self._name = None
         self.thermostats = None
 
         # Create a session
@@ -154,6 +154,7 @@ class NexiaHome:
 
     def update_from_json(self, json_dict: dict):
         """Update the json from the houses endpoint if fetched externally."""
+        self._name = json_dict["result"]["name"]
         self.house_json = _extract_payload_from_houses_json(json_dict)
         self._update_devices()
 
@@ -252,6 +253,10 @@ class NexiaHome:
 
         if not self.house_id:
             self._find_house_id()
+
+    def get_name(self):
+        """Name of the house"""
+        return self._name
 
     def get_last_update(self):
         """
