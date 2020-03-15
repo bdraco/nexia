@@ -23,7 +23,7 @@ Nexia
 Python library for connecting to nexia
 
 
-* Free software: GPL-3.0
+* Free software: Apache Software License 2.0
 * Documentation: https://nexia.readthedocs.io.
 
 
