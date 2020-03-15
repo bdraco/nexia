@@ -100,7 +100,7 @@ class NexiaHome:
         _LOGGER.debug("POST: Response from url %s: %s", request_url, request.content)
         # no need to sleep anymore as we consume the response and update the thermostat's JSON
 
-        self._check_response("Failed to POST url", request)
+        request.raise_for_status()
         return request
 
     def _get_url(self, request_url):
@@ -123,7 +123,7 @@ class NexiaHome:
             self.login()
             return self._get_url(request_url)
 
-        self._check_response("Failed to GET url", request)
+        request.raise_for_status()
         return request
 
     @staticmethod
