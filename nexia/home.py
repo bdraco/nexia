@@ -179,6 +179,7 @@ class NexiaHome:
 
         ts_json = request.json()
         if ts_json:
+            self._name = ts_json["result"]["name"]
             self.house_json = _extract_payload_from_houses_json(ts_json)
         else:
             raise Exception("Nothing in the JSON")
