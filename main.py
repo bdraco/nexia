@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 """Nexia Climate Device Access"""
 
 import argparse
@@ -10,16 +12,10 @@ from nexia.home import NexiaHome
 parser = argparse.ArgumentParser()
 parser.add_argument("--username", type=str, help="Your Nexia username/email address.")
 parser.add_argument("--password", type=str, help="Your Nexia password.")
-parser.add_argument(
-    "--offline_json",
-    type=str,
-    help="Offline JSON file to load. No NexiaHome communication will be performed.",
-)
 
 args = parser.parse_args()
-if args.offline_json:
-    nexia_home = NexiaHome(offline_json=args.offline_json)
-elif args.username and args.password:
+
+if args.username and args.password:
     nexia_home = NexiaHome(username=args.username, password=args.password)
 else:
     parser.print_help()
