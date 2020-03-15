@@ -332,7 +332,7 @@ class NexiaThermostat:
         """
         fan_mode = fan_mode.lower()
         if fan_mode in FAN_MODES:
-            self._post_and_update_thermostat_json("fanmode", {"value": fan_mode})
+            self._post_and_update_thermostat_json("fan_mode", {"value": fan_mode})
         else:
             raise KeyError("Invalid fan mode specified")
 
