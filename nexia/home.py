@@ -35,7 +35,7 @@ class NexiaHome:
         username=None,
         password=None,
         auto_login=True,
-        update_rate=None,
+        auto_update=True,
     ):
         """
         Connects to and provides the ability to get and set parameters of your
@@ -48,7 +48,9 @@ class NexiaHome:
         :param password: str - Your login password
         :param auto_login: bool - Default is True, Login now (True), or login
         manually later (False)
-        :param update_rate: int - How many seconds between requesting a new
+        :param auto_update: bool - Default is True, Update now (True), or update
+        manually later (False)
+
         JSON update. Default is 300s.
         """
 
@@ -70,7 +72,9 @@ class NexiaHome:
         # Login if requested
         if auto_login:
             self.login()
-            self.update()
+
+            if auto_update:
+                self.update()
 
     def _api_key_headers(self):
         return {"X-MobileId": str(self.mobile_id), "X-ApiKey": str(self.api_key)}
@@ -144,7 +148,9 @@ class NexiaHome:
         if request and request.status_code == 200:
             ts_json = request.json()
             if ts_json:
-                self.house_id = ts_json["result"]["_links"]["child"][0]["data"]["id"]
+                data = ts_json["result"]["_links"]["child"][0]["data"]
+                self.house_id = data["id"]
+                self._name = data["name"]
             else:
                 raise Exception("Nothing in the JSON")
         else:
