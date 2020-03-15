@@ -47,42 +47,42 @@ class NexiaThermostat:
             "value"
         ]
 
-    def get_thermostat_model(self):
+    def get_model(self):
         """
         Returns the thermostat model
         :return: string
         """
         return self._get_thermostat_advanced_info_label("Model")
 
-    def get_thermostat_firmware(self):
+    def get_firmware(self):
         """
         Returns the thermostat firmware version
         :return: string
         """
         return self._get_thermostat_advanced_info_label("Firmware Version")
 
-    def get_thermostat_dev_build_number(self):
+    def get_dev_build_number(self):
         """
         Returns the thermostat development build number.
         :return: string
         """
         return self._get_thermostat_advanced_info_label("Firmware Build Number")
 
-    def get_thermostat_device_id(self):
+    def get_device_id(self):
         """
         Returns the device id
         :return: string
         """
         return self._get_thermostat_advanced_info_label("AUID")
 
-    def get_thermostat_type(self):
+    def get_type(self):
         """
         Returns the thermostat type, such as TraneXl1050
         :return: str
         """
-        return self.get_thermostat_model()
+        return self.get_model()
 
-    def get_thermostat_name(self):
+    def get_name(self):
         """
         Returns the name of the thermostat. This is not the zone name.
         :return: str
