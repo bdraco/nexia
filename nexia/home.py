@@ -2,7 +2,6 @@
 
 import datetime
 import logging
-from threading import Lock
 
 import requests
 
@@ -338,6 +337,7 @@ class NexiaHome:
         for automation in self.automations:
             ids.append(automation.automation_id)
         return ids
+
 
 def _extract_devices_from_houses_json(json_dict: dict):
     """Extras the payload from the houses json endpoint data."""

@@ -243,4 +243,4 @@ class TestNexiaAutomation(unittest.TestCase):
             "heat to 62.0 and cool to 83.0",
         )
         self.assertEqual(automation_one.enabled, True)
-        self.assertEqual(automation_one.id, 3467876)
+        self.assertEqual(automation_one.automation_id, 3467876)

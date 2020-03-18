@@ -42,18 +42,11 @@ class NexiaAutomation:
         """
         return self._get_automation_key("enabled")
 
-    @property
-    def id(self):
-        """
-        id of the automation.
-        """
-        return self._get_automation_key("id")
-
     def activate(self):
         """
         run the automation.
         """
-        return self._post_and_update_automation_json("activate", "")
+        return self._post_automation_json("activate", "")
 
     def _get_automation_key(self, key):
         """

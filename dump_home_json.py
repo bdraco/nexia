@@ -3,9 +3,6 @@
 """Nexia Climate Device Access"""
 
 import argparse
-import code
-import readline
-import rlcompleter
 
 from nexia.home import NexiaHome
 
