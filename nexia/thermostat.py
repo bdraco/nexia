@@ -27,14 +27,14 @@ class NexiaThermostat:
         MOBILE_URL + "/xxl_thermostats/{thermostat_id}/{end_point}"
     )
 
-    def __init__(self, nexia_home, themostat_json):
+    def __init__(self, nexia_home, thermostat_json):
         """Init nexia Thermostat."""
         self._nexia_home = nexia_home
-        self.thermostat_id = themostat_json["id"]
-        self._thermostat_json = themostat_json
+        self.thermostat_id = thermostat_json["id"]
+        self._thermostat_json = thermostat_json
         self.zones = []
         if self.has_zones():
-            for zone in themostat_json["zones"]:
+            for zone in thermostat_json["zones"]:
                 self.zones.append(NexiaThermostatZone(nexia_home, self, zone))
 
     def _get_thermostat_advanced_info_label(self, label):

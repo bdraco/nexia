@@ -20,4 +20,5 @@ else:
     parser.print_help()
     exit()
 
-print(nexia_home.house_json)
+print(nexia_home.devices_json)
+print(nexia_home.automations_json)

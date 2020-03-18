@@ -6,6 +6,7 @@ from threading import Lock
 
 import requests
 
+from .automation import NexiaAutomation
 from .const import MOBILE_URL
 from .thermostat import NexiaThermostat
 
@@ -13,6 +14,9 @@ MAX_LOGIN_ATTEMPTS = 4
 TIMEOUT = 20
 
 _LOGGER = logging.getLogger(__name__)
+
+DEVICES_ELEMENT = 0
+AUTOMATIONS_ELEMENT = 1
 
 
 class NexiaHome:
@@ -60,10 +64,12 @@ class NexiaHome:
         self.mobile_id = None
         self.login_attempts_left = MAX_LOGIN_ATTEMPTS
         self.api_key = None
-        self.house_json = None
+        self.devices_json = None
+        self.automations_json = None
         self.last_update = None
         self._name = None
         self.thermostats = None
+        self.automations = None
 
         # Create a session
         self.session = requests.session()
@@ -161,8 +167,10 @@ class NexiaHome:
     def update_from_json(self, json_dict: dict):
         """Update the json from the houses endpoint if fetched externally."""
         self._name = json_dict["result"]["name"]
-        self.house_json = _extract_payload_from_houses_json(json_dict)
+        self.devices_json = _extract_devices_from_houses_json(json_dict)
+        self.automations_json = _extract_automations_from_houses_json(json_dict)
         self._update_devices()
+        self._update_automations()
 
     def update(self, force_update=True):
         """
@@ -186,10 +194,12 @@ class NexiaHome:
         ts_json = request.json()
         if ts_json:
             self._name = ts_json["result"]["name"]
-            self.house_json = _extract_payload_from_houses_json(ts_json)
+            self.devices_json = _extract_devices_from_houses_json(ts_json)
+            self.automations_json = _extract_automations_from_houses_json(ts_json)
         else:
             raise Exception("Nothing in the JSON")
         self._update_devices()
+        self._update_automations()
         return
 
     def _update_devices(self):
@@ -197,18 +207,37 @@ class NexiaHome:
 
         if self.thermostats is None:
             self.thermostats = []
-            for thermostat_json in self.house_json:
+            for thermostat_json in self.devices_json:
                 self.thermostats.append(NexiaThermostat(self, thermostat_json))
             return
 
         thermostat_updates_by_id = {}
-        for thermostat_json in self.house_json:
+        for thermostat_json in self.devices_json:
             thermostat_updates_by_id[thermostat_json["id"]] = thermostat_json
 
         for thermostat in self.thermostats:
             if thermostat.thermostat_id in thermostat_updates_by_id:
                 thermostat.update_thermostat_json(
                     thermostat_updates_by_id[thermostat.thermostat_id]
+                )
+
+    def _update_automations(self):
+        self.last_update = datetime.datetime.now()
+
+        if self.automations is None:
+            self.automations = []
+            for automation_json in self.automations_json:
+                self.automations.append(NexiaAutomation(self, automation_json))
+            return
+
+        automation_updates_by_id = {}
+        for automation_json in self.automations_json:
+            automation_updates_by_id[automation_json["id"]] = automation_json
+
+        for automation in self.automations:
+            if automation.automation_id in automation_updates_by_id:
+                automation.update_automation_json(
+                    automation_updates_by_id[automation.automation_id]
                 )
 
     ########################################################################
@@ -293,7 +322,28 @@ class NexiaHome:
             ids.append(thermostat.thermostat_id)
         return ids
 
+    def get_automation_by_id(self, automation_id):
+        """Get a automation by its nexia id."""
+        for automation in self.automations:
+            if automation.automation_id == automation_id:
+                return automation
+        raise KeyError
 
-def _extract_payload_from_houses_json(json_dict: dict):
+    def get_automation_ids(self):
+        """
+        Returns the number of automations available to Nexia
+        :return:
+        """
+        ids = list()
+        for automation in self.automations:
+            ids.append(automation.automation_id)
+        return ids
+
+def _extract_devices_from_houses_json(json_dict: dict):
     """Extras the payload from the houses json endpoint data."""
-    return json_dict["result"]["_links"]["child"][0]["data"]["items"]
+    return json_dict["result"]["_links"]["child"][DEVICES_ELEMENT]["data"]["items"]
+
+
+def _extract_automations_from_houses_json(json_dict: dict):
+    """Extras the payload from the houses json endpoint data."""
+    return json_dict["result"]["_links"]["child"][AUTOMATIONS_ELEMENT]["data"]["items"]

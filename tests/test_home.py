@@ -22,21 +22,21 @@ class TestNexiaThermostat(unittest.TestCase):
 
     def test_update(self):
         nexia = NexiaHome(auto_login=False)
-        house_json = json.loads(load_fixture("mobile_houses_123456.json"))
-        nexia.update_from_json(house_json)
+        devices_json = json.loads(load_fixture("mobile_houses_123456.json"))
+        nexia.update_from_json(devices_json)
         thermostat = nexia.get_thermostat_by_id(2059661)
         zone_ids = thermostat.get_zone_ids()
         self.assertEqual(zone_ids, [83261002, 83261005, 83261008, 83261011])
-        nexia.update_from_json(house_json)
+        nexia.update_from_json(devices_json)
         zone_ids = thermostat.get_zone_ids()
         self.assertEqual(zone_ids, [83261002, 83261005, 83261008, 83261011])
-        nexia.update_from_json(house_json)
+        nexia.update_from_json(devices_json)
 
     def test_idle_thermo(self):
         """Get methods for an idle thermostat."""
         nexia = NexiaHome(auto_login=False)
-        house_json = json.loads(load_fixture("mobile_houses_123456.json"))
-        nexia.update_from_json(house_json)
+        devices_json = json.loads(load_fixture("mobile_houses_123456.json"))
+        nexia.update_from_json(devices_json)
 
         thermostat = nexia.get_thermostat_by_id(2059661)
 
@@ -70,8 +70,8 @@ class TestNexiaThermostat(unittest.TestCase):
     def test_active_thermo(self):
         """Get methods for an active thermostat."""
         nexia = NexiaHome(auto_login=False)
-        house_json = json.loads(load_fixture("mobile_houses_123456.json"))
-        nexia.update_from_json(house_json)
+        devices_json = json.loads(load_fixture("mobile_houses_123456.json"))
+        nexia.update_from_json(devices_json)
 
         thermostat = nexia.get_thermostat_by_id(2293892)
 
@@ -109,8 +109,8 @@ class TestNexiaHome(unittest.TestCase):
     def test_basic(self):
         """Basic tests for NexiaHome."""
         nexia = NexiaHome(auto_login=False)
-        house_json = json.loads(load_fixture("mobile_houses_123456.json"))
-        nexia.update_from_json(house_json)
+        devices_json = json.loads(load_fixture("mobile_houses_123456.json"))
+        nexia.update_from_json(devices_json)
 
         self.assertEqual(nexia.get_name(), "Hidden")
         thermostat_ids = nexia.get_thermostat_ids()
@@ -123,8 +123,8 @@ class TestNexiaThermostatZone(unittest.TestCase):
     def test_zone_relieving_air(self):
         """Tests for nexia thermostat zone relieving air."""
         nexia = NexiaHome(auto_login=False)
-        house_json = json.loads(load_fixture("mobile_houses_123456.json"))
-        nexia.update_from_json(house_json)
+        devices_json = json.loads(load_fixture("mobile_houses_123456.json"))
+        nexia.update_from_json(devices_json)
 
         thermostat = nexia.get_thermostat_by_id(2293892)
         zone = thermostat.get_zone_by_id(83394133)
@@ -154,8 +154,8 @@ class TestNexiaThermostatZone(unittest.TestCase):
     def test_zone_cooling_air(self):
         """Tests for nexia thermostat zone cooling."""
         nexia = NexiaHome(auto_login=False)
-        house_json = json.loads(load_fixture("mobile_houses_123456.json"))
-        nexia.update_from_json(house_json)
+        devices_json = json.loads(load_fixture("mobile_houses_123456.json"))
+        nexia.update_from_json(devices_json)
 
         thermostat = nexia.get_thermostat_by_id(2293892)
         zone = thermostat.get_zone_by_id(83394130)
@@ -179,3 +179,68 @@ class TestNexiaThermostatZone(unittest.TestCase):
         self.assertEqual(
             zone.get_setpoint_status(), "Permanent Hold",
         )
+
+    def test_idle_thermo(self):
+        """Get methods for an idle thermostat."""
+        nexia = NexiaHome(auto_login=False)
+        devices_json = json.loads(load_fixture("mobile_houses_123456.json"))
+        nexia.update_from_json(devices_json)
+
+        thermostat = nexia.get_thermostat_by_id(2059661)
+
+        self.assertEqual(thermostat.get_model(), "XL1050")
+        self.assertEqual(thermostat.get_firmware(), "5.9.1")
+        self.assertEqual(thermostat.get_dev_build_number(), "1581321824")
+        self.assertEqual(thermostat.get_device_id(), "000000")
+        self.assertEqual(thermostat.get_type(), "XL1050")
+        self.assertEqual(thermostat.get_name(), "Downstairs East Wing")
+        self.assertEqual(thermostat.get_deadband(), 3)
+        self.assertEqual(thermostat.get_setpoint_limits(), (55, 99))
+        self.assertEqual(thermostat.get_variable_fan_speed_limits(), (0.35, 1.0))
+        self.assertEqual(thermostat.get_unit(), "F")
+        self.assertEqual(thermostat.get_humidity_setpoint_limits(), (0.35, 0.65))
+        self.assertEqual(thermostat.get_fan_mode(), "auto")
+        self.assertEqual(thermostat.get_outdoor_temperature(), 88.0)
+        self.assertEqual(thermostat.get_relative_humidity(), 0.36)
+        self.assertEqual(thermostat.get_current_compressor_speed(), 0.0)
+        self.assertEqual(thermostat.get_requested_compressor_speed(), 0.0)
+        self.assertEqual(thermostat.get_fan_speed_setpoint(), 0.35)
+        self.assertEqual(thermostat.get_dehumidify_setpoint(), 0.50)
+        self.assertEqual(thermostat.has_dehumidify_support(), True)
+        self.assertEqual(thermostat.has_humidify_support(), False)
+        self.assertEqual(thermostat.get_system_status(), "System Idle")
+        self.assertEqual(thermostat.get_air_cleaner_mode(), "auto")
+        self.assertEqual(thermostat.is_blower_active(), False)
+
+        zone_ids = thermostat.get_zone_ids()
+        self.assertEqual(zone_ids, [83261002, 83261005, 83261008, 83261011])
+
+
+class TestNexiaAutomation(unittest.TestCase):
+    def test_automations(self):
+        """Get methods for an active thermostat."""
+        nexia = NexiaHome(auto_login=False)
+        devices_json = json.loads(load_fixture("mobile_houses_123456.json"))
+        nexia.update_from_json(devices_json)
+
+        automation_ids = nexia.get_automation_ids()
+        self.assertEqual(
+            automation_ids,
+            [3467876, 3467870, 3452469, 3452472, 3454776, 3454774, 3486078, 3486091],
+        )
+
+        automation_one = nexia.get_automation_by_id(3467876)
+
+        self.assertEqual(automation_one.name, "Away for 12 Hours")
+        self.assertEqual(
+            automation_one.description,
+            "When IFTTT activates the automation Upstairs West Wing will "
+            "permanently hold the heat to 62.0 and cool to 83.0 AND "
+            "Downstairs East Wing will permanently hold the heat to 62.0 "
+            "and cool to 83.0 AND Downstairs West Wing will permanently "
+            "hold the heat to 62.0 and cool to 83.0 AND Activate the mode "
+            "named 'Away 12' AND Master Suite will permanently hold the "
+            "heat to 62.0 and cool to 83.0",
+        )
+        self.assertEqual(automation_one.enabled, True)
+        self.assertEqual(automation_one.id, 3467876)
