@@ -23,6 +23,7 @@ class NexiaHome:
 
     AUTH_FAILED_STRING = "https://www.mynexia.com/login"
 
+    API_MOBILE_PHONE_URL = MOBILE_URL + "/phones"
     API_MOBILE_SESSION_URL = MOBILE_URL + "/session"
     API_MOBILE_HOUSES_URL = MOBILE_URL + "/houses/{house_id}"
     API_MOBILE_ACCOUNTS_SIGN_IN_URL = MOBILE_URL + "/accounts/sign_in"
@@ -121,7 +122,9 @@ class NexiaHome:
             timeout=TIMEOUT,
             headers=self._api_key_headers(),
         )
-        # _LOGGER.debug(f"GET: RESPONSE {request_url}: request.content {request.content}")
+        _LOGGER.debug(
+            f"GET: RESPONSE {request_url}: request.status_code {request.status_code}"
+        )
 
         if request.status_code == 302:
             # assuming its redirecting to login
@@ -327,6 +330,16 @@ class NexiaHome:
             if automation.automation_id == automation_id:
                 return automation
         raise KeyError
+
+    def get_phone_ids(self):
+        """Get all the mobile phone ids."""
+        response = self._get_url(self.API_MOBILE_PHONE_URL)
+        data = response.json()
+        items = data["result"]["items"]
+        phones = []
+        for phone in items:
+            phones.append(phone["phone_id"])
+        return phones
 
     def get_automation_ids(self):
         """
