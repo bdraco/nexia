@@ -113,12 +113,15 @@ class NexiaHome:
         request.raise_for_status()
         return request
 
-    def _get_url(self, request_url, headers={}):
+    def _get_url(self, request_url, headers=None):
         """
         Returns the full session.get from the URL (ROOT_URL + url)
         :param url: str
         :return: response
         """
+        if not headers:
+            headers = {}
+
         headers.update(self._api_key_headers())
         _LOGGER.debug("GET: Calling url %s", request_url)
         request = self.session.get(
