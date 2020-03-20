@@ -122,7 +122,7 @@ class NexiaHome:
             timeout=TIMEOUT,
             headers=self._api_key_headers(),
         )
-        # _LOGGER.debug(f"GET: RESPONSE {request_url}: request.status_code {request.status_code}")
+        _LOGGER.debug(f"GET: RESPONSE {request_url}: request.status_code {request.status_code}")
 
         if request.status_code == 302:
             # assuming its redirecting to login
@@ -262,7 +262,6 @@ class NexiaHome:
                 "commitModel": None,
                 "nextHref": None,
                 "device_name": "Home Automation",
-                "device_uuid": "0",
                 "app_version": "5.9.0",
                 "is_commercial": False,
             }
