@@ -259,6 +259,14 @@ class NexiaHome:
             payload = {
                 "login": self.username,
                 "password": self.password,
+                "children": [],
+                "childSchemas": [],
+                "commitModel": None,
+                "nextHref": None,
+                "device_name": "Home Automation",
+                "device_uuid": "0",
+                "app_version": "5.9.0",
+                "is_commercial": False,
             }
             request = self.post_url(self.API_MOBILE_ACCOUNTS_SIGN_IN_URL, payload)
 
