@@ -211,7 +211,7 @@ class NexiaHome:
             self._name = ts_json["result"]["name"]
             self.devices_json = _extract_devices_from_houses_json(ts_json)
             self.automations_json = _extract_automations_from_houses_json(ts_json)
-            self._last_update_etag = response.headers["etag"]
+            self._last_update_etag = response.headers.get("etag")
         else:
             raise Exception("Nothing in the JSON")
         self._update_devices()
