@@ -6,8 +6,9 @@ import logging
 import requests
 
 from .automation import NexiaAutomation
-from .const import MOBILE_URL
+from .const import MOBILE_URL, DEFAULT_DEVICE_NAME
 from .thermostat import NexiaThermostat
+from .util import load_or_create_uuid
 
 MAX_LOGIN_ATTEMPTS = 4
 TIMEOUT = 20
@@ -40,6 +41,7 @@ class NexiaHome:
         password=None,
         auto_login=True,
         auto_update=True,
+        device_name=DEFAULT_DEVICE_NAME,
     ):
         """
         Connects to and provides the ability to get and set parameters of your
@@ -70,6 +72,7 @@ class NexiaHome:
         self._name = None
         self.thermostats = None
         self.automations = None
+        self._device_name = device_name
 
         # Create a session
         self.session = requests.session()
@@ -122,7 +125,9 @@ class NexiaHome:
             timeout=TIMEOUT,
             headers=self._api_key_headers(),
         )
-        _LOGGER.debug(f"GET: RESPONSE {request_url}: request.status_code {request.status_code}")
+        _LOGGER.debug(
+            f"GET: RESPONSE {request_url}: request.status_code {request.status_code}"
+        )
 
         if request.status_code == 302:
             # assuming its redirecting to login
@@ -253,6 +258,7 @@ class NexiaHome:
         - house_id - (int) Your house id
         :return: None
         """
+        uuid = load_or_create_uuid(f"nexia_config_{self.username}.conf")
         if self.login_attempts_left > 0:
             payload = {
                 "login": self.username,
@@ -261,7 +267,8 @@ class NexiaHome:
                 "childSchemas": [],
                 "commitModel": None,
                 "nextHref": None,
-                "device_name": "Home Automation",
+                "device_uuid": str(uuid),
+                "device_name": self._device_name,
                 "app_version": "5.9.0",
                 "is_commercial": False,
             }

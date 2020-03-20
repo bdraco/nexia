@@ -5,6 +5,8 @@ __version__ = "0.1.0"
 ROOT_URL = "https://www.mynexia.com"
 MOBILE_URL = f"{ROOT_URL}/mobile"
 
+DEFAULT_DEVICE_NAME = "Home Automation"
+
 PUT_UPDATE_DELAY = 0.5
 
 HOLD_PERMANENT = "permanent_hold"
