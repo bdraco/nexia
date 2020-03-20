@@ -73,6 +73,7 @@ class NexiaHome:
         self.thermostats = None
         self.automations = None
         self._device_name = device_name
+        self._last_update_etag = None
 
         # Create a session
         self.session = requests.session()
@@ -112,21 +113,19 @@ class NexiaHome:
         request.raise_for_status()
         return request
 
-    def _get_url(self, request_url):
+    def _get_url(self, request_url, headers={}):
         """
         Returns the full session.get from the URL (ROOT_URL + url)
         :param url: str
         :return: response
         """
+        headers.update(self._api_key_headers())
         _LOGGER.debug("GET: Calling url %s", request_url)
         request = self.session.get(
-            request_url,
-            allow_redirects=False,
-            timeout=TIMEOUT,
-            headers=self._api_key_headers(),
+            request_url, allow_redirects=False, timeout=TIMEOUT, headers=headers,
         )
         _LOGGER.debug(
-            f"GET: RESPONSE {request_url}: request.status_code {request.status_code}"
+            "GET: RESPONSE %s: request.status_code %s", request_url, request.status_code
         )
 
         if request.status_code == 302:
@@ -186,21 +185,30 @@ class NexiaHome:
             # not yet authenticated
             return
 
-        request = self._get_url(
-            self.API_MOBILE_HOUSES_URL.format(house_id=self.house_id)
+        headers = {}
+        if self._last_update_etag:
+            headers["If-None-Match"] = self._last_update_etag
+
+        response = self._get_url(
+            self.API_MOBILE_HOUSES_URL.format(house_id=self.house_id), headers=headers
         )
 
-        if not request or request.status_code != 200:
+        if not response or response.status_code != 200:
             self._check_response(
-                "Failed to get house JSON, session probably timed" " out", request,
+                "Failed to get house JSON, session probably timed" " out", response,
             )
             return
 
-        ts_json = request.json()
+        if response.status_code == 304:
+            # already up to date
+            return
+
+        ts_json = response.json()
         if ts_json:
             self._name = ts_json["result"]["name"]
             self.devices_json = _extract_devices_from_houses_json(ts_json)
             self.automations_json = _extract_automations_from_houses_json(ts_json)
+            self._last_update_etag = response.headers["etag"]
         else:
             raise Exception("Nothing in the JSON")
         self._update_devices()
