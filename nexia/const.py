@@ -54,4 +54,9 @@ HUMIDITY_MAX = 0.65
 UNIT_CELSIUS = "C"
 UNIT_FAHRENHEIT = "F"
 
+DAMPER_CLOSED = "Damper Closed"
+DAMPER_OPEN = "Damper Open"
+
+ZONE_IDLE = "Idle"
+
 ALL_IDS = "all"

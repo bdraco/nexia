@@ -11,6 +11,8 @@ from .const import (
     OPERATION_MODES,
     PRESET_MODE_NONE,
     UNIT_CELSIUS,
+    ZONE_IDLE,
+    DAMPER_CLOSED,
 )
 from .util import find_dict_with_keyvalue_in_json
 
@@ -102,7 +104,7 @@ class NexiaThermostatZone:
         Returns the zone status.
         :return: str
         """
-        return self._get_zone_key("zone_status")
+        return self._get_zone_key("zone_status") or ZONE_IDLE
 
     def _get_zone_run_mode(self):
         """
@@ -136,7 +138,10 @@ class NexiaThermostatZone:
         Returns True if the zone is calling for heat/cool.
         :return: bool
         """
-        return bool(self._get_zone_key("operating_state"))
+        operating_state = self._get_zone_key("operating_state")
+        if not operating_state or operating_state == DAMPER_CLOSED:
+            return False
+        return True
 
     def check_heat_cool_setpoints(self, heat_temperature=None, cool_temperature=None):
         """
