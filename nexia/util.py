@@ -1,9 +1,8 @@
 """Utils."""
 
-import uuid
 import json
-
 from json import JSONDecodeError
+import uuid
 
 
 def is_number(string):

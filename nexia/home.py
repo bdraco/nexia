@@ -6,7 +6,7 @@ import logging
 import requests
 
 from .automation import NexiaAutomation
-from .const import MOBILE_URL, DEFAULT_DEVICE_NAME
+from .const import APP_VERSION, DEFAULT_DEVICE_NAME, MOBILE_URL
 from .thermostat import NexiaThermostat
 from .util import load_or_create_uuid
 
@@ -74,6 +74,7 @@ class NexiaHome:
         self.automations = None
         self._device_name = device_name
         self._last_update_etag = None
+        self._uuid = None
 
         # Create a session
         self.session = requests.session()
@@ -87,7 +88,11 @@ class NexiaHome:
                 self.update()
 
     def _api_key_headers(self):
-        return {"X-MobileId": str(self.mobile_id), "X-ApiKey": str(self.api_key)}
+        return {
+            "X-AppVersion": APP_VERSION,
+            "X-MobileId": str(self.mobile_id),
+            "X-ApiKey": str(self.api_key),
+        }
 
     def post_url(self, request_url: str, payload: dict):
         """
@@ -157,7 +162,10 @@ class NexiaHome:
 
     def _find_house_id(self):
         """Finds the house id if none is provided."""
-        request = self.post_url(self.API_MOBILE_SESSION_URL, {})
+        request = self.post_url(
+            self.API_MOBILE_SESSION_URL,
+            {"app_version": APP_VERSION, "device_uuid": str(self._uuid)},
+        )
         if request and request.status_code == 200:
             ts_json = request.json()
             if ts_json:
@@ -269,7 +277,7 @@ class NexiaHome:
         - house_id - (int) Your house id
         :return: None
         """
-        uuid = load_or_create_uuid(f"nexia_config_{self.username}.conf")
+        self._uuid = load_or_create_uuid(f"nexia_config_{self.username}.conf")
         if self.login_attempts_left > 0:
             payload = {
                 "login": self.username,
@@ -278,9 +286,9 @@ class NexiaHome:
                 "childSchemas": [],
                 "commitModel": None,
                 "nextHref": None,
-                "device_uuid": str(uuid),
+                "device_uuid": str(self._uuid),
                 "device_name": self._device_name,
-                "app_version": "5.9.0",
+                "app_version": APP_VERSION,
                 "is_commercial": False,
             }
             request = self.post_url(self.API_MOBILE_ACCOUNTS_SIGN_IN_URL, payload)

@@ -4,6 +4,7 @@ import logging
 import math
 
 from .const import (
+    DAMPER_CLOSED,
     HOLD_PERMANENT,
     MOBILE_URL,
     OPERATION_MODE_COOL,
@@ -12,7 +13,6 @@ from .const import (
     PRESET_MODE_NONE,
     UNIT_CELSIUS,
     ZONE_IDLE,
-    DAMPER_CLOSED,
 )
 from .util import find_dict_with_keyvalue_in_json
 
