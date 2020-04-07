@@ -130,7 +130,7 @@ class NexiaThermostat:
         blower
         :return: bool
         """
-        return bool(self._get_thermostat_settings_key_or_none("fan_speed"))
+        return bool(self.get_thermostat_settings_key_or_none("fan_speed"))
 
     def has_zones(self):
         """
@@ -144,14 +144,14 @@ class NexiaThermostat:
         Indiciation of whether dehumidifying support is available.
         :return: bool
         """
-        return bool(self._get_thermostat_settings_key_or_none("dehumidify"))
+        return bool(self.get_thermostat_settings_key_or_none("dehumidify"))
 
     def has_humidify_support(self):
         """
         Indiciation of whether humidifying support is available.
         :return: bool
         """
-        return bool(self._get_thermostat_settings_key_or_none("humidify"))
+        return bool(self.get_thermostat_settings_key_or_none("humidify"))
 
     ########################################################################
     # System Attributes
@@ -184,7 +184,7 @@ class NexiaThermostat:
         :return: (float, float)
         """
         if self.has_variable_fan_speed():
-            possible_values = self._get_thermostat_settings_key("fan_speed")["values"]
+            possible_values = self.get_thermostat_settings_key("fan_speed")["values"]
             return (possible_values[0], possible_values[-1])
         raise AttributeError("This thermostat does not support fan speeds")
 
@@ -223,7 +223,7 @@ class NexiaThermostat:
         :return: bool
         """
         if self.has_emergency_heat():
-            return self._get_thermostat_settings_key("emergency_heat_active")
+            return self.get_thermostat_settings_key("emergency_heat_active")
         raise Exception("This system does not support emergency heat")
 
     ########################################################################
@@ -234,7 +234,7 @@ class NexiaThermostat:
         Returns the current fan mode. See FAN_MODES for the available options.
         :return: str
         """
-        return self._get_thermostat_settings_key("fan_mode")["current_value"]
+        return self.get_thermostat_settings_key("fan_mode")["current_value"]
 
     def get_outdoor_temperature(self):
         """
@@ -284,7 +284,7 @@ class NexiaThermostat:
         :return: float
         """
         if self.has_variable_fan_speed():
-            return self._get_thermostat_settings_key("fan_speed")["current_value"]
+            return self.get_thermostat_settings_key("fan_speed")["current_value"]
         raise AttributeError("This system does not have variable fan speed.")
 
     def get_dehumidify_setpoint(self):
@@ -293,7 +293,7 @@ class NexiaThermostat:
         :return: float
         """
         if self.has_dehumidify_support():
-            return self._get_thermostat_settings_key("dehumidify")["current_value"]
+            return self.get_thermostat_settings_key("dehumidify")["current_value"]
 
         raise AttributeError("This system does not support " "dehumidification")
 
@@ -303,7 +303,7 @@ class NexiaThermostat:
         :return: float
         """
         if self.has_humidify_support():
-            return self._get_thermostat_settings_key("humidify")["current_value"]
+            return self.get_thermostat_settings_key("humidify")["current_value"]
 
         raise AttributeError("This system does not support humidification")
 
@@ -319,7 +319,7 @@ class NexiaThermostat:
         Returns the system's air cleaner mode
         :return: str
         """
-        return self._get_thermostat_settings_key("air_cleaner_mode")["current_value"]
+        return self.get_thermostat_settings_key("air_cleaner_mode")["current_value"]
 
     ########################################################################
     # System Universal Set Methods
@@ -574,7 +574,7 @@ class NexiaThermostat:
             return thermostat[key]
         raise KeyError(f'Key "{key}" not in the thermostat JSON!')
 
-    def _get_thermostat_settings_key_or_none(self, key):
+    def get_thermostat_settings_key_or_none(self, key):
         """
         Returns the thermostat value from the provided key in the thermostat's
         JSON.
@@ -582,11 +582,11 @@ class NexiaThermostat:
         :return: value
         """
         try:
-            return self._get_thermostat_settings_key(key)
+            return self.get_thermostat_settings_key(key)
         except KeyError:
             return None
 
-    def _get_thermostat_settings_key(self, key):
+    def get_thermostat_settings_key(self, key):
         """
         Returns the thermostat value from the provided key in the thermostat's
         JSON.

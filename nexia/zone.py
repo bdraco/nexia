@@ -366,12 +366,23 @@ class NexiaThermostatZone:
             temperature = round(temperature)
         return temperature
 
+    @property
+    def _has_zoning(self):
+        """Returns if zoning is enabled."""
+        return bool(self._zone_json["settings"])
+
     def _get_zone_setting(self, key):
         """
         Returns the zone value for the key and zone_id provided.
         :param key: str
         :return: The value of the key/value pair.
         """
+
+        if not self._has_zoning:
+            if key == "zone_mode":
+                key = "system_mode"
+            return self.thermostat.get_thermostat_settings_key(key)
+
         zone = self._zone_json
         subdict = find_dict_with_keyvalue_in_json(zone["settings"], "type", key)
         if not subdict:
