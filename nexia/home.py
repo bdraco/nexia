@@ -237,11 +237,17 @@ class NexiaHome:
         if self.thermostats is None:
             self.thermostats = []
             for thermostat_json in self.devices_json:
+                if "thermostat" not in thermostat_json["type"]:
+                    # Not a thermostat
+                    continue
                 self.thermostats.append(NexiaThermostat(self, thermostat_json))
             return
 
         thermostat_updates_by_id = {}
         for thermostat_json in self.devices_json:
+            if "thermostat" not in thermostat_json["type"]:
+                # Not a thermostat
+                continue
             thermostat_updates_by_id[thermostat_json["id"]] = thermostat_json
 
         for thermostat in self.thermostats:

@@ -43,9 +43,13 @@ class NexiaThermostat:
         requested label.
         """
         advanced_info = self._get_thermostat_features_key("advanced_info")
-        return find_dict_with_keyvalue_in_json(advanced_info["items"], "label", label)[
-            "value"
-        ]
+
+        try:
+            return find_dict_with_keyvalue_in_json(
+                advanced_info["items"], "label", label
+            )["value"]
+        except KeyError:
+            return None
 
     def get_model(self):
         """
@@ -59,7 +63,9 @@ class NexiaThermostat:
         Returns the thermostat firmware version
         :return: string
         """
-        return self._get_thermostat_advanced_info_label("Firmware Version")
+        return self._get_thermostat_advanced_info_label(
+            "Firmware Version"
+        ) or self._get_thermostat_advanced_info_label("Main Firmware Version")
 
     def get_dev_build_number(self):
         """
@@ -122,7 +128,7 @@ class NexiaThermostat:
         Capability indication of whether the thermostat has emergency/aux heat.
         :return: bool
         """
-        return bool(self._get_thermostat_key_or_none("emergency_heat_supported"))
+        return bool(self.get_thermostat_settings_key_or_none("emergency_heat"))
 
     def has_variable_fan_speed(self):
         """

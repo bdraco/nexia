@@ -111,15 +111,20 @@ class NexiaThermostatZone:
         Returns the run mode ("permanent_hold", "run_schedule")
         :return: str
         """
-        return self._get_zone_setting("run_mode")
+        # Will be None is scheduling is disabled
+        return self._get_zone_setting_or_none("run_mode")
 
     def get_setpoint_status(self):
         """
         Returns the setpoint status, like "Following Schedule - Home", or
-        "Holding Permanently"
+        "Permanent Hold"
         :return: str
         """
         run_mode = self._get_zone_run_mode()
+        if not run_mode:
+            # Scheduling is disabled
+            return "Permanent Hold"
+
         run_mode_current_value = run_mode["current_value"]
         run_mode_label = find_dict_with_keyvalue_in_json(
             run_mode["options"], "value", run_mode_current_value
@@ -197,7 +202,11 @@ class NexiaThermostatZone:
         Returns True if the zone is in a permanent hold.
         :return: bool
         """
-        return self._get_zone_setting("run_mode")["current_value"] == HOLD_PERMANENT
+        run_mode = self._get_zone_run_mode()
+        if not run_mode:
+            # Scheduling is disabled
+            return True
+        return run_mode["current_value"] == HOLD_PERMANENT
 
     ########################################################################
     # Zone Set Methods
@@ -388,6 +397,18 @@ class NexiaThermostatZone:
         if not subdict:
             raise KeyError(f'Zone settings key "{key}" invalid.')
         return subdict
+
+    def _get_zone_setting_or_none(self, key):
+        """
+        Returns the zone value from the provided key in the zones's
+        JSON.
+        :param key: str
+        :return: value
+        """
+        try:
+            return self._get_zone_setting(key)
+        except KeyError:
+            return None
 
     def _get_zone_features(self, key):
         """
