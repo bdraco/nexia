@@ -204,14 +204,19 @@ class NexiaHome:
             self.API_MOBILE_HOUSES_URL.format(house_id=self.house_id), headers=headers
         )
 
-        if not response or response.status_code != 200:
+        if not response:
             self._check_response(
-                "Failed to get house JSON, session probably timed" " out", response,
+                "Failed to get house JSON, session probably timed out", response,
             )
             return
-
         if response.status_code == 304:
+            _LOGGER.debug("Update returned 304")
             # already up to date
+            return
+        if response.status_code != 200:
+            self._check_response(
+                "Unexpected http status while fetching house JSON", response,
+            )
             return
 
         ts_json = response.json()
