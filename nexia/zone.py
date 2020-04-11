@@ -314,8 +314,10 @@ class NexiaThermostatZone:
 
     def _set_hold_and_setpoints(self, cool_temperature, heat_temperature):
         # Set the thermostat
-        if self._get_zone_run_mode()["current_value"] != HOLD_PERMANENT:
-            self._post_and_update_zone_json("run_mode", {"value": HOLD_PERMANENT})
+        run_mode = self._get_zone_run_mode()
+        if run_mode:
+            if run_mode["current_value"] != HOLD_PERMANENT:
+                self._post_and_update_zone_json("run_mode", {"value": HOLD_PERMANENT})
 
         self._set_setpoints(cool_temperature, heat_temperature)
 
