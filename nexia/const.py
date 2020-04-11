@@ -23,6 +23,11 @@ OPERATION_MODES = [
     OPERATION_MODE_OFF,
 ]
 
+FAN_MODE_AUTO = "auto"
+FAN_MODE_ON = "on"
+FAN_MODE_CIRCULATE = "circulate"
+FAN_MODES = [FAN_MODE_AUTO, FAN_MODE_ON, FAN_MODE_CIRCULATE]
+
 # The order of these is important as it maps to preset#
 PRESET_MODE_HOME = "Home"
 PRESET_MODE_AWAY = "Away"
