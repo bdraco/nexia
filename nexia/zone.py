@@ -269,7 +269,7 @@ class NexiaThermostatZone:
         """
         deadband = self.thermostat.get_deadband()
 
-        if set_temperature is None:
+        if set_temperature is None or (heat_temperature and cool_temperature):
             if heat_temperature:
                 heat_temperature = self.round_temp(heat_temperature)
             else:

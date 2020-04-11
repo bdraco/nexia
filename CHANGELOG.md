@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.1] - 2020-04-11
+
+Always use the heat and cool temperature
+when we get a heat, a cool, and a target temperature
+
+Fixes the jumping band in homekit
+
 ## [0.9.0] - 2020-04-11
 
 Add support for XL824
