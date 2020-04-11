@@ -3,6 +3,9 @@ The `nexia` component lets you control thermostats connected to [Nexia (Trane/Am
 <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
 <a href="https://coveralls.io/github/bdraco/nexia?branch=master"><img alt="Coverage Status" src="https://coveralls.io/repos/github/bdraco/nexia/badge.svg?branch=master"></a>
 
+Supported XL950, XL1050, XL824
+Not supported XL624, others
+
 By connecting this component, you will have access to all thermostats and zones in your associated home.
 
 Like this? Love this? [Buy me a coffee?](https://www.buymeacoffee.com/ybLHaPf)

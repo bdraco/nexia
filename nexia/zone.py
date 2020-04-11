@@ -36,7 +36,10 @@ class NexiaThermostatZone:
         Returns the zone name
         :return: str
         """
-        return str(self._get_zone_key("name"))
+        name = str(self._get_zone_key("name"))
+        if name == "NativeZone":
+            name = f"{self.thermostat.get_name()} NativeZone"
+        return name
 
     def get_cooling_setpoint(self):
         """

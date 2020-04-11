@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.0] - 2020-04-11
+
+Add support for XL824
+
+Supported XL950, XL1050, XL824
+Not supported XL624
+
 ## [0.8.2] - 2020-04-10
 
 Fix detection of emergency heat

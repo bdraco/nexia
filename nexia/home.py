@@ -240,7 +240,12 @@ class NexiaHome:
                 if "thermostat" not in thermostat_json["type"]:
                     # Not a thermostat
                     continue
-                self.thermostats.append(NexiaThermostat(self, thermostat_json))
+
+                nexia_thermostat = NexiaThermostat(self, thermostat_json)
+                if not nexia_thermostat.get_zone_ids():
+                    # No zones (likely an xl624 which is not supported at this time)
+                    continue
+                self.thermostats.append(nexia_thermostat)
             return
 
         thermostat_updates_by_id = {}

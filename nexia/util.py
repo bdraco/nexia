@@ -23,7 +23,7 @@ def find_dict_with_keyvalue_in_json(json_dict, key_in_subdict, value_to_find):
     :return: The subdict to find
     """
     for data_group in json_dict:
-        if data_group[key_in_subdict] == value_to_find:
+        if data_group.get(key_in_subdict) == value_to_find:
             return data_group
 
     raise KeyError

@@ -4,7 +4,6 @@ import logging
 
 from .const import (
     AIR_CLEANER_MODES,
-    FAN_MODES,
     HUMIDITY_MAX,
     HUMIDITY_MIN,
     MOBILE_URL,
@@ -72,7 +71,9 @@ class NexiaThermostat:
         Returns the thermostat development build number.
         :return: string
         """
-        return self._get_thermostat_advanced_info_label("Firmware Build Number")
+        return self._get_thermostat_advanced_info_label(
+            "Firmware Build Number"
+        ) or self._get_thermostat_advanced_info_label("Version")
 
     def get_device_id(self):
         """
@@ -220,7 +221,7 @@ class NexiaThermostat:
         Returns True if the blower is active
         :return: bool
         """
-        system_status = self._get_thermostat_key("system_status")
+        system_status = self.get_system_status()
         return system_status not in (SYSTEM_STATUS_WAIT, SYSTEM_STATUS_IDLE)
 
     def is_emergency_heat_active(self):
@@ -235,12 +236,27 @@ class NexiaThermostat:
     ########################################################################
     # System Universal Get Methods
 
+    def get_fan_modes(self):
+        """
+        Returns the list of fan modes the device supports
+
+        :return:
+        """
+        options = self.get_thermostat_settings_key("fan_mode")["options"]
+        return [opt["label"] for opt in options]
+
     def get_fan_mode(self):
         """
-        Returns the current fan mode. See FAN_MODES for the available options.
+        Returns the current fan mode. See get_fan_modes for the available options.
         :return: str
         """
-        return self.get_thermostat_settings_key("fan_mode")["current_value"]
+        fan_mode = self.get_thermostat_settings_key("fan_mode")
+        current_value = fan_mode["current_value"]
+        options = fan_mode["options"]
+        for opt in options:
+            if opt["value"] == current_value:
+                return opt["label"]
+        return None
 
     def get_outdoor_temperature(self):
         """
@@ -318,7 +334,16 @@ class NexiaThermostat:
         Returns the system status such as "System Idle" or "Cooling"
         :return: str
         """
-        return self._get_thermostat_key("system_status")
+        return self._get_thermostat_key_or_none(
+            "system_status"
+        ) or self._get_thermostat_key("operating_state")
+
+    def has_air_cleaner(self):
+        """
+        Returns if the system has an air cleaner.
+        :return: bool
+        """
+        return bool(self.get_thermostat_settings_key_or_none("air_cleaner_mode"))
 
     def get_air_cleaner_mode(self):
         """
@@ -333,14 +358,17 @@ class NexiaThermostat:
     def set_fan_mode(self, fan_mode: str):
         """
         Sets the fan mode.
-        :param fan_mode: string that must be in FAN_MODES
+        :param fan_mode: string that must be in self.get_fan_modes()
         :return: None
         """
-        fan_mode = fan_mode.lower()
-        if fan_mode in FAN_MODES:
-            self._post_and_update_thermostat_json("fan_mode", {"value": fan_mode})
-        else:
-            raise KeyError("Invalid fan mode specified")
+        fan_mode_data = self.get_thermostat_settings_key("fan_mode")
+        options = fan_mode_data["options"]
+        for opt in options:
+            if opt["label"] == fan_mode:
+                fan_mode = opt["value"]
+                break
+
+        self._post_and_update_thermostat_json("fan_mode", {"value": fan_mode})
 
     def set_fan_setpoint(self, fan_setpoint: float):
         """
@@ -578,6 +606,7 @@ class NexiaThermostat:
         thermostat = self._thermostat_json
         if key in thermostat:
             return thermostat[key]
+
         raise KeyError(f'Key "{key}" not in the thermostat JSON!')
 
     def get_thermostat_settings_key_or_none(self, key):
