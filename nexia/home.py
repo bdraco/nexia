@@ -42,6 +42,7 @@ class NexiaHome:
         auto_login=True,
         auto_update=True,
         device_name=DEFAULT_DEVICE_NAME,
+        state_file=None,
     ):
         """
         Connects to and provides the ability to get and set parameters of your
@@ -65,6 +66,7 @@ class NexiaHome:
         self.house_id = house_id
         self.mobile_id = None
         self.login_attempts_left = MAX_LOGIN_ATTEMPTS
+        self._state_file = state_file or f"nexia_config_{self.username}.conf"
         self.api_key = None
         self.devices_json = None
         self.automations_json = None
@@ -293,7 +295,7 @@ class NexiaHome:
         - house_id - (int) Your house id
         :return: None
         """
-        self._uuid = load_or_create_uuid(f"nexia_config_{self.username}.conf")
+        self._uuid = load_or_create_uuid(self._state_file)
         if self.login_attempts_left > 0:
             payload = {
                 "login": self.username,

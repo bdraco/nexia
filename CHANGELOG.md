@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.9.2] - 2020-04-16
+
+Add an option to specify the full path to the state file
+
 ## [0.9.1] - 2020-04-11
 
 Always use the heat and cool temperature
