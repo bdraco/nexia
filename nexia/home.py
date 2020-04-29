@@ -105,20 +105,23 @@ class NexiaHome:
         """
         _LOGGER.debug("POST: Calling url %s with payload: %s", request_url, payload)
 
-        request = self.session.post(
+        response = self.session.post(
             request_url, payload, timeout=TIMEOUT, headers=self._api_key_headers()
         )
 
-        if request.status_code == 302:
+        _LOGGER.debug("POST: Response from url %s: %s", request_url, response.content)
+        if response.status_code == 302:
             # assuming its redirecting to login
+            _LOGGER.debug(
+                "POST Response returned code 302, re-attempting login and resending request."
+            )
             self.login()
             return self.post_url(request_url, payload)
 
-        _LOGGER.debug("POST: Response from url %s: %s", request_url, request.content)
         # no need to sleep anymore as we consume the response and update the thermostat's JSON
 
-        request.raise_for_status()
-        return request
+        response.raise_for_status()
+        return response
 
     def _get_url(self, request_url, headers=None):
         """
@@ -131,20 +134,25 @@ class NexiaHome:
 
         headers.update(self._api_key_headers())
         _LOGGER.debug("GET: Calling url %s", request_url)
-        request = self.session.get(
+        response = self.session.get(
             request_url, allow_redirects=False, timeout=TIMEOUT, headers=headers,
         )
         _LOGGER.debug(
-            "GET: RESPONSE %s: request.status_code %s", request_url, request.status_code
+            "GET: RESPONSE %s: response.status_code %s",
+            request_url,
+            response.status_code,
         )
 
-        if request.status_code == 302:
+        if response.status_code == 302:
+            _LOGGER.debug(
+                "GET Response returned code 302, re-attempting login and resending request."
+            )
             # assuming its redirecting to login
             self.login()
             return self._get_url(request_url)
 
-        request.raise_for_status()
-        return request
+        response.raise_for_status()
+        return response
 
     @staticmethod
     def _check_response(error_text, request):
