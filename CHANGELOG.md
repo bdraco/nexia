@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.9.3] - 2020-04-29
+
+Add additional debug logging
+
 ## [0.9.2] - 2020-04-16
 
 Add an option to specify the full path to the state file
