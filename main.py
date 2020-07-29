@@ -23,7 +23,6 @@ else:
 
 print("NexiaThermostat instance can be referenced using nt.<command>.")
 print("List of available thermostats and zones:")
-print(nexia_home.get_thermostat_ids())
 for _thermostat_id in nexia_home.get_thermostat_ids():
     thermostat = nexia_home.get_thermostat_by_id(_thermostat_id)
     _thermostat_name = thermostat.get_name()
