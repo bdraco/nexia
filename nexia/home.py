@@ -247,10 +247,9 @@ class NexiaHome:
         if self.thermostats is None:
             self.thermostats = []
             for thermostat_json in self.devices_json:
-                if "thermostat" not in thermostat_json["type"]:
+                if "type" in thermostat_json and "thermostat" not in thermostat_json["type"]:
                     # Not a thermostat
                     continue
-
                 nexia_thermostat = NexiaThermostat(self, thermostat_json)
                 if not nexia_thermostat.get_zone_ids():
                     # No zones (likely an xl624 which is not supported at this time)
@@ -260,7 +259,7 @@ class NexiaHome:
 
         thermostat_updates_by_id = {}
         for thermostat_json in self.devices_json:
-            if "thermostat" not in thermostat_json["type"]:
+            if "type" in thermostat_json and "thermostat" not in thermostat_json["type"]:
                 # Not a thermostat
                 continue
             thermostat_updates_by_id[thermostat_json["id"]] = thermostat_json
