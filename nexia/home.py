@@ -259,8 +259,7 @@ class NexiaHome:
 
         thermostat_updates_by_id = {}
         for thermostat_json in self.devices_json:
-            t_type = thermostat_json.get("type")
-            if t_type and "thermostat" not in t_type:
+            if "type" in thermostat_json and "thermostat" not in thermostat_json["type"]:
                 # Not a thermostat
                 continue
             thermostat_updates_by_id[thermostat_json["id"]] = thermostat_json
