@@ -247,8 +247,7 @@ class NexiaHome:
         if self.thermostats is None:
             self.thermostats = []
             for thermostat_json in self.devices_json:
-                t_type = thermostat_json.get("type")
-                if t_type and "thermostat" not in t_type:
+                if "type" in thermostat_json and "thermostat" not in thermostat_json["type"]:
                     # Not a thermostat
                     continue
                 nexia_thermostat = NexiaThermostat(self, thermostat_json)
