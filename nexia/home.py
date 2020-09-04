@@ -135,7 +135,10 @@ class NexiaHome:
         headers.update(self._api_key_headers())
         _LOGGER.debug("GET: Calling url %s", request_url)
         response = self.session.get(
-            request_url, allow_redirects=False, timeout=TIMEOUT, headers=headers,
+            request_url,
+            allow_redirects=False,
+            timeout=TIMEOUT,
+            headers=headers,
         )
         _LOGGER.debug(
             "GET: RESPONSE %s: response.status_code %s",
@@ -186,7 +189,8 @@ class NexiaHome:
                 raise Exception("Nothing in the JSON")
         else:
             self._check_response(
-                "Failed to get house id JSON, session probably timed" " out", request,
+                "Failed to get house id JSON, session probably timed" " out",
+                request,
             )
 
     def update_from_json(self, json_dict: dict):
@@ -216,7 +220,8 @@ class NexiaHome:
 
         if not response:
             self._check_response(
-                "Failed to get house JSON, session probably timed out", response,
+                "Failed to get house JSON, session probably timed out",
+                response,
             )
             return
         if response.status_code == 304:
@@ -225,7 +230,8 @@ class NexiaHome:
             return
         if response.status_code != 200:
             self._check_response(
-                "Unexpected http status while fetching house JSON", response,
+                "Unexpected http status while fetching house JSON",
+                response,
             )
             return
 
@@ -247,7 +253,10 @@ class NexiaHome:
         if self.thermostats is None:
             self.thermostats = []
             for thermostat_json in self.devices_json:
-                if "type" in thermostat_json and "thermostat" not in thermostat_json["type"]:
+                if (
+                    "type" in thermostat_json
+                    and "thermostat" not in thermostat_json["type"]
+                ):
                     # Not a thermostat
                     continue
                 nexia_thermostat = NexiaThermostat(self, thermostat_json)
@@ -259,7 +268,10 @@ class NexiaHome:
 
         thermostat_updates_by_id = {}
         for thermostat_json in self.devices_json:
-            if "type" in thermostat_json and "thermostat" not in thermostat_json["type"]:
+            if (
+                "type" in thermostat_json
+                and "thermostat" not in thermostat_json["type"]
+            ):
                 # Not a thermostat
                 continue
             thermostat_updates_by_id[thermostat_json["id"]] = thermostat_json

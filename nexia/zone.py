@@ -163,7 +163,10 @@ class NexiaThermostatZone:
         """
 
         deadband = self.thermostat.get_deadband()
-        (min_temperature, max_temperature,) = self.thermostat.get_setpoint_limits()
+        (
+            min_temperature,
+            max_temperature,
+        ) = self.thermostat.get_setpoint_limits()
 
         if heat_temperature is not None:
             heat_temperature = self.round_temp(heat_temperature)
@@ -224,7 +227,9 @@ class NexiaThermostatZone:
         self._post_and_update_zone_json("return_to_schedule", {})
 
     def call_permanent_hold(
-        self, heat_temperature=None, cool_temperature=None,
+        self,
+        heat_temperature=None,
+        cool_temperature=None,
     ):
         """
         Tells the zone to call a permanent hold. Optionally can provide the
@@ -250,11 +255,15 @@ class NexiaThermostatZone:
             )
 
         self._set_hold_and_setpoints(
-            cool_temperature, heat_temperature,
+            cool_temperature,
+            heat_temperature,
         )
 
     def set_heat_cool_temp(
-        self, heat_temperature=None, cool_temperature=None, set_temperature=None,
+        self,
+        heat_temperature=None,
+        cool_temperature=None,
+        set_temperature=None,
     ):
         """
         Sets the heat and cool temperatures of the zone. You must provide

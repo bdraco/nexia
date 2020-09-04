@@ -661,7 +661,8 @@ class NexiaThermostat:
             return
 
         _LOGGER.debug(
-            "Updated thermostat_id:%s with new data from post", self.thermostat_id,
+            "Updated thermostat_id:%s with new data from post",
+            self.thermostat_id,
         )
         self._thermostat_json.update(thermostat_json)
 

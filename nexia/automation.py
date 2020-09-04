@@ -72,6 +72,7 @@ class NexiaAutomation:
             return
 
         _LOGGER.debug(
-            "Updated automation_id:%s with new data from post", self.automation_id,
+            "Updated automation_id:%s with new data from post",
+            self.automation_id,
         )
         self._automation_json.update(automation_json)

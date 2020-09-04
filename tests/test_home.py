@@ -340,19 +340,24 @@ class TestNexiaThermostatZone(unittest.TestCase):
         self.assertEqual(zone.get_heating_setpoint(), 74)
         self.assertEqual(zone.get_current_mode(), "COOL")
         self.assertEqual(
-            zone.get_requested_mode(), "COOL",
+            zone.get_requested_mode(),
+            "COOL",
         )
         self.assertEqual(
-            zone.get_presets(), ["None", "Home", "Away", "Sleep"],
+            zone.get_presets(),
+            ["None", "Home", "Away", "Sleep"],
         )
         self.assertEqual(
-            zone.get_preset(), "None",
+            zone.get_preset(),
+            "None",
         )
         self.assertEqual(
-            zone.get_status(), "Damper Closed",
+            zone.get_status(),
+            "Damper Closed",
         )
         self.assertEqual(
-            zone.get_setpoint_status(), "Permanent Hold",
+            zone.get_setpoint_status(),
+            "Permanent Hold",
         )
         self.assertEqual(zone.is_calling(), False)
         self.assertEqual(zone.is_in_permanent_hold(), True)
@@ -373,19 +378,24 @@ class TestNexiaThermostatZone(unittest.TestCase):
         self.assertEqual(zone.get_heating_setpoint(), 74)
         self.assertEqual(zone.get_current_mode(), "COOL")
         self.assertEqual(
-            zone.get_requested_mode(), "COOL",
+            zone.get_requested_mode(),
+            "COOL",
         )
         self.assertEqual(
-            zone.get_presets(), ["None", "Home", "Away", "Sleep"],
+            zone.get_presets(),
+            ["None", "Home", "Away", "Sleep"],
         )
         self.assertEqual(
-            zone.get_preset(), "None",
+            zone.get_preset(),
+            "None",
         )
         self.assertEqual(
-            zone.get_status(), "Damper Open",
+            zone.get_status(),
+            "Damper Open",
         )
         self.assertEqual(
-            zone.get_setpoint_status(), "Permanent Hold",
+            zone.get_setpoint_status(),
+            "Permanent Hold",
         )
         self.assertEqual(zone.is_calling(), True)
         self.assertEqual(zone.is_in_permanent_hold(), True)
@@ -406,19 +416,24 @@ class TestNexiaThermostatZone(unittest.TestCase):
         self.assertEqual(zone.get_heating_setpoint(), 68)
         self.assertEqual(zone.get_current_mode(), "COOL")
         self.assertEqual(
-            zone.get_requested_mode(), "COOL",
+            zone.get_requested_mode(),
+            "COOL",
         )
         self.assertEqual(
-            zone.get_presets(), ["None", "Home", "Away", "Sleep"],
+            zone.get_presets(),
+            ["None", "Home", "Away", "Sleep"],
         )
         self.assertEqual(
-            zone.get_preset(), "None",
+            zone.get_preset(),
+            "None",
         )
         self.assertEqual(
-            zone.get_status(), "Damper Open",
+            zone.get_status(),
+            "Damper Open",
         )
         self.assertEqual(
-            zone.get_setpoint_status(), "Permanent Hold",
+            zone.get_setpoint_status(),
+            "Permanent Hold",
         )
         self.assertEqual(zone.is_calling(), True)
         self.assertEqual(zone.is_in_permanent_hold(), True)
@@ -439,19 +454,24 @@ class TestNexiaThermostatZone(unittest.TestCase):
         self.assertEqual(zone.get_heating_setpoint(), 68)
         self.assertEqual(zone.get_current_mode(), "AUTO")
         self.assertEqual(
-            zone.get_requested_mode(), "AUTO",
+            zone.get_requested_mode(),
+            "AUTO",
         )
         self.assertEqual(
-            zone.get_presets(), ["None", "Home", "Away", "Sleep"],
+            zone.get_presets(),
+            ["None", "Home", "Away", "Sleep"],
         )
         self.assertEqual(
-            zone.get_preset(), "None",
+            zone.get_preset(),
+            "None",
         )
         self.assertEqual(
-            zone.get_status(), "Idle",
+            zone.get_status(),
+            "Idle",
         )
         self.assertEqual(
-            zone.get_setpoint_status(), "Run Schedule - None",
+            zone.get_setpoint_status(),
+            "Run Schedule - None",
         )
         self.assertEqual(zone.is_calling(), False)
         self.assertEqual(zone.is_in_permanent_hold(), False)
@@ -472,19 +492,24 @@ class TestNexiaThermostatZone(unittest.TestCase):
         self.assertEqual(zone.get_heating_setpoint(), 63)
         self.assertEqual(zone.get_current_mode(), "AUTO")
         self.assertEqual(
-            zone.get_requested_mode(), "AUTO",
+            zone.get_requested_mode(),
+            "AUTO",
         )
         self.assertEqual(
-            zone.get_presets(), ["None", "Home", "Away", "Sleep"],
+            zone.get_presets(),
+            ["None", "Home", "Away", "Sleep"],
         )
         self.assertEqual(
-            zone.get_preset(), "None",
+            zone.get_preset(),
+            "None",
         )
         self.assertEqual(
-            zone.get_status(), "Relieving Air",
+            zone.get_status(),
+            "Relieving Air",
         )
         self.assertEqual(
-            zone.get_setpoint_status(), "Permanent Hold",
+            zone.get_setpoint_status(),
+            "Permanent Hold",
         )
         self.assertEqual(zone.is_calling(), True)
         self.assertEqual(zone.is_in_permanent_hold(), True)
@@ -503,19 +528,24 @@ class TestNexiaThermostatZone(unittest.TestCase):
         self.assertEqual(zone.get_heating_setpoint(), 63)
         self.assertEqual(zone.get_current_mode(), "AUTO")
         self.assertEqual(
-            zone.get_requested_mode(), "AUTO",
+            zone.get_requested_mode(),
+            "AUTO",
         )
         self.assertEqual(
-            zone.get_presets(), ["None", "Home", "Away", "Sleep"],
+            zone.get_presets(),
+            ["None", "Home", "Away", "Sleep"],
         )
         self.assertEqual(
-            zone.get_preset(), "None",
+            zone.get_preset(),
+            "None",
         )
         self.assertEqual(
-            zone.get_status(), "Damper Open",
+            zone.get_status(),
+            "Damper Open",
         )
         self.assertEqual(
-            zone.get_setpoint_status(), "Permanent Hold",
+            zone.get_setpoint_status(),
+            "Permanent Hold",
         )
         self.assertEqual(zone.is_calling(), True)
         self.assertEqual(zone.is_in_permanent_hold(), True)
@@ -534,19 +564,24 @@ class TestNexiaThermostatZone(unittest.TestCase):
         self.assertEqual(zone.get_heating_setpoint(), 63)
         self.assertEqual(zone.get_current_mode(), "AUTO")
         self.assertEqual(
-            zone.get_requested_mode(), "AUTO",
+            zone.get_requested_mode(),
+            "AUTO",
         )
         self.assertEqual(
-            zone.get_presets(), ["None", "Home", "Away", "Sleep"],
+            zone.get_presets(),
+            ["None", "Home", "Away", "Sleep"],
         )
         self.assertEqual(
-            zone.get_preset(), "None",
+            zone.get_preset(),
+            "None",
         )
         self.assertEqual(
-            zone.get_status(), "Idle",
+            zone.get_status(),
+            "Idle",
         )
         self.assertEqual(
-            zone.get_setpoint_status(), "Permanent Hold",
+            zone.get_setpoint_status(),
+            "Permanent Hold",
         )
         self.assertEqual(zone.is_calling(), False)
         self.assertEqual(zone.is_in_permanent_hold(), True)
@@ -567,19 +602,24 @@ class TestNexiaThermostatZone(unittest.TestCase):
         self.assertEqual(zone.get_heating_setpoint(), 62)
         self.assertEqual(zone.get_current_mode(), "COOL")
         self.assertEqual(
-            zone.get_requested_mode(), "COOL",
+            zone.get_requested_mode(),
+            "COOL",
         )
         self.assertEqual(
-            zone.get_presets(), ["None", "Home", "Away", "Sleep"],
+            zone.get_presets(),
+            ["None", "Home", "Away", "Sleep"],
         )
         self.assertEqual(
-            zone.get_preset(), "None",
+            zone.get_preset(),
+            "None",
         )
         self.assertEqual(
-            zone.get_status(), "Idle",
+            zone.get_status(),
+            "Idle",
         )
         self.assertEqual(
-            zone.get_setpoint_status(), "Permanent Hold",
+            zone.get_setpoint_status(),
+            "Permanent Hold",
         )
         self.assertEqual(zone.is_calling(), False)
         self.assertEqual(zone.is_in_permanent_hold(), True)
