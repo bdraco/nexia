@@ -5,7 +5,7 @@ Credits
 Development
 ----------------
 
-* Ryan Nazaretian <ryannazaretian@gmail.com>
+* Ryan Nazaretian <ryannazaretian@gmail.com> (Inactive at this time)
 * J. Nick Koston <nick@koston.org>
 
 Contributors
