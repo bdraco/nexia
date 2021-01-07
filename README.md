@@ -8,8 +8,6 @@ Not supported XL624, others
 
 By connecting this component, you will have access to all thermostats and zones in your associated home.
 
-Like this? Love this? [Buy me a coffee?](https://www.buymeacoffee.com/ybLHaPf)
-
 ### Concepts 
 
 The Nexia Thermostat supports the following key concepts.

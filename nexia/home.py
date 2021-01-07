@@ -422,9 +422,18 @@ class NexiaHome:
 
 def _extract_devices_from_houses_json(json_dict: dict):
     """Extras the payload from the houses json endpoint data."""
-    return json_dict["result"]["_links"]["child"][DEVICES_ELEMENT]["data"]["items"]
+    return _extract_items(
+        json_dict["result"]["_links"]["child"][DEVICES_ELEMENT]["data"]
+    )
 
 
 def _extract_automations_from_houses_json(json_dict: dict):
     """Extras the payload from the houses json endpoint data."""
-    return json_dict["result"]["_links"]["child"][AUTOMATIONS_ELEMENT]["data"]["items"]
+    return _extract_items(
+        json_dict["result"]["_links"]["child"][AUTOMATIONS_ELEMENT]["data"]
+    )
+
+
+def _extract_items(json_dict: dict):
+    """Return the items key if it exists, otherwise the top level."""
+    return json_dict.get("items", json_dict)
