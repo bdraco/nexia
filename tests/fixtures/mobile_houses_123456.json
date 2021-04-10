@@ -4783,7 +4783,7 @@
                         "outdoor_temperature": "87",
                         "has_indoor_humidity": true,
                         "connected": true,
-                        "indoor_humidity": "52",
+                        "indoor_humidity": "--",
                         "system_status": "Cooling",
                         "delta": 3,
                         "zones": [{

@@ -174,7 +174,7 @@ class TestNexiaThermostat(unittest.TestCase):
         self.assertEqual(thermostat.get_fan_mode(), "Auto")
         self.assertEqual(thermostat.get_fan_modes(), ["Auto", "On", "Circulate"])
         self.assertEqual(thermostat.get_outdoor_temperature(), 87.0)
-        self.assertEqual(thermostat.get_relative_humidity(), 0.52)
+        self.assertEqual(thermostat.get_relative_humidity(), None)
         self.assertEqual(thermostat.get_current_compressor_speed(), 0.69)
         self.assertEqual(thermostat.get_requested_compressor_speed(), 0.69)
         self.assertEqual(thermostat.get_fan_speed_setpoint(), 0.35)

@@ -276,7 +276,12 @@ class NexiaThermostat:
         :return: float
         """
         if self.has_relative_humidity():
-            return float(self._get_thermostat_key("indoor_humidity")) / 100
+            try:
+                return float(self._get_thermostat_key("indoor_humidity")) / 100
+            except ValueError:
+                # this has the value "--" when data is unavailable
+                return None
+
         raise Exception("This system does not have a relative humidity sensor.")
 
     def get_current_compressor_speed(self):
