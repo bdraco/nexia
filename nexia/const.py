@@ -2,8 +2,13 @@
 
 __version__ = "0.1.0"
 
-ROOT_URL = "https://www.mynexia.com"
-MOBILE_URL = f"{ROOT_URL}/mobile"
+BRAND_NEXIA = "nexia"
+BRAND_ASAIR = "asair"
+
+NEXIA_ROOT_URL = "https://www.mynexia.com"
+ASAIR_ROOT_URL = "https://www.asairhome.com"
+
+MOBILE_URL_TEMPLATE = "{}/mobile"
 
 DEFAULT_DEVICE_NAME = "Home Automation"
 

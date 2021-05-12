@@ -6,7 +6,6 @@ from .const import (
     AIR_CLEANER_MODES,
     HUMIDITY_MAX,
     HUMIDITY_MIN,
-    MOBILE_URL,
     SYSTEM_STATUS_IDLE,
     SYSTEM_STATUS_WAIT,
 )
@@ -22,10 +21,6 @@ class NexiaThermostat:
     Represents a nexia thermostat.
     """
 
-    API_MOBILE_THERMOSTAT_URL = (
-        MOBILE_URL + "/xxl_thermostats/{thermostat_id}/{end_point}"
-    )
-
     def __init__(self, nexia_home, thermostat_json):
         """Init nexia Thermostat."""
         self._nexia_home = nexia_home
@@ -35,6 +30,12 @@ class NexiaThermostat:
         if self.has_zones():
             for zone in thermostat_json["zones"]:
                 self.zones.append(NexiaThermostatZone(nexia_home, self, zone))
+
+    @property
+    def API_MOBILE_THERMOSTAT_URL(self):  # pylint: disable=invalid-name
+        return (
+            self._nexia_home.mobile_url + "/xxl_thermostats/{thermostat_id}/{end_point}"
+        )
 
     def _get_thermostat_advanced_info_label(self, label):
         """
