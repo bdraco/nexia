@@ -6,7 +6,6 @@ import math
 from .const import (
     DAMPER_CLOSED,
     HOLD_PERMANENT,
-    MOBILE_URL,
     OPERATION_MODE_COOL,
     OPERATION_MODE_HEAT,
     OPERATION_MODES,
@@ -22,14 +21,16 @@ _LOGGER = logging.getLogger(__name__)
 class NexiaThermostatZone:
     """A nexia thermostat zone."""
 
-    API_MOBILE_ZONE_URL = MOBILE_URL + "/xxl_zones/{zone_id}/{end_point}"
-
     def __init__(self, nexia_home, nexia_thermostat, zone_json):
         """Create a nexia zone."""
         self._nexia_home = nexia_home
         self._zone_json = zone_json
         self.thermostat = nexia_thermostat
         self.zone_id = zone_json["id"]
+
+    @property
+    def API_MOBILE_ZONE_URL(self):  # pylint: disable=invalid-name
+        return self._nexia_home.mobile_url + "/xxl_zones/{zone_id}/{end_point}"
 
     def get_name(self):
         """

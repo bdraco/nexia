@@ -32,7 +32,7 @@ for _thermostat_id in nexia_home.get_thermostat_ids():
     print(
         f'{_thermostat_id} - "{_thermostat_name}" ({_thermostat_model}) [{_thermostat_compressor_speed}]'
     )
-    print(f"  Zones:")
+    print("  Zones:")
 
     for _zone_id in thermostat.get_zone_ids():
         zone = thermostat.get_zone_by_id(_zone_id)

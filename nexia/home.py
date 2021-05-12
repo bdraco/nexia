@@ -6,7 +6,15 @@ import logging
 import requests
 
 from .automation import NexiaAutomation
-from .const import APP_VERSION, DEFAULT_DEVICE_NAME, MOBILE_URL
+from .const import (
+    APP_VERSION,
+    ASAIR_ROOT_URL,
+    BRAND_ASAIR,
+    BRAND_NEXIA,
+    DEFAULT_DEVICE_NAME,
+    MOBILE_URL_TEMPLATE,
+    NEXIA_ROOT_URL,
+)
 from .thermostat import NexiaThermostat
 from .util import load_or_create_uuid
 
@@ -22,15 +30,6 @@ AUTOMATIONS_ELEMENT = 1
 class NexiaHome:
     """Nexia Home Access Class."""
 
-    AUTH_FAILED_STRING = "https://www.mynexia.com/login"
-
-    API_MOBILE_PHONE_URL = MOBILE_URL + "/phones"
-    API_MOBILE_SESSION_URL = MOBILE_URL + "/session"
-    API_MOBILE_HOUSES_URL = MOBILE_URL + "/houses/{house_id}"
-    API_MOBILE_ACCOUNTS_SIGN_IN_URL = MOBILE_URL + "/accounts/sign_in"
-    AUTH_FORGOTTEN_PASSWORD_STRING = (
-        "https://www.mynexia.com/account/" "forgotten_credentials"
-    )
     DEFAULT_UPDATE_RATE = 120  # 2 minutes
     DISABLE_AUTO_UPDATE = "Disable"
 
@@ -42,6 +41,7 @@ class NexiaHome:
         auto_login=True,
         auto_update=True,
         device_name=DEFAULT_DEVICE_NAME,
+        brand=BRAND_NEXIA,
         state_file=None,
     ):
         """
@@ -65,6 +65,7 @@ class NexiaHome:
         self.password = password
         self.house_id = house_id
         self.mobile_id = None
+        self.brand = brand
         self.login_attempts_left = MAX_LOGIN_ATTEMPTS
         self._state_file = state_file or f"nexia_config_{self.username}.conf"
         self.api_key = None
@@ -88,6 +89,42 @@ class NexiaHome:
 
             if auto_update:
                 self.update()
+
+    @property
+    def API_MOBILE_PHONE_URL(self):  # pylint: disable=invalid-name
+        return f"{self.mobile_url}/phones"
+
+    @property
+    def API_MOBILE_SESSION_URL(self):  # pylint: disable=invalid-name
+        return f"{self.mobile_url}/session"
+
+    @property
+    def API_MOBILE_HOUSES_URL(self):  # pylint: disable=invalid-name
+        return self.mobile_url + "/houses/{house_id}"
+
+    @property
+    def API_MOBILE_ACCOUNTS_SIGN_IN_URL(self):  # pylint: disable=invalid-name
+        return f"{self.mobile_url}/accounts/sign_in"
+
+    @property
+    def AUTH_FAILED_STRING(self):  # pylint: disable=invalid-name
+        return f"{self.root_url}/login"
+
+    @property
+    def AUTH_FORGOTTEN_PASSWORD_STRING(self):  # pylint: disable=invalid-name
+        return f"{self.root_url}/account/forgotten_credentials"
+
+    @property
+    def root_url(self):
+        """The root url for the service."""
+        if self.brand == BRAND_ASAIR:
+            return ASAIR_ROOT_URL
+        return NEXIA_ROOT_URL
+
+    @property
+    def mobile_url(self):
+        """The mobile url for the service."""
+        return MOBILE_URL_TEMPLATE.format(self.root_url)
 
     def _api_key_headers(self):
         return {

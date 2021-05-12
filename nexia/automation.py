@@ -2,8 +2,6 @@
 
 import logging
 
-from .const import MOBILE_URL
-
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -13,13 +11,15 @@ class NexiaAutomation:
     Represents a nexia automation.
     """
 
-    API_MOBILE_THERMOSTAT_URL = MOBILE_URL + "/automations/{automation_id}/{end_point}"
-
     def __init__(self, nexia_home, automation_json):
         """Init nexia Thermostat."""
         self._nexia_home = nexia_home
         self.automation_id = automation_json["id"]
         self._automation_json = automation_json
+
+    @property
+    def API_MOBILE_AUTOMATION_URL(self):  # pylint: disable=invalid-name
+        return self._nexia_home.mobile_url + "/automations/{automation_id}/{end_point}"
 
     @property
     def name(self):
@@ -61,7 +61,7 @@ class NexiaAutomation:
         raise KeyError(f'Key "{key}" not in the automation JSON!')
 
     def _post_automation_json(self, end_point, payload):
-        url = self.API_MOBILE_THERMOSTAT_URL.format(
+        url = self.API_MOBILE_AUTOMATION_URL.format(
             end_point=end_point, automation_id=self._automation_json["id"]
         )
         return self._nexia_home.post_url(url, payload)
