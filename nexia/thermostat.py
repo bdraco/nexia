@@ -451,62 +451,66 @@ class NexiaThermostat:
             # Do nothing
             return
 
-        if self.has_relative_humidity():
-            (min_humidity, max_humidity) = self.get_humidity_setpoint_limits()
-            if self.has_humidify_support():
-                humidify_supported = True
-                if humidify_setpoint is None:
-                    humidify_setpoint = self.get_humidify_setpoint()
-            else:
-                if humidify_setpoint is not None:
-                    raise SystemError("This thermostat does not support humidifying.")
-                humidify_supported = False
-                humidify_setpoint = 0
+        if not self.has_relative_humidity():
+            raise Exception(
+                "Setting target humidity is not supported on this thermostat."
+            )
+        (min_humidity, max_humidity) = self.get_humidity_setpoint_limits()
+        if self.has_humidify_support():
+            humidify_supported = True
+            if humidify_setpoint is None:
+                humidify_setpoint = self.get_humidify_setpoint()
+        else:
+            if humidify_setpoint is not None:
+                raise SystemError("This thermostat does not support humidifying.")
+            humidify_supported = False
+            humidify_setpoint = 0
 
-            if self.has_dehumidify_support():
-                dehumidify_supported = True
-                if dehumidify_setpoint is None:
-                    dehumidify_setpoint = self.get_dehumidify_setpoint()
-            else:
-                if dehumidify_setpoint is not None:
-                    raise SystemError("This thermostat does not support dehumidifying.")
-                dehumidify_supported = False
-                dehumidify_setpoint = 0
+        if self.has_dehumidify_support():
+            dehumidify_supported = True
+            if dehumidify_setpoint is None:
+                dehumidify_setpoint = self.get_dehumidify_setpoint()
+        else:
+            if dehumidify_setpoint is not None:
+                raise SystemError("This thermostat does not support dehumidifying.")
+            dehumidify_supported = False
+            dehumidify_setpoint = 0
 
-            # Clean up input
-            dehumidify_setpoint = round(0.05 * round(dehumidify_setpoint / 0.05), 2)
-            humidify_setpoint = round(0.05 * round(humidify_setpoint / 0.05), 2)
+        # Clean up input
+        dehumidify_setpoint = round(0.05 * round(dehumidify_setpoint / 0.05), 2)
+        humidify_setpoint = round(0.05 * round(humidify_setpoint / 0.05), 2)
 
-            # Check inputs
-            if (dehumidify_supported and humidify_supported) and not (
-                min_humidity <= humidify_setpoint <= dehumidify_setpoint <= max_humidity
-            ):
-                raise ValueError(
-                    f"Setpoints must be between ({min_humidity} -"
-                    f" {max_humidity}) and humdiify_setpoint must"
-                    f" be <= dehumidify_setpoint"
-                )
-            if (dehumidify_supported) and not (
-                min_humidity <= dehumidify_setpoint <= max_humidity
-            ):
-                raise ValueError(
-                    f"dehumidify_setpoint must be between "
-                    f"({min_humidity} - {max_humidity})"
-                )
-            if (humidify_supported) and not (
-                min_humidity <= humidify_setpoint <= max_humidity
-            ):
-                raise ValueError(
-                    f"humidify_setpoint must be between "
-                    f"({min_humidity} - {max_humidity})"
-                )
+        # Check inputs
+        if (dehumidify_supported and humidify_supported) and not (
+            min_humidity <= humidify_setpoint <= dehumidify_setpoint <= max_humidity
+        ):
+            raise ValueError(
+                f"Setpoints must be between ({min_humidity} -"
+                f" {max_humidity}) and humdiify_setpoint must"
+                f" be <= dehumidify_setpoint"
+            )
+        if (dehumidify_supported) and not (
+            min_humidity <= dehumidify_setpoint <= max_humidity
+        ):
+            raise ValueError(
+                f"dehumidify_setpoint must be between "
+                f"({min_humidity} - {max_humidity})"
+            )
+        if (humidify_supported) and not (
+            min_humidity <= humidify_setpoint <= max_humidity
+        ):
+            raise ValueError(
+                f"humidify_setpoint must be between "
+                f"({min_humidity} - {max_humidity})"
+            )
 
+        if dehumidify_supported:
             self._post_and_update_thermostat_json(
                 "dehumidify", {"value": dehumidify_setpoint}
             )
-        else:
-            raise Exception(
-                "Setting target humidity is not supported on this thermostat."
+        if humidify_supported:
+            self._post_and_update_thermostat_json(
+                "humidify", {"value": humidify_setpoint}
             )
 
     def set_dehumidify_setpoint(self, dehumidify_setpoint):
