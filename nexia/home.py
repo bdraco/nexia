@@ -9,8 +9,10 @@ from .automation import NexiaAutomation
 from .const import (
     APP_VERSION,
     ASAIR_ROOT_URL,
+    TRANE_ROOT_URL,
     BRAND_ASAIR,
     BRAND_NEXIA,
+    BRAND_TRANE,
     DEFAULT_DEVICE_NAME,
     MOBILE_URL_TEMPLATE,
     NEXIA_ROOT_URL,
@@ -67,7 +69,7 @@ class NexiaHome:
         self.mobile_id = None
         self.brand = brand
         self.login_attempts_left = MAX_LOGIN_ATTEMPTS
-        self._state_file = state_file or f"nexia_config_{self.username}.conf"
+        self._state_file = state_file or f"{brand}_config_{self.username}.conf"
         self.api_key = None
         self.devices_json = None
         self.automations_json = None
@@ -119,6 +121,8 @@ class NexiaHome:
         """The root url for the service."""
         if self.brand == BRAND_ASAIR:
             return ASAIR_ROOT_URL
+        if self.brand == BRAND_TRANE:
+            return TRANE_ROOT_URL
         return NEXIA_ROOT_URL
 
     @property
