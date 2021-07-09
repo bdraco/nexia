@@ -4,9 +4,11 @@ __version__ = "0.1.0"
 
 BRAND_NEXIA = "nexia"
 BRAND_ASAIR = "asair"
+BRAND_TRANE = "trane"
 
 NEXIA_ROOT_URL = "https://www.mynexia.com"
 ASAIR_ROOT_URL = "https://www.asairhome.com"
+TRANE_ROOT_URL = "https://www.tranehome.com"
 
 MOBILE_URL_TEMPLATE = "{}/mobile"
 
