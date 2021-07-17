@@ -7,8 +7,11 @@ BRAND_ASAIR = "asair"
 BRAND_TRANE = "trane"
 
 NEXIA_ROOT_URL = "https://www.mynexia.com"
+NEXIA_IDENTIFIER = "com.tranetechnologies.nexia"
 ASAIR_ROOT_URL = "https://www.asairhome.com"
+ASAIR_IDENTIFIER = "com.tranetechnologies.asair"
 TRANE_ROOT_URL = "https://www.tranehome.com"
+TRANE_IDENTIFIER = "com.tranetechnologies.trane"
 
 MOBILE_URL_TEMPLATE = "{}/mobile"
 
@@ -53,7 +56,7 @@ AIR_CLEANER_MODES = [
 HUMIDITY_MIN = 0.35
 HUMIDITY_MAX = 0.65
 
-APP_VERSION = "5.9.0"
+APP_VERSION = "5.16.0"
 
 UNIT_CELSIUS = "C"
 UNIT_FAHRENHEIT = "F"

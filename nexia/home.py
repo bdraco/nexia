@@ -131,11 +131,15 @@ class NexiaHome:
         return MOBILE_URL_TEMPLATE.format(self.root_url)
 
     def _api_key_headers(self):
-        return {
+        headers = {
             "X-AppVersion": APP_VERSION,
-            "X-MobileId": str(self.mobile_id),
-            "X-ApiKey": str(self.api_key),
+            "X-AssociatedBrand": self.brand,
         }
+        if self.mobile_id:
+            headers["X-MobileId"] = str(self.mobile_id)
+        if self.api_key:
+            headers["X-ApiKey"] = str(self.api_key)
+        return headers
 
     def post_url(self, request_url: str, payload: dict):
         """
@@ -144,10 +148,16 @@ class NexiaHome:
         :param payload: dict
         :return: response
         """
-        _LOGGER.debug("POST: Calling url %s with payload: %s", request_url, payload)
+        headers = self._api_key_headers()
+        _LOGGER.debug(
+            "POST: Calling url %s with headers: %s and payload: %s",
+            request_url,
+            headers,
+            payload,
+        )
 
         response = self.session.post(
-            request_url, payload, timeout=TIMEOUT, headers=self._api_key_headers()
+            request_url, payload, timeout=TIMEOUT, headers=headers
         )
 
         _LOGGER.debug("POST: Response from url %s: %s", request_url, response.content)
