@@ -9,13 +9,13 @@ from .automation import NexiaAutomation
 from .const import (
     APP_VERSION,
     ASAIR_ROOT_URL,
-    TRANE_ROOT_URL,
     BRAND_ASAIR,
     BRAND_NEXIA,
     BRAND_TRANE,
     DEFAULT_DEVICE_NAME,
     MOBILE_URL_TEMPLATE,
     NEXIA_ROOT_URL,
+    TRANE_ROOT_URL,
 )
 from .thermostat import NexiaThermostat
 from .util import load_or_create_uuid
