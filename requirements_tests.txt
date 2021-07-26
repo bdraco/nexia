@@ -1,4 +1,3 @@
-coveralls
 voluptuous
 flake8
 mock
