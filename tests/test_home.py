@@ -662,6 +662,7 @@ class TestNexiaThermostatZone(unittest.TestCase):
         self.assertEqual(zone.is_calling(), True)
         self.assertEqual(zone.is_in_permanent_hold(), True)
 
+
 class TestNexiaAutomation(unittest.TestCase):
     def test_automations(self):
         """Get methods for an active thermostat."""
