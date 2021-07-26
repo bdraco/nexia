@@ -624,6 +624,44 @@ class TestNexiaThermostatZone(unittest.TestCase):
         self.assertEqual(zone.is_calling(), False)
         self.assertEqual(zone.is_in_permanent_hold(), True)
 
+    def test_single_zone(self):
+        """Test thermostat with only a single (Native) zone."""
+        nexia = NexiaHome(auto_login=False)
+        devices_json = json.loads(load_fixture("single_zone_xl1050.json"))
+        nexia.update_from_json(devices_json)
+
+        thermostat_ids = nexia.get_thermostat_ids()
+        self.assertEqual(thermostat_ids, [345678])
+        thermostat = nexia.get_thermostat_by_id(345678)
+        zone = thermostat.get_zone_by_id(234567)
+
+        self.assertEqual(zone.get_name(), "Thermostat 1 NativeZone")
+        self.assertEqual(zone.get_cooling_setpoint(), 73)
+        self.assertEqual(zone.get_heating_setpoint(), 68)
+        self.assertEqual(zone.get_current_mode(), "AUTO")
+        self.assertEqual(
+            zone.get_requested_mode(),
+            "AUTO",
+        )
+        self.assertEqual(
+            zone.get_presets(),
+            ["None", "Home", "Away", "Sleep"],
+        )
+        self.assertEqual(
+            zone.get_preset(),
+            "None",
+        )
+        self.assertEqual(
+            zone.get_status(),
+            "Idle",
+        )
+        self.assertEqual(
+            zone.get_setpoint_status(),
+            "Permanent Hold",
+        )
+        self.assertEqual(zone.is_calling(), True)
+        self.assertEqual(zone.is_in_permanent_hold(), True)
+
 
 class TestNexiaAutomation(unittest.TestCase):
     def test_automations(self):

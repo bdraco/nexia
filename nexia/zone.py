@@ -10,6 +10,7 @@ from .const import (
     OPERATION_MODE_HEAT,
     OPERATION_MODES,
     PRESET_MODE_NONE,
+    SYSTEM_STATUS_IDLE,
     UNIT_CELSIUS,
     ZONE_IDLE,
 )
@@ -37,10 +38,10 @@ class NexiaThermostatZone:
         Returns the zone name
         :return: str
         """
-        name = str(self._get_zone_key("name"))
-        if name == "NativeZone":
-            name = f"{self.thermostat.get_name()} NativeZone"
-        return name
+        if self.is_native_zone():
+            return f"{self.thermostat.get_name()} NativeZone"
+
+        return str(self._get_zone_key("name"))
 
     def get_cooling_setpoint(self):
         """
@@ -147,10 +148,21 @@ class NexiaThermostatZone:
         Returns True if the zone is calling for heat/cool.
         :return: bool
         """
+
+        if self.is_native_zone():
+            return self.thermostat.get_system_status() != SYSTEM_STATUS_IDLE
+
         operating_state = self._get_zone_key("operating_state")
         if not operating_state or operating_state == DAMPER_CLOSED:
             return False
         return True
+
+    def is_native_zone(self):
+        """
+        Returns True if the zone is a NativeZone
+        :return: bool
+        """
+        return str(self._get_zone_key("name")) == "NativeZone"
 
     def check_heat_cool_setpoints(self, heat_temperature=None, cool_temperature=None):
         """
