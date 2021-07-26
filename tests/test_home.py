@@ -4,6 +4,7 @@ import json
 import os
 from os.path import dirname
 import unittest
+
 import pytest
 
 from nexia.home import NexiaHome
