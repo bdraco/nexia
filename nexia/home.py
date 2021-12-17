@@ -381,11 +381,7 @@ class NexiaHome:
             }
             request = self.post_url(self.API_MOBILE_ACCOUNTS_SIGN_IN_URL, payload)
 
-            if (
-                request is None
-                or request.status_code != 200
-                and request.status_code != 302
-            ):
+            if request is None or request.status_code not in (302, 200):
                 self.login_attempts_left -= 1
             self._check_response("Failed to login", request)
 
@@ -438,10 +434,7 @@ class NexiaHome:
         Returns the number of thermostats available to Nexia
         :return:
         """
-        ids = list()
-        for thermostat in self.thermostats:
-            ids.append(thermostat.thermostat_id)
-        return ids
+        return [thermostat.thermostat_id for thermostat in self.thermostats]
 
     def get_automation_by_id(self, automation_id):
         """Get a automation by its nexia id."""
@@ -465,10 +458,7 @@ class NexiaHome:
         Returns the number of automations available to Nexia
         :return:
         """
-        ids = list()
-        for automation in self.automations:
-            ids.append(automation.automation_id)
-        return ids
+        return [automation.automation_id for automation in self.automations]
 
 
 def _extract_devices_from_houses_json(json_dict: dict):
