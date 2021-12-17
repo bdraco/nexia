@@ -47,3 +47,8 @@ def _create_uuid(filename):
         new_uuid = uuid.uuid4()
         fptr.write(json.dumps({"nexia_uuid": str(new_uuid)}))
         return new_uuid
+
+
+def find_humidity_setpoint(setpoint):
+    """Find the closest humidity setpoint."""
+    return round(0.05 * round(setpoint / 0.05), 2)

@@ -9,7 +9,7 @@ from .const import (
     SYSTEM_STATUS_IDLE,
     SYSTEM_STATUS_WAIT,
 )
-from .util import find_dict_with_keyvalue_in_json, is_number
+from .util import find_dict_with_keyvalue_in_json, find_humidity_setpoint, is_number
 from .zone import NexiaThermostatZone
 
 _LOGGER = logging.getLogger(__name__)
@@ -477,8 +477,8 @@ class NexiaThermostat:
             dehumidify_setpoint = 0
 
         # Clean up input
-        dehumidify_setpoint = round(0.05 * round(dehumidify_setpoint / 0.05), 2)
-        humidify_setpoint = round(0.05 * round(humidify_setpoint / 0.05), 2)
+        dehumidify_setpoint = find_humidity_setpoint(dehumidify_setpoint)
+        humidify_setpoint = find_humidity_setpoint(humidify_setpoint)
 
         # Check inputs
         if (dehumidify_supported and humidify_supported) and not (
@@ -506,11 +506,11 @@ class NexiaThermostat:
 
         if dehumidify_supported:
             self._post_and_update_thermostat_json(
-                "dehumidify", {"value": dehumidify_setpoint}
+                "dehumidify", {"value": str(dehumidify_setpoint)}
             )
         if humidify_supported:
             self._post_and_update_thermostat_json(
-                "humidify", {"value": humidify_setpoint}
+                "humidify", {"value": str(humidify_setpoint)}
             )
 
     def set_dehumidify_setpoint(self, dehumidify_setpoint):
