@@ -32,7 +32,7 @@ def find_dict_with_keyvalue_in_json(json_dict, key_in_subdict, value_to_find):
 def load_or_create_uuid(filename):
     """Load or create a uuid for the device."""
     try:
-        with open(filename) as fptr:
+        with open(filename, encoding="utf-8") as fptr:
             jsonf = json.loads(fptr.read())
             return uuid.UUID(jsonf["nexia_uuid"], version=4)
     except (JSONDecodeError, FileNotFoundError):
@@ -43,7 +43,7 @@ def load_or_create_uuid(filename):
 
 def _create_uuid(filename):
     """Create a uuid for the device."""
-    with open(filename, "w") as fptr:
+    with open(filename, "w", encoding="utf-8") as fptr:
         new_uuid = uuid.uuid4()
         fptr.write(json.dumps({"nexia_uuid": str(new_uuid)}))
         return new_uuid
