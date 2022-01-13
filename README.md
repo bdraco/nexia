@@ -1,4 +1,3 @@
-[![Python package][python-package-shield]][python-package]
 [![codecov][code-cover-shield]][code-coverage] \
 [![Python Versions][python-ver-shield]][python-ver]
 [![PyPi Project][pypi-shield]][pypi]\
@@ -402,7 +401,6 @@ Part of the `nexia.` services. Sets the humidify setpoint. This is a system-wide
 [license-shield]: https://img.shields.io/github/license/bdraco/nexia.svg
 [pypi]: https://pypi.org/project/nexia/
 [pypi-shield]: https://img.shields.io/pypi/v/nexia
-[python-package]: https://github.com/bdraco/nexia/actions/workflows/python-package.yml
 [python-package-shield]: https://github.com/bdraco/nexia/actions/workflows/python-package.yml/badge.svg?branch=master
 [python-ver]: https://pypi.python.org/pypi/nexia/
 [python-ver-shield]: https://img.shields.io/pypi/pyversions/nexia.svg
