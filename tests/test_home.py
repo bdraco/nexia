@@ -6,12 +6,10 @@ from os.path import dirname
 import unittest
 
 import pytest
-
-from nexia.home import NexiaHome, _extract_devices_from_houses_json
-
 import requests
 import requests_mock
 
+from nexia.home import NexiaHome, _extract_devices_from_houses_json
 from nexia.thermostat import NexiaThermostat
 
 
