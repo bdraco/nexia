@@ -7,7 +7,12 @@ import unittest
 
 import pytest
 
-from nexia.home import NexiaHome
+from nexia.home import NexiaHome, _extract_devices_from_houses_json
+
+import requests
+import requests_mock
+
+from nexia.thermostat import NexiaThermostat
 
 
 def load_fixture(filename):
@@ -72,13 +77,14 @@ class TestNexiaThermostat(unittest.TestCase):
         zone_ids = thermostat.get_zone_ids()
         self.assertEqual(zone_ids, [83261002, 83261005, 83261008, 83261011])
 
-    def test_idle_thermo_issue_33758(self):
+    @requests_mock.Mocker()
+    def test_idle_thermo_issue_33758(self, m):
         """Get methods for an idle thermostat."""
         nexia = NexiaHome(auto_login=False)
         devices_json = json.loads(load_fixture("mobile_house_issue_33758.json"))
         nexia.update_from_json(devices_json)
 
-        thermostat = nexia.get_thermostat_by_id(12345678)
+        thermostat: NexiaThermostat = nexia.get_thermostat_by_id(12345678)
 
         self.assertEqual(thermostat.get_model(), "XL1050")
         self.assertEqual(thermostat.get_firmware(), "5.9.1")
@@ -107,6 +113,25 @@ class TestNexiaThermostat(unittest.TestCase):
         self.assertEqual(thermostat.has_air_cleaner(), True)
         self.assertEqual(thermostat.get_air_cleaner_mode(), "auto")
         self.assertEqual(thermostat.is_blower_active(), False)
+
+        devices = _extract_devices_from_houses_json(devices_json)
+        m.post(
+            "https://www.mynexia.com/mobile/xxl_thermostats/12345678/emergency_heat",
+            json={"result": devices[0]},
+        )
+        thermostat.set_emergency_heat(True)
+        history = m.request_history
+        assert history[0].method == "POST"
+        assert history[0].text == "value=true"
+
+        m.post(
+            "https://www.mynexia.com/mobile/xxl_thermostats/12345678/emergency_heat",
+            json={"result": devices[0]},
+        )
+        thermostat.set_emergency_heat(False)
+        history = m.request_history
+        assert history[1].method == "POST"
+        assert history[1].text == "value=false"
 
         zone_ids = thermostat.get_zone_ids()
         self.assertEqual(zone_ids, [12345678])

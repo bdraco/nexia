@@ -431,7 +431,7 @@ class NexiaThermostat:
         """
         if self.has_emergency_heat():
             self._post_and_update_thermostat_json(
-                "emergency_heat", {"value": bool(emergency_heat_on)}
+                "emergency_heat", {"value": "true" if emergency_heat_on else "false"}
             )
         else:
             raise Exception("This thermostat does not support emergency heat.")
