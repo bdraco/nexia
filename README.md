@@ -1,7 +1,14 @@
-The `nexia` component lets you control thermostats connected to [Nexia (Trane/American Standard)](https://www.nexiahome.com/).
+[![Python package][python-package-shield]][python-package]
+[![codecov][code-cover-shield]][code-coverage] \
+[![Python Versions][python-ver-shield]][python-ver]
+[![PyPi Project][pypi-shield]][pypi]\
+[![GitHub Activity][commits-shield]][commits]
+[![License][license-shield]](LICENSE)\
+[![GitHub Top Language][language-shield]][language]
 
-<a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
-<a href="https://coveralls.io/github/bdraco/nexia?branch=master"><img alt="Coverage Status" src="https://coveralls.io/repos/github/bdraco/nexia/badge.svg?branch=master"></a>
+## Nexia
+
+The `nexia` component lets you control thermostats connected to [Nexia (Trane/American Standard)](https://www.nexiahome.com/).
 
 Supported XL950, XL1050, XL824
 Not supported XL624, others
@@ -385,3 +392,17 @@ Part of the `nexia.` services. Sets the humidify setpoint. This is a system-wide
 | ---------------------- | -------- | ----------- |
 | `entity_id` | yes | String or list of strings that point at `entity_id`'s of climate devices to control. Else targets all.
 | `humidity` | no | Humidify setpoint level, from 35 to 65. 
+
+[code-coverage]: https://codecov.io/gh/bdraco/nexia
+[code-cover-shield]: https://codecov.io/gh/bdraco/nexia/branch/master/graph/badge.svg
+[commits-shield]: https://img.shields.io/github/commit-activity/y/bdraco/nexia.svg
+[commits]: https://github.com/bdraco/nexia/commits/main
+[language]: https://github.com/bdraco/nexia/search?l=python
+[language-shield]: https://img.shields.io/github/languages/top/bdraco/nexia
+[license-shield]: https://img.shields.io/github/license/bdraco/nexia.svg
+[pypi]: https://pypi.org/project/nexia/
+[pypi-shield]: https://img.shields.io/pypi/v/nexia
+[python-package]: https://github.com/bdraco/nexia/actions/workflows/python-package.yml
+[python-package-shield]: https://github.com/bdraco/nexia/actions/workflows/python-package.yml/badge.svg?branch=master
+[python-ver]: https://pypi.python.org/pypi/nexia/
+[python-ver-shield]: https://img.shields.io/pypi/pyversions/nexia.svg
