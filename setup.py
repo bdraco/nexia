@@ -46,6 +46,6 @@ setup(
     test_suite="tests",
     tests_require=test_requirements,
     url="https://github.com/bdraco/nexia",
-    version="0.9.13",
+    version="1.0.0",
     zip_safe=False,
 )
