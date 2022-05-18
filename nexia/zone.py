@@ -1,7 +1,9 @@
 """Nexia Themostat Zone."""
+from __future__ import annotations
 
 import logging
 import math
+from typing import TYPE_CHECKING, Any
 
 from .const import (
     DAMPER_CLOSED,
@@ -18,22 +20,26 @@ from .util import find_dict_with_keyvalue_in_json
 
 _LOGGER = logging.getLogger(__name__)
 
+if TYPE_CHECKING:
+    from .home import NexiaHome
+    from .thermostat import NexiaThermostat
+
 
 class NexiaThermostatZone:
     """A nexia thermostat zone."""
 
     def __init__(self, nexia_home, nexia_thermostat, zone_json):
         """Create a nexia zone."""
-        self._nexia_home = nexia_home
-        self._zone_json = zone_json
-        self.thermostat = nexia_thermostat
-        self.zone_id = zone_json["id"]
+        self._nexia_home: NexiaHome = nexia_home
+        self._zone_json: dict[str, Any] = zone_json
+        self.thermostat: NexiaThermostat = nexia_thermostat
+        self.zone_id: int = zone_json["id"]
 
     @property
-    def API_MOBILE_ZONE_URL(self):  # pylint: disable=invalid-name
+    def API_MOBILE_ZONE_URL(self) -> str:  # pylint: disable=invalid-name
         return self._nexia_home.mobile_url + "/xxl_zones/{zone_id}/{end_point}"
 
-    def get_name(self):
+    def get_name(self) -> str:
         """
         Returns the zone name
         :return: str
@@ -43,21 +49,21 @@ class NexiaThermostatZone:
 
         return str(self._get_zone_key("name"))
 
-    def get_cooling_setpoint(self):
+    def get_cooling_setpoint(self) -> int:
         """
         Returns the cooling setpoint in the temperature unit of the thermostat
         :return: int
         """
         return self._get_zone_key("setpoints")["cool"]
 
-    def get_heating_setpoint(self):
+    def get_heating_setpoint(self) -> int:
         """
         Returns the heating setpoint in the temperature unit of the thermostat
         :return: int
         """
         return self._get_zone_key("setpoints")["heat"]
 
-    def get_current_mode(self):
+    def get_current_mode(self) -> str:
         """
         Returns the current mode of the zone. This may not match the requested
         mode
@@ -66,7 +72,7 @@ class NexiaThermostatZone:
         """
         return self._get_zone_setting("zone_mode")["current_value"].upper()
 
-    def get_requested_mode(self):
+    def get_requested_mode(self) -> str:
         """
         Returns the requested mode of the zone. This should match the zone's
         mode on the thermostat.
@@ -75,7 +81,7 @@ class NexiaThermostatZone:
         """
         return self._get_zone_features("thermostat_mode")["value"].upper()
 
-    def get_temperature(self):
+    def get_temperature(self) -> int:
         """
         Returns the temperature of the zone in the temperature unit of the
         thermostat.
@@ -83,7 +89,7 @@ class NexiaThermostatZone:
         """
         return self._get_zone_key("temperature")
 
-    def get_presets(self):
+    def get_presets(self) -> list[str]:
         """
         Supposed to return the zone presets. For some reason, most of the time,
         my unit only returns "AWAY", but I can set the other modes. There is
@@ -95,7 +101,7 @@ class NexiaThermostatZone:
         options = self._get_zone_setting("preset_selected")["options"]
         return [opt["label"] for opt in options]
 
-    def get_preset(self):
+    def get_preset(self) -> str:
         """
         Returns the zone's currently selected preset. Should be one of the
         strings in NexiaThermostat.get_zone_presets().
@@ -104,14 +110,14 @@ class NexiaThermostatZone:
         preset_selected = self._get_zone_setting("preset_selected")
         return preset_selected["labels"][preset_selected["current_value"]]
 
-    def get_status(self):
+    def get_status(self) -> str:
         """
         Returns the zone status.
         :return: str
         """
         return self._get_zone_key("zone_status") or ZONE_IDLE
 
-    def _get_zone_run_mode(self):
+    def _get_zone_run_mode(self) -> dict[str, Any]:
         """
         Returns the run mode ("permanent_hold", "run_schedule")
         :return: str
@@ -119,7 +125,7 @@ class NexiaThermostatZone:
         # Will be None is scheduling is disabled
         return self._get_zone_setting_or_none("run_mode")
 
-    def get_setpoint_status(self):
+    def get_setpoint_status(self) -> str:
         """
         Returns the setpoint status, like "Following Schedule - Home", or
         "Permanent Hold"
@@ -143,7 +149,7 @@ class NexiaThermostatZone:
             return run_mode_label
         return f"{run_mode_label} - {preset_label}"
 
-    def is_calling(self):
+    def is_calling(self) -> bool:
         """
         Returns True if the zone is calling for heat/cool.
         :return: bool
@@ -157,14 +163,18 @@ class NexiaThermostatZone:
             return False
         return True
 
-    def is_native_zone(self):
+    def is_native_zone(self) -> bool:
         """
         Returns True if the zone is a NativeZone
         :return: bool
         """
         return str(self._get_zone_key("name")) == "NativeZone"
 
-    def check_heat_cool_setpoints(self, heat_temperature=None, cool_temperature=None):
+    def check_heat_cool_setpoints(
+        self,
+        heat_temperature: float | None = None,
+        cool_temperature: float | None = None,
+    ) -> None:
         """
         Checks the heat and cool setpoints to check if they are within the
         appropriate range and within the deadband limits.
@@ -216,7 +226,7 @@ class NexiaThermostatZone:
             )
         # The heat and cool setpoints appear to be valid.
 
-    def is_in_permanent_hold(self):
+    def is_in_permanent_hold(self) -> bool:
         """
         Returns True if the zone is in a permanent hold.
         :return: bool
@@ -230,20 +240,20 @@ class NexiaThermostatZone:
     ########################################################################
     # Zone Set Methods
 
-    def call_return_to_schedule(self):
+    async def call_return_to_schedule(self) -> None:
         """
         Tells the zone to return to its schedule.
         :return: None
         """
 
         # Set the thermostat
-        self._post_and_update_zone_json("return_to_schedule", {})
+        await self._post_and_update_zone_json("return_to_schedule", {})
 
-    def call_permanent_hold(
+    async def call_permanent_hold(
         self,
         heat_temperature=None,
         cool_temperature=None,
-    ):
+    ) -> None:
         """
         Tells the zone to call a permanent hold. Optionally can provide the
         temperatures.
@@ -267,26 +277,26 @@ class NexiaThermostatZone:
                 "provide either"
             )
 
-        self._set_hold_and_setpoints(
+        await self._set_hold_and_setpoints(
             cool_temperature,
             heat_temperature,
         )
 
-    def set_heat_cool_temp(
+    async def set_heat_cool_temp(
         self,
-        heat_temperature=None,
-        cool_temperature=None,
-        set_temperature=None,
-    ):
+        heat_temperature: float | None = None,
+        cool_temperature: float | None = None,
+        set_temperature: float | None = None,
+    ) -> None:
         """
         Sets the heat and cool temperatures of the zone. You must provide
         either heat and cool temperatures, or just the set_temperature. This
         method will add deadband to the heat and cool temperature from the set
         temperature.
 
-        :param heat_temperature: int or None
-        :param cool_temperature: int or None
-        :param set_temperature: int or None
+        :param heat_temperature: float or None
+        :param cool_temperature: float or None
+        :param set_temperature: float or None
         :return: None
         """
         deadband = self.thermostat.get_deadband()
@@ -294,7 +304,7 @@ class NexiaThermostatZone:
         if set_temperature is None or (heat_temperature and cool_temperature):
             if heat_temperature:
                 heat_temperature = self.round_temp(heat_temperature)
-            else:
+            elif cool_temperature:
                 heat_temperature = min(
                     self.get_heating_setpoint(),
                     self.round_temp(cool_temperature) - deadband,
@@ -302,7 +312,7 @@ class NexiaThermostatZone:
 
             if cool_temperature:
                 cool_temperature = self.round_temp(cool_temperature)
-            else:
+            elif heat_temperature:
                 cool_temperature = max(
                     self.get_cooling_setpoint(),
                     self.round_temp(heat_temperature) + deadband,
@@ -332,18 +342,24 @@ class NexiaThermostatZone:
                     deadband / 2
                 )
 
-        self._set_setpoints(cool_temperature, heat_temperature)
+        await self._set_setpoints(cool_temperature, heat_temperature)
 
-    def _set_hold_and_setpoints(self, cool_temperature, heat_temperature):
+    async def _set_hold_and_setpoints(
+        self, cool_temperature: int | None, heat_temperature: int | None
+    ) -> None:
         # Set the thermostat
         run_mode = self._get_zone_run_mode()
         if run_mode:
             if run_mode["current_value"] != HOLD_PERMANENT:
-                self._post_and_update_zone_json("run_mode", {"value": HOLD_PERMANENT})
+                await self._post_and_update_zone_json(
+                    "run_mode", {"value": HOLD_PERMANENT}
+                )
 
-        self._set_setpoints(cool_temperature, heat_temperature)
+        await self._set_setpoints(cool_temperature, heat_temperature)
 
-    def _set_setpoints(self, cool_temperature, heat_temperature):
+    async def _set_setpoints(
+        self, cool_temperature: float | None, heat_temperature: float | None
+    ) -> None:
         # Check that the setpoints are valid
         self.check_heat_cool_setpoints(heat_temperature, cool_temperature)
         zone_cooling_setpoint = self.get_cooling_setpoint()
@@ -352,11 +368,11 @@ class NexiaThermostatZone:
             zone_cooling_setpoint != cool_temperature
             or heat_temperature != zone_heating_setpoint
         ):
-            self._post_and_update_zone_json(
+            await self._post_and_update_zone_json(
                 "setpoints", {"heat": heat_temperature, "cool": cool_temperature}
             )
 
-    def set_preset(self, preset):
+    async def set_preset(self, preset: str) -> None:
         """
         Sets the preset of the specified zone.
         :param preset: str - The preset, see
@@ -370,9 +386,9 @@ class NexiaThermostatZone:
                 if option["label"] == preset:
                     value = option["value"]
                     break
-            self._post_and_update_zone_json("preset_selected", {"value": value})
+            await self._post_and_update_zone_json("preset_selected", {"value": value})
 
-    def set_mode(self, mode):
+    async def set_mode(self, mode: str) -> None:
         """
         Sets the mode of the zone.
         :param mode: str - The mode, see NexiaThermostat.OPERATION_MODES
@@ -380,14 +396,14 @@ class NexiaThermostatZone:
         """
         # Validate the data
         if mode in OPERATION_MODES:
-            self._post_and_update_zone_json("zone_mode", {"value": mode})
+            await self._post_and_update_zone_json("zone_mode", {"value": mode})
         else:
             raise KeyError(
                 f'Invalid mode "{mode}". Select one of the following: '
                 f"{OPERATION_MODES}"
             )
 
-    def round_temp(self, temperature: float):
+    def round_temp(self, temperature: float) -> float:
         """
         Rounds the temperature to the nearest 1/2 degree for C and neareast 1
         degree for F
@@ -403,11 +419,11 @@ class NexiaThermostatZone:
         return temperature
 
     @property
-    def _has_zoning(self):
+    def _has_zoning(self) -> bool:
         """Returns if zoning is enabled."""
         return bool(self._zone_json["settings"])
 
-    def _get_zone_setting(self, key):
+    def _get_zone_setting(self, key: str) -> Any:
         """
         Returns the zone value for the key and zone_id provided.
         :param key: str
@@ -425,7 +441,7 @@ class NexiaThermostatZone:
             raise KeyError(f'Zone settings key "{key}" invalid.')
         return subdict
 
-    def _get_zone_setting_or_none(self, key):
+    def _get_zone_setting_or_none(self, key: str) -> Any:
         """
         Returns the zone value from the provided key in the zones's
         JSON.
@@ -437,7 +453,7 @@ class NexiaThermostatZone:
         except KeyError:
             return None
 
-    def _get_zone_features(self, key):
+    def _get_zone_features(self, key: str) -> Any:
         """
         Returns the zone value for the key provided.
         :param key: str
@@ -450,7 +466,7 @@ class NexiaThermostatZone:
             raise KeyError(f'Zone feature key "{key}" invalid.')
         return subdict
 
-    def _get_zone_key(self, key):
+    def _get_zone_key(self, key: str) -> Any:
         """
         Returns the zone value for the key provided.
         :param key: str
@@ -461,12 +477,14 @@ class NexiaThermostatZone:
 
         raise KeyError(f'Zone key "{key}" invalid.')
 
-    def _post_and_update_zone_json(self, end_point, payload):
+    async def _post_and_update_zone_json(
+        self, end_point: str, payload: dict[str, Any]
+    ) -> None:
         url = self.API_MOBILE_ZONE_URL.format(end_point=end_point, zone_id=self.zone_id)
-        response = self._nexia_home.post_url(url, payload)
-        self.update_zone_json(response.json()["result"])
+        response = await self._nexia_home.post_url(url, payload)
+        self.update_zone_json((await response.json())["result"])
 
-    def update_zone_json(self, zone_json):
+    def update_zone_json(self, zone_json: dict[str, Any]) -> None:
         """Update with new json from the api"""
         if self._zone_json is None:
             return

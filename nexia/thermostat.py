@@ -1,6 +1,8 @@
 """Nexia Themostat."""
+from __future__ import annotations
 
 import logging
+from typing import TYPE_CHECKING, Any
 
 from .const import (
     AIR_CLEANER_MODES,
@@ -15,6 +17,10 @@ from .zone import NexiaThermostatZone
 _LOGGER = logging.getLogger(__name__)
 
 
+if TYPE_CHECKING:
+    from .home import NexiaHome
+
+
 class NexiaThermostat:
     """A nexia Thermostat.
 
@@ -23,10 +29,10 @@ class NexiaThermostat:
 
     def __init__(self, nexia_home, thermostat_json):
         """Init nexia Thermostat."""
-        self._nexia_home = nexia_home
-        self.thermostat_id = thermostat_json["id"]
-        self._thermostat_json = thermostat_json
-        self.zones = []
+        self._nexia_home: NexiaHome = nexia_home
+        self.thermostat_id: int = thermostat_json["id"]
+        self._thermostat_json: dict[str, Any] = thermostat_json
+        self.zones: list[NexiaThermostatZone] = []
         if self.has_zones():
             for zone in thermostat_json["zones"]:
                 self.zones.append(NexiaThermostatZone(nexia_home, self, zone))
@@ -361,7 +367,7 @@ class NexiaThermostat:
     ########################################################################
     # System Universal Set Methods
 
-    def set_fan_mode(self, fan_mode: str):
+    async def set_fan_mode(self, fan_mode: str):
         """
         Sets the fan mode.
         :param fan_mode: string that must be in self.get_fan_modes()
@@ -374,9 +380,9 @@ class NexiaThermostat:
                 fan_mode = opt["value"]
                 break
 
-        self._post_and_update_thermostat_json("fan_mode", {"value": fan_mode})
+        await self._post_and_update_thermostat_json("fan_mode", {"value": fan_mode})
 
-    def set_fan_setpoint(self, fan_setpoint: float):
+    async def set_fan_setpoint(self, fan_setpoint: float):
         """
         Sets the fan's setpoint speed as a percent in range. You can see the
         limits by calling Nexia.get_variable_fan_speed_limits()
@@ -389,14 +395,16 @@ class NexiaThermostat:
         min_speed, max_speed = self.get_variable_fan_speed_limits()
 
         if min_speed <= fan_setpoint <= max_speed:
-            self._post_and_update_thermostat_json("fan_speed", {"value": fan_setpoint})
+            await self._post_and_update_thermostat_json(
+                "fan_speed", {"value": fan_setpoint}
+            )
         else:
             raise ValueError(
                 f"The fan setpoint, {fan_setpoint} is not "
                 f"between {min_speed} and {max_speed}."
             )
 
-    def set_air_cleaner(self, air_cleaner_mode: str):
+    async def set_air_cleaner(self, air_cleaner_mode: str):
         """
         Sets the air cleaner mode.
         :param air_cleaner_mode: string that must be in
@@ -406,37 +414,37 @@ class NexiaThermostat:
         air_cleaner_mode = air_cleaner_mode.lower()
         if air_cleaner_mode in AIR_CLEANER_MODES:
             if air_cleaner_mode != self.get_air_cleaner_mode():
-                self._post_and_update_thermostat_json(
+                await self._post_and_update_thermostat_json(
                     "air_cleaner_mode", {"value": air_cleaner_mode}
                 )
         else:
             raise KeyError("Invalid air cleaner mode specified")
 
-    def set_follow_schedule(self, follow_schedule):
+    async def set_follow_schedule(self, follow_schedule):
         """
         Enables or disables scheduled operation
         :param follow_schedule: bool - True for follow schedule, False for hold
         current setpoints
         :return: None
         """
-        self._post_and_update_thermostat_json(
+        await self._post_and_update_thermostat_json(
             "scheduling_enabled", {"value": "true" if follow_schedule else "false"}
         )
 
-    def set_emergency_heat(self, emergency_heat_on):
+    async def set_emergency_heat(self, emergency_heat_on):
         """
         Enables or disables emergency / auxiliary heat.
         :param emergency_heat_on: bool - True for enabled, False for Disabled
         :return: None
         """
         if self.has_emergency_heat():
-            self._post_and_update_thermostat_json(
+            await self._post_and_update_thermostat_json(
                 "emergency_heat", {"value": "true" if emergency_heat_on else "false"}
             )
         else:
             raise Exception("This thermostat does not support emergency heat.")
 
-    def set_humidity_setpoints(self, **kwargs):
+    async def set_humidity_setpoints(self, **kwargs):
         """
 
         :param dehumidify_setpoint: float - The dehumidify_setpoint, 0-1, disable: None
@@ -505,15 +513,15 @@ class NexiaThermostat:
             )
 
         if dehumidify_supported:
-            self._post_and_update_thermostat_json(
+            await self._post_and_update_thermostat_json(
                 "dehumidify", {"value": str(dehumidify_setpoint)}
             )
         if humidify_supported:
-            self._post_and_update_thermostat_json(
+            await self._post_and_update_thermostat_json(
                 "humidify", {"value": str(humidify_setpoint)}
             )
 
-    def set_dehumidify_setpoint(self, dehumidify_setpoint):
+    async def set_dehumidify_setpoint(self, dehumidify_setpoint):
         """
         Sets the overall system's dehumidify setpoint as a percent (0-1).
 
@@ -521,9 +529,9 @@ class NexiaThermostat:
         :param dehumidify_setpoint: float
         :return: None
         """
-        self.set_humidity_setpoints(dehumidify_setpoint=dehumidify_setpoint)
+        await self.set_humidity_setpoints(dehumidify_setpoint=dehumidify_setpoint)
 
-    def set_humidify_setpoint(self, humidify_setpoint):
+    async def set_humidify_setpoint(self, humidify_setpoint):
         """
         Sets the overall system's humidify setpoint as a percent (0-1).
 
@@ -531,7 +539,7 @@ class NexiaThermostat:
         :param humidify_setpoint: float
         :return: None
         """
-        self.set_humidity_setpoints(humidify_setpoint=humidify_setpoint)
+        await self.set_humidity_setpoints(humidify_setpoint=humidify_setpoint)
 
     ########################################################################
     # Zone Get Methods
@@ -658,12 +666,12 @@ class NexiaThermostat:
             )
         return zone
 
-    def _post_and_update_thermostat_json(self, end_point, payload):
+    async def _post_and_update_thermostat_json(self, end_point, payload):
         url = self.API_MOBILE_THERMOSTAT_URL.format(
             end_point=end_point, thermostat_id=self._thermostat_json["id"]
         )
-        response = self._nexia_home.post_url(url, payload)
-        self.update_thermostat_json(response.json()["result"])
+        response = await self._nexia_home.post_url(url, payload)
+        self.update_thermostat_json((await response.json())["result"])
 
     def update_thermostat_json(self, thermostat_json):
         """Update with new json from the api"""

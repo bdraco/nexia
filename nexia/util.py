@@ -1,4 +1,5 @@
 """Utils."""
+from __future__ import annotations
 
 import json
 from json import JSONDecodeError
