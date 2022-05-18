@@ -1,9 +1,12 @@
 """Nexia Home."""
+from __future__ import annotations
 
+import asyncio
 import datetime
 import logging
+from typing import Any
 
-import requests
+import aiohttp
 
 from .automation import NexiaAutomation
 from .const import (
@@ -27,6 +30,7 @@ _LOGGER = logging.getLogger(__name__)
 
 DEVICES_ELEMENT = 0
 AUTOMATIONS_ELEMENT = 1
+MAX_REDIRECTS = 3
 
 
 class NexiaHome:
@@ -35,13 +39,15 @@ class NexiaHome:
     DEFAULT_UPDATE_RATE = 120  # 2 minutes
     DISABLE_AUTO_UPDATE = "Disable"
 
+    thermostats: list[NexiaThermostat]
+    automations: list[NexiaAutomation]
+
     def __init__(
         self,
+        session: aiohttp.ClientSession,
         house_id=None,
         username=None,
         password=None,
-        auto_login=True,
-        auto_update=True,
         device_name=DEFAULT_DEVICE_NAME,
         brand=BRAND_NEXIA,
         state_file=None,
@@ -71,53 +77,44 @@ class NexiaHome:
         self.login_attempts_left = MAX_LOGIN_ATTEMPTS
         self._state_file = state_file or f"{brand}_config_{self.username}.conf"
         self.api_key = None
-        self.devices_json = None
-        self.automations_json = None
-        self.last_update = None
-        self._name = None
-        self.thermostats = None
-        self.automations = None
+        self.devices_json: list[dict[str, Any]] | None = None
+        self.automations_json: list[dict[str, Any]] | None = None
+        self.last_update: datetime.datetime | None = None
+        self._name: str | None = None
+        self.thermostats = None  # type: ignore[assignment]
+        self.automations = None  # type: ignore[assignment]
         self._device_name = device_name
         self._last_update_etag = None
         self._uuid = None
-
-        # Create a session
-        self.session = requests.session()
-        self.session.max_redirects = 3
-
-        # Login if requested
-        if auto_login:
-            self.login()
-
-            if auto_update:
-                self.update()
+        self.session = session
+        self.loop = asyncio.get_running_loop()
 
     @property
-    def API_MOBILE_PHONE_URL(self):  # pylint: disable=invalid-name
+    def API_MOBILE_PHONE_URL(self) -> str:  # pylint: disable=invalid-name
         return f"{self.mobile_url}/phones"
 
     @property
-    def API_MOBILE_SESSION_URL(self):  # pylint: disable=invalid-name
+    def API_MOBILE_SESSION_URL(self) -> str:  # pylint: disable=invalid-name
         return f"{self.mobile_url}/session"
 
     @property
-    def API_MOBILE_HOUSES_URL(self):  # pylint: disable=invalid-name
+    def API_MOBILE_HOUSES_URL(self) -> str:  # pylint: disable=invalid-name
         return self.mobile_url + "/houses/{house_id}"
 
     @property
-    def API_MOBILE_ACCOUNTS_SIGN_IN_URL(self):  # pylint: disable=invalid-name
+    def API_MOBILE_ACCOUNTS_SIGN_IN_URL(self) -> str:  # pylint: disable=invalid-name
         return f"{self.mobile_url}/accounts/sign_in"
 
     @property
-    def AUTH_FAILED_STRING(self):  # pylint: disable=invalid-name
+    def AUTH_FAILED_STRING(self) -> str:  # pylint: disable=invalid-name
         return f"{self.root_url}/login"
 
     @property
-    def AUTH_FORGOTTEN_PASSWORD_STRING(self):  # pylint: disable=invalid-name
+    def AUTH_FORGOTTEN_PASSWORD_STRING(self) -> str:  # pylint: disable=invalid-name
         return f"{self.root_url}/account/forgotten_credentials"
 
     @property
-    def root_url(self):
+    def root_url(self) -> str:
         """The root url for the service."""
         if self.brand == BRAND_ASAIR:
             return ASAIR_ROOT_URL
@@ -126,11 +123,11 @@ class NexiaHome:
         return NEXIA_ROOT_URL
 
     @property
-    def mobile_url(self):
+    def mobile_url(self) -> str:
         """The mobile url for the service."""
         return MOBILE_URL_TEMPLATE.format(self.root_url)
 
-    def _api_key_headers(self):
+    def _api_key_headers(self) -> dict[str, str]:
         headers = {
             "X-AppVersion": APP_VERSION,
             "X-AssociatedBrand": self.brand,
@@ -141,7 +138,7 @@ class NexiaHome:
             headers["X-ApiKey"] = str(self.api_key)
         return headers
 
-    def post_url(self, request_url: str, payload: dict):
+    async def post_url(self, request_url: str, payload: dict) -> aiohttp.ClientResponse:
         """
         Posts data to the session from the url and payload
         :param url: str
@@ -156,25 +153,31 @@ class NexiaHome:
             payload,
         )
 
-        response = self.session.post(
-            request_url, payload, timeout=TIMEOUT, headers=headers
+        response: aiohttp.ClientResponse = await self.session.post(
+            request_url,
+            json=payload,
+            timeout=TIMEOUT,
+            headers=headers,
+            max_redirects=MAX_REDIRECTS,
         )
 
         _LOGGER.debug("POST: Response from url %s: %s", request_url, response.content)
-        if response.status_code == 302:
+        if response.status == 302:
             # assuming its redirecting to login
             _LOGGER.debug(
                 "POST Response returned code 302, re-attempting login and resending request."
             )
-            self.login()
-            return self.post_url(request_url, payload)
+            await self.login()
+            return await self.post_url(request_url, payload)
 
         # no need to sleep anymore as we consume the response and update the thermostat's JSON
 
         response.raise_for_status()
         return response
 
-    def _get_url(self, request_url, headers=None):
+    async def _get_url(
+        self, request_url: str, headers: dict[str, str] | None = None
+    ) -> aiohttp.ClientResponse:
         """
         Returns the full session.get from the URL (ROOT_URL + url)
         :param url: str
@@ -185,53 +188,53 @@ class NexiaHome:
 
         headers.update(self._api_key_headers())
         _LOGGER.debug("GET: Calling url %s", request_url)
-        response = self.session.get(
+        response = await self.session.get(
             request_url,
             allow_redirects=False,
             timeout=TIMEOUT,
             headers=headers,
+            max_redirects=MAX_REDIRECTS,
         )
         _LOGGER.debug(
-            "GET: RESPONSE %s: response.status_code %s",
+            "GET: RESPONSE %s: response.status %s",
             request_url,
-            response.status_code,
+            response.status,
         )
 
-        if response.status_code == 302:
+        if response.status == 302:
             _LOGGER.debug(
                 "GET Response returned code 302, re-attempting login and resending request."
             )
             # assuming its redirecting to login
-            self.login()
-            return self._get_url(request_url)
+            await self.login()
+            return await self._get_url(request_url)
 
         response.raise_for_status()
         return response
 
-    @staticmethod
-    def _check_response(error_text, request):
+    async def _check_response(
+        self, error_text: str, request: aiohttp.ClientResponse
+    ) -> None:
         """
         Checks the request response, throws exception with the description text
         :param error_text: str
         :param request: response
         :return: None
         """
-        if request is None or request.status_code != 200:
+        if request is None or request.status != 200:
             if request is not None:
-                response = ""
-                for key in request.__attrs__:
-                    response += f"  {key}: {getattr(request, key)}\n"
-                raise Exception(f"{error_text}\n{response}")
+                text = await request.text()
+                raise Exception(f"{error_text}\n{text}")
             raise Exception(f"No response from session. {error_text}")
 
-    def _find_house_id(self):
+    async def _find_house_id(self) -> None:
         """Finds the house id if none is provided."""
-        request = self.post_url(
+        request = await self.post_url(
             self.API_MOBILE_SESSION_URL,
             {"app_version": APP_VERSION, "device_uuid": str(self._uuid)},
         )
-        if request and request.status_code == 200:
-            ts_json = request.json()
+        if request and request.status == 200:
+            ts_json = await request.json()
             if ts_json:
                 data = ts_json["result"]["_links"]["child"][0]["data"]
                 self.house_id = data["id"]
@@ -239,12 +242,12 @@ class NexiaHome:
             else:
                 raise Exception("Nothing in the JSON")
         else:
-            self._check_response(
+            await self._check_response(
                 "Failed to get house id JSON, session probably timed" " out",
                 request,
             )
 
-    def update_from_json(self, json_dict: dict):
+    def update_from_json(self, json_dict: dict[str, Any]) -> None:
         """Update the json from the houses endpoint if fetched externally."""
         self._name = json_dict["result"]["name"]
         self.devices_json = _extract_devices_from_houses_json(json_dict)
@@ -252,7 +255,7 @@ class NexiaHome:
         self._update_devices()
         self._update_automations()
 
-    def update(self, force_update=True):
+    async def update(self, force_update: bool = True) -> None:
         """
         Forces a status update from nexia
         :return: None
@@ -265,28 +268,28 @@ class NexiaHome:
         if self._last_update_etag:
             headers["If-None-Match"] = self._last_update_etag
 
-        response = self._get_url(
+        response = await self._get_url(
             self.API_MOBILE_HOUSES_URL.format(house_id=self.house_id), headers=headers
         )
 
         if not response:
-            self._check_response(
+            await self._check_response(
                 "Failed to get house JSON, session probably timed out",
                 response,
             )
             return
-        if response.status_code == 304:
+        if response.status == 304:
             _LOGGER.debug("Update returned 304")
             # already up to date
             return
-        if response.status_code != 200:
-            self._check_response(
+        if response.status != 200:
+            await self._check_response(
                 "Unexpected http status while fetching house JSON",
                 response,
             )
             return
 
-        ts_json = response.json()
+        ts_json = await response.json()
         if ts_json:
             self._name = ts_json["result"]["name"]
             self.devices_json = _extract_devices_from_houses_json(ts_json)
@@ -333,7 +336,7 @@ class NexiaHome:
                     thermostat_updates_by_id[thermostat.thermostat_id]
                 )
 
-    def _update_automations(self):
+    def _update_automations(self) -> None:
         self.last_update = datetime.datetime.now()
 
         if self.automations is None:
@@ -343,6 +346,7 @@ class NexiaHome:
             return
 
         automation_updates_by_id = {}
+        assert self.automations_json is not None
         for automation_json in self.automations_json:
             automation_updates_by_id[automation_json["id"]] = automation_json
 
@@ -355,7 +359,7 @@ class NexiaHome:
     ########################################################################
     # Session Methods
 
-    def login(self):
+    async def login(self) -> None:
         """
         Provides you with a Nexia web session.
 
@@ -365,7 +369,9 @@ class NexiaHome:
         - house_id - (int) Your house id
         :return: None
         """
-        self._uuid = load_or_create_uuid(self._state_file)
+        self._uuid = await self.loop.run_in_executor(
+            None, load_or_create_uuid, self._state_file
+        )
         if self.login_attempts_left > 0:
             payload = {
                 "login": self.username,
@@ -379,11 +385,11 @@ class NexiaHome:
                 "app_version": APP_VERSION,
                 "is_commercial": False,
             }
-            request = self.post_url(self.API_MOBILE_ACCOUNTS_SIGN_IN_URL, payload)
+            request = await self.post_url(self.API_MOBILE_ACCOUNTS_SIGN_IN_URL, payload)
 
-            if request is None or request.status_code not in (302, 200):
+            if request is None or request.status not in (302, 200):
                 self.login_attempts_left -= 1
-            self._check_response("Failed to login", request)
+            await self._check_response("Failed to login", request)
 
             if request.url == self.AUTH_FORGOTTEN_PASSWORD_STRING:
                 raise Exception(
@@ -391,7 +397,7 @@ class NexiaHome:
                     f". Try to login manually on the website."
                 )
 
-            json_dict = request.json()
+            json_dict = await request.json()
             if json_dict.get("success") is not True:
                 error_text = json_dict.get("error", "Unknown Error")
                 raise Exception(f"Failed to login, {error_text}")
@@ -405,13 +411,14 @@ class NexiaHome:
             )
 
         if not self.house_id:
-            self._find_house_id()
+            await self._find_house_id()
 
-    def get_name(self):
+    def get_name(self) -> str:
         """Name of the house"""
+        assert self._name is not None
         return self._name
 
-    def get_last_update(self):
+    def get_last_update(self) -> str:
         """
         Returns a string indicating the ISO formatted time string of the last
         update
@@ -422,38 +429,38 @@ class NexiaHome:
             return datetime.datetime.isoformat(datetime.datetime.min)
         return datetime.datetime.isoformat(self.last_update)
 
-    def get_thermostat_by_id(self, thermostat_id):
+    def get_thermostat_by_id(self, thermostat_id: int) -> NexiaThermostat:
         """Get a thermostat by its nexia id."""
         for thermostat in self.thermostats:
             if thermostat.thermostat_id == thermostat_id:
                 return thermostat
         raise KeyError
 
-    def get_thermostat_ids(self):
+    def get_thermostat_ids(self) -> list[int]:
         """
         Returns the number of thermostats available to Nexia
         :return:
         """
         return [thermostat.thermostat_id for thermostat in self.thermostats]
 
-    def get_automation_by_id(self, automation_id):
+    def get_automation_by_id(self, automation_id) -> NexiaAutomation:
         """Get a automation by its nexia id."""
         for automation in self.automations:
             if automation.automation_id == automation_id:
                 return automation
         raise KeyError
 
-    def get_phone_ids(self):
+    async def get_phone_ids(self) -> list[int]:
         """Get all the mobile phone ids."""
-        response = self._get_url(self.API_MOBILE_PHONE_URL)
-        data = response.json()
+        response = await self._get_url(self.API_MOBILE_PHONE_URL)
+        data = await response.json()
         items = data["result"]["items"]
         phones = []
         for phone in items:
             phones.append(phone["phone_id"])
         return phones
 
-    def get_automation_ids(self):
+    def get_automation_ids(self) -> list[int]:
         """
         Returns the number of automations available to Nexia
         :return:
@@ -461,20 +468,20 @@ class NexiaHome:
         return [automation.automation_id for automation in self.automations]
 
 
-def _extract_devices_from_houses_json(json_dict: dict):
+def _extract_devices_from_houses_json(json_dict: dict) -> list[dict[str, Any]]:
     """Extras the payload from the houses json endpoint data."""
     return _extract_items(
         json_dict["result"]["_links"]["child"][DEVICES_ELEMENT]["data"]
     )
 
 
-def _extract_automations_from_houses_json(json_dict: dict):
+def _extract_automations_from_houses_json(json_dict: dict) -> list[dict[str, Any]]:
     """Extras the payload from the houses json endpoint data."""
     return _extract_items(
         json_dict["result"]["_links"]["child"][AUTOMATIONS_ELEMENT]["data"]
     )
 
 
-def _extract_items(json_dict: dict):
+def _extract_items(json_dict: dict) -> list[dict[str, Any]]:
     """Return the items key if it exists, otherwise the top level."""
     return json_dict.get("items", json_dict)

@@ -1,8 +1,8 @@
-voluptuous
 flake8
 mock
+mypy
 pylint
 pytest
 pytest-cov
-requests_mock
+aioresponses
 tox

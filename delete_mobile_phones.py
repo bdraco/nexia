@@ -3,10 +3,38 @@
 """Nexia Climate Device Access"""
 
 import argparse
+import asyncio
 import pprint
 
-from nexia.home import NexiaHome
+import aiohttp
+
 from nexia.const import BRAND_NEXIA
+from nexia.home import NexiaHome
+
+
+async def _runner(username, password, brand):
+    session = aiohttp.ClientSession()
+    try:
+        nexia_home = NexiaHome(
+            session, username=username, password=password, brand=brand
+        )
+        await nexia_home.login()
+        count = 0
+        for phone_id in await nexia_home.get_phone_ids():
+            count += 1
+            if count < 5:
+                continue
+
+            print("Delete phone id: ", phone_id)
+            response = await nexia_home.session.delete(
+                "https://www.mynexia.com/mobile/phones/" + str(phone_id),
+                headers=nexia_home._api_key_headers(),
+            )
+            pprint.pprint(response)
+    finally:
+        await session.close()
+    return nexia_home
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--brand", type=str, help="Brand (nexia or asair or trane).")
@@ -16,20 +44,7 @@ args = parser.parse_args()
 brand = args.brand or BRAND_NEXIA
 
 if args.username and args.password:
-    nexia_home = NexiaHome(username=args.username, password=args.password, brand=brand)
+    nexia_home = asyncio.run(_runner(args.username, args.password, brand))
 else:
     parser.print_help()
     exit()
-
-count = 0
-for phone_id in nexia_home.get_phone_ids():
-    count += 1
-    if count < 5:
-        continue
-
-    print("Delete phone id: ", phone_id)
-    response = nexia_home.session.delete(
-        "https://www.mynexia.com/mobile/phones/" + str(phone_id),
-        headers=nexia_home._api_key_headers(),
-    )
-    pprint.pprint(response)

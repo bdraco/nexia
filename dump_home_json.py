@@ -3,10 +3,27 @@
 """Nexia Climate Device Access"""
 
 import argparse
+import asyncio
 import logging
 
-from nexia.home import NexiaHome
+import aiohttp
+
 from nexia.const import BRAND_NEXIA
+from nexia.home import NexiaHome
+
+
+async def _runner(username, password, brand):
+    session = aiohttp.ClientSession()
+    try:
+        nexia_home = NexiaHome(
+            session, username=username, password=password, brand=brand
+        )
+        await nexia_home.login()
+        await nexia_home.update()
+    finally:
+        await session.close()
+    return nexia_home
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--debug", action="store_const", const=True, help="Enable debug.")
@@ -20,7 +37,7 @@ if args.debug:
     logging.basicConfig(level=logging.DEBUG)
 
 if args.username and args.password:
-    nexia_home = NexiaHome(username=args.username, password=args.password, brand=brand)
+    nexia_home = asyncio.run(_runner(args.username, args.password, brand))
 else:
     parser.print_help()
     exit()

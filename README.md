@@ -9,6 +9,10 @@
 
 The `nexia` component lets you control thermostats connected to [Nexia (Trane/American Standard)](https://www.nexiahome.com/).
 
+As of version 1.0.0 this library uses asyncio and aiohttp. The last version to use requests was 0.9.13.
+
+All the set functions are no coroutines.
+
 Supported XL950, XL1050, XL824
 Not supported XL624, others
 
