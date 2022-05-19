@@ -83,13 +83,13 @@ async def test_idle_thermo(aiohttp_session):
     assert thermostat.get_requested_compressor_speed() == 0.0
     assert thermostat.get_fan_speed_setpoint() == 0.35
     assert thermostat.get_dehumidify_setpoint() == 0.50
-    assert thermostat.has_dehumidify_support() == True
-    assert thermostat.has_dehumidify_support() == True
-    assert thermostat.has_emergency_heat() == False
+    assert thermostat.has_dehumidify_support() is True
+    assert thermostat.has_dehumidify_support() is True
+    assert thermostat.has_emergency_heat() is False
     assert thermostat.get_system_status() == "System Idle"
-    assert thermostat.has_air_cleaner() == True
+    assert thermostat.has_air_cleaner() is True
     assert thermostat.get_air_cleaner_mode() == "auto"
-    assert thermostat.is_blower_active() == False
+    assert thermostat.is_blower_active() is False
 
     zone_ids = thermostat.get_zone_ids()
     assert zone_ids == [83261002, 83261005, 83261008, 83261011]
@@ -123,14 +123,14 @@ async def test_idle_thermo_issue_33758(mock_aioresponse: aioresponses, aiohttp_s
     assert thermostat.get_requested_compressor_speed() == 0.0
     assert thermostat.get_fan_speed_setpoint() == 1
     assert thermostat.get_dehumidify_setpoint() == 0.55
-    assert thermostat.has_dehumidify_support() == True
-    assert thermostat.has_humidify_support() == True
-    assert thermostat.has_emergency_heat() == True
-    assert thermostat.is_emergency_heat_active() == False
+    assert thermostat.has_dehumidify_support() is True
+    assert thermostat.has_humidify_support() is True
+    assert thermostat.has_emergency_heat() is True
+    assert thermostat.is_emergency_heat_active() is False
     assert thermostat.get_system_status() == "System Idle"
-    assert thermostat.has_air_cleaner() == True
+    assert thermostat.has_air_cleaner() is True
     assert thermostat.get_air_cleaner_mode() == "auto"
-    assert thermostat.is_blower_active() == False
+    assert thermostat.is_blower_active() is False
 
     devices = _extract_devices_from_houses_json(devices_json)
     mock_aioresponse.post(
@@ -182,14 +182,14 @@ async def test_idle_thermo_issue_33968_thermostat_1690380(aiohttp_session):
     assert thermostat.get_requested_compressor_speed() == 0.41
     assert thermostat.get_fan_speed_setpoint() == 0.5
     assert thermostat.get_dehumidify_setpoint() == 0.55
-    assert thermostat.has_dehumidify_support() == True
-    assert thermostat.has_humidify_support() == False
-    assert thermostat.has_emergency_heat() == True
-    assert thermostat.is_emergency_heat_active() == False
+    assert thermostat.has_dehumidify_support() is True
+    assert thermostat.has_humidify_support() is False
+    assert thermostat.has_emergency_heat() is True
+    assert thermostat.is_emergency_heat_active() is False
     assert thermostat.get_system_status() == "Cooling"
-    assert thermostat.has_air_cleaner() == True
+    assert thermostat.has_air_cleaner() is True
     assert thermostat.get_air_cleaner_mode() == "auto"
-    assert thermostat.is_blower_active() == True
+    assert thermostat.is_blower_active() is True
 
 
 async def test_active_thermo(aiohttp_session):
@@ -214,18 +214,18 @@ async def test_active_thermo(aiohttp_session):
     assert thermostat.get_fan_mode() == "Auto"
     assert thermostat.get_fan_modes() == ["Auto", "On", "Circulate"]
     assert thermostat.get_outdoor_temperature() == 87.0
-    assert thermostat.get_relative_humidity() == None
+    assert thermostat.get_relative_humidity() is None
     assert thermostat.get_current_compressor_speed() == 0.69
     assert thermostat.get_requested_compressor_speed() == 0.69
     assert thermostat.get_fan_speed_setpoint() == 0.35
     assert thermostat.get_dehumidify_setpoint() == 0.45
-    assert thermostat.has_dehumidify_support() == True
-    assert thermostat.has_humidify_support() == False
-    assert thermostat.has_emergency_heat() == False
+    assert thermostat.has_dehumidify_support() is True
+    assert thermostat.has_humidify_support() is False
+    assert thermostat.has_emergency_heat() is False
     assert thermostat.get_system_status() == "Cooling"
-    assert thermostat.has_air_cleaner() == True
+    assert thermostat.has_air_cleaner() is True
     assert thermostat.get_air_cleaner_mode() == "auto"
-    assert thermostat.is_blower_active() == True
+    assert thermostat.is_blower_active() is True
 
     zone_ids = thermostat.get_zone_ids()
     assert zone_ids == [83394133, 83394130, 83394136, 83394127, 83394139]
@@ -242,27 +242,27 @@ async def test_xl624(aiohttp_session):
     assert thermostat_ids == [2222222, 3333333]
     thermostat = nexia.get_thermostat_by_id(1111111)
 
-    assert thermostat.get_model() == None
+    assert thermostat.get_model() is None
     assert thermostat.get_firmware() == "2.8"
     assert thermostat.get_dev_build_number() == "0603340208"
-    assert thermostat.get_device_id() == None
-    assert thermostat.get_type() == None
+    assert thermostat.get_device_id() is None
+    assert thermostat.get_type() is None
     assert thermostat.get_name() == "Downstairs Hall"
     assert thermostat.get_deadband() == 3
     assert thermostat.get_setpoint_limits() == (55, 99)
-    assert thermostat.has_variable_fan_speed() == False
+    assert thermostat.has_variable_fan_speed() is False
     assert thermostat.get_unit() == "F"
     assert thermostat.get_humidity_setpoint_limits() == (0.35, 0.65)
     assert thermostat.get_fan_mode() == "Auto"
     assert thermostat.get_fan_modes() == ["Auto", "On", "Cycler"]
     assert thermostat.get_current_compressor_speed() == 0.0
     assert thermostat.get_requested_compressor_speed() == 0.0
-    assert thermostat.has_dehumidify_support() == False
-    assert thermostat.has_humidify_support() == False
-    assert thermostat.has_emergency_heat() == False
+    assert thermostat.has_dehumidify_support() is False
+    assert thermostat.has_humidify_support() is False
+    assert thermostat.has_emergency_heat() is False
     assert thermostat.get_system_status() == "System Idle"
-    assert thermostat.has_air_cleaner() == False
-    assert thermostat.is_blower_active() == False
+    assert thermostat.has_air_cleaner() is False
+    assert thermostat.is_blower_active() is False
 
     zone_ids = thermostat.get_zone_ids()
     assert zone_ids == [12345678]
@@ -286,19 +286,19 @@ async def test_xl824_1(aiohttp_session):
     assert thermostat.get_name() == "Family Room"
     assert thermostat.get_deadband() == 3
     assert thermostat.get_setpoint_limits() == (55, 99)
-    assert thermostat.has_variable_fan_speed() == True
+    assert thermostat.has_variable_fan_speed() is True
     assert thermostat.get_unit() == "F"
     assert thermostat.get_humidity_setpoint_limits() == (0.35, 0.65)
     assert thermostat.get_fan_mode() == "Circulate"
     assert thermostat.get_fan_modes() == ["Auto", "On", "Circulate"]
     assert thermostat.get_current_compressor_speed() == 0.0
     assert thermostat.get_requested_compressor_speed() == 0.0
-    assert thermostat.has_dehumidify_support() == True
-    assert thermostat.has_humidify_support() == False
-    assert thermostat.has_emergency_heat() == False
+    assert thermostat.has_dehumidify_support() is True
+    assert thermostat.has_humidify_support() is False
+    assert thermostat.has_emergency_heat() is False
     assert thermostat.get_system_status() == "System Idle"
-    assert thermostat.has_air_cleaner() == True
-    assert thermostat.is_blower_active() == False
+    assert thermostat.has_air_cleaner() is True
+    assert thermostat.is_blower_active() is False
 
     zone_ids = thermostat.get_zone_ids()
     assert zone_ids == [88888888]
@@ -322,19 +322,19 @@ async def test_xl824_2(aiohttp_session):
     assert thermostat.get_name() == "Upstairs"
     assert thermostat.get_deadband() == 3
     assert thermostat.get_setpoint_limits() == (55, 99)
-    assert thermostat.has_variable_fan_speed() == True
+    assert thermostat.has_variable_fan_speed() is True
     assert thermostat.get_unit() == "F"
     assert thermostat.get_humidity_setpoint_limits() == (0.35, 0.65)
     assert thermostat.get_fan_mode() == "Circulate"
     assert thermostat.get_fan_modes() == ["Auto", "On", "Circulate"]
     assert thermostat.get_current_compressor_speed() == 0.0
     assert thermostat.get_requested_compressor_speed() == 0.0
-    assert thermostat.has_dehumidify_support() == True
-    assert thermostat.has_humidify_support() == False
-    assert thermostat.has_emergency_heat() == False
+    assert thermostat.has_dehumidify_support() is True
+    assert thermostat.has_humidify_support() is False
+    assert thermostat.has_emergency_heat() is False
     assert thermostat.get_system_status() == "System Idle"
-    assert thermostat.has_air_cleaner() == True
-    assert thermostat.is_blower_active() == False
+    assert thermostat.has_air_cleaner() is True
+    assert thermostat.is_blower_active() is False
 
     zone_ids = thermostat.get_zone_ids()
     assert zone_ids == [99999999]
@@ -388,8 +388,8 @@ async def test_zone_issue_33968_zone_83037337(aiohttp_session):
     assert zone.get_preset() == "None"
     assert zone.get_status() == "Damper Closed"
     assert zone.get_setpoint_status() == "Permanent Hold"
-    assert zone.is_calling() == False
-    assert zone.is_in_permanent_hold() == True
+    assert zone.is_calling() is False
+    assert zone.is_in_permanent_hold() is True
 
 
 async def test_zone_issue_33968_zone_83037340(aiohttp_session):
@@ -412,8 +412,8 @@ async def test_zone_issue_33968_zone_83037340(aiohttp_session):
     assert zone.get_preset() == "None"
     assert zone.get_status() == "Damper Open"
     assert zone.get_setpoint_status() == "Permanent Hold"
-    assert zone.is_calling() == True
-    assert zone.is_in_permanent_hold() == True
+    assert zone.is_calling() is True
+    assert zone.is_in_permanent_hold() is True
 
 
 async def test_zone_issue_33968_zone_83037343(aiohttp_session):
@@ -436,8 +436,8 @@ async def test_zone_issue_33968_zone_83037343(aiohttp_session):
     assert zone.get_preset() == "None"
     assert zone.get_status() == "Damper Open"
     assert zone.get_setpoint_status() == "Permanent Hold"
-    assert zone.is_calling() == True
-    assert zone.is_in_permanent_hold() == True
+    assert zone.is_calling() is True
+    assert zone.is_in_permanent_hold() is True
 
 
 async def test_zone_issue_33758(aiohttp_session):
@@ -460,8 +460,8 @@ async def test_zone_issue_33758(aiohttp_session):
     assert zone.get_preset() == "None"
     assert zone.get_status() == "Idle"
     assert zone.get_setpoint_status() == "Run Schedule - None"
-    assert zone.is_calling() == False
-    assert zone.is_in_permanent_hold() == False
+    assert zone.is_calling() is False
+    assert zone.is_in_permanent_hold() is False
 
 
 async def test_zone_relieving_air(aiohttp_session):
@@ -484,8 +484,8 @@ async def test_zone_relieving_air(aiohttp_session):
     assert zone.get_preset() == "None"
     assert zone.get_status() == "Relieving Air"
     assert zone.get_setpoint_status() == "Permanent Hold"
-    assert zone.is_calling() == True
-    assert zone.is_in_permanent_hold() == True
+    assert zone.is_calling() is True
+    assert zone.is_in_permanent_hold() is True
 
 
 async def test_zone_cooling_air(aiohttp_session):
@@ -506,8 +506,8 @@ async def test_zone_cooling_air(aiohttp_session):
     assert zone.get_preset() == "None"
     assert zone.get_status() == "Damper Open"
     assert zone.get_setpoint_status() == "Permanent Hold"
-    assert zone.is_calling() == True
-    assert zone.is_in_permanent_hold() == True
+    assert zone.is_calling() is True
+    assert zone.is_in_permanent_hold() is True
 
 
 async def test_zone_idle(aiohttp_session):
@@ -528,8 +528,8 @@ async def test_zone_idle(aiohttp_session):
     assert zone.get_preset() == "None"
     assert zone.get_status() == "Idle"
     assert zone.get_setpoint_status() == "Permanent Hold"
-    assert zone.is_calling() == False
-    assert zone.is_in_permanent_hold() == True
+    assert zone.is_calling() is False
+    assert zone.is_in_permanent_hold() is True
 
 
 async def test_xl824_idle(aiohttp_session):
@@ -552,8 +552,8 @@ async def test_xl824_idle(aiohttp_session):
     assert zone.get_preset() == "None"
     assert zone.get_status() == "Idle"
     assert zone.get_setpoint_status() == "Permanent Hold"
-    assert zone.is_calling() == False
-    assert zone.is_in_permanent_hold() == True
+    assert zone.is_calling() is False
+    assert zone.is_in_permanent_hold() is True
 
 
 async def test_single_zone(aiohttp_session):
@@ -576,8 +576,59 @@ async def test_single_zone(aiohttp_session):
     assert zone.get_preset() == "None"
     assert zone.get_status() == "Idle"
     assert zone.get_setpoint_status() == "Permanent Hold"
-    assert zone.is_calling() == True
-    assert zone.is_in_permanent_hold() == True
+    assert zone.is_calling() is True
+    assert zone.is_in_permanent_hold() is True
+
+
+async def test_single_zone_system_off(aiohttp_session):
+    """Test thermostat with only a single (Native) zone."""
+    nexia = NexiaHome(aiohttp_session)
+    devices_json = json.loads(await load_fixture("single_zone_xl1050_system_off.json"))
+    nexia.update_from_json(devices_json)
+
+    thermostat_ids = nexia.get_thermostat_ids()
+    assert thermostat_ids == [345678]
+    thermostat = nexia.get_thermostat_by_id(345678)
+    assert thermostat.get_model() == "XL1050"
+    assert thermostat.get_firmware() == "5.9.3"
+    assert thermostat.get_dev_build_number() == "1599485560"
+    assert thermostat.get_device_id() == "028E05EC"
+    assert thermostat.get_type() == "XL1050"
+    assert thermostat.get_name() == "Thermostat 1"
+    assert thermostat.get_deadband() == 3
+    assert thermostat.get_setpoint_limits() == (55, 99)
+    assert thermostat.get_variable_fan_speed_limits() == (0.35, 1.0)
+    assert thermostat.get_unit() == "F"
+    assert thermostat.get_humidity_setpoint_limits() == (0.35, 0.65)
+    assert thermostat.get_fan_mode(), "Auto"
+    assert thermostat.get_fan_modes() == ["Auto", "On", "Circulate"]
+    assert thermostat.get_outdoor_temperature() == 64.0
+    assert thermostat.get_relative_humidity() == 0.59
+    assert thermostat.get_current_compressor_speed() == 0.0
+    assert thermostat.get_requested_compressor_speed() == 0.0
+    assert thermostat.get_fan_speed_setpoint() == 0.5
+    assert thermostat.get_dehumidify_setpoint() == 0.50
+    assert thermostat.has_dehumidify_support() is True
+    assert thermostat.has_humidify_support() is False
+    assert thermostat.has_emergency_heat() is True
+    assert thermostat.get_system_status() == "System Off"
+    assert thermostat.has_air_cleaner() is True
+    assert thermostat.get_air_cleaner_mode() == "auto"
+    assert thermostat.is_blower_active() is False
+
+    zone = thermostat.get_zone_by_id(234567)
+
+    assert zone.get_name() == "Thermostat 1 NativeZone"
+    assert zone.get_cooling_setpoint() == 73
+    assert zone.get_heating_setpoint() == 68
+    assert zone.get_current_mode() == "AUTO"
+    assert zone.get_requested_mode() == "AUTO"
+    assert zone.get_presets() == ["None", "Home", "Away", "Sleep"]
+    assert zone.get_preset() == "None"
+    assert zone.get_status() == "Idle"
+    assert zone.get_setpoint_status() == "Permanent Hold"
+    assert zone.is_calling() is True
+    assert zone.is_in_permanent_hold() is True
 
 
 """Automations tests."""
@@ -614,5 +665,5 @@ async def test_automations(aiohttp_session):
         "named 'Away 12' AND Master Suite will permanently hold the "
         "heat to 62.0 and cool to 83.0"
     )
-    assert automation_one.enabled == True
+    assert automation_one.enabled is True
     assert automation_one.automation_id == 3467876

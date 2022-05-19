@@ -4,13 +4,7 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING, Any
 
-from .const import (
-    AIR_CLEANER_MODES,
-    HUMIDITY_MAX,
-    HUMIDITY_MIN,
-    SYSTEM_STATUS_IDLE,
-    SYSTEM_STATUS_WAIT,
-)
+from .const import AIR_CLEANER_MODES, BLOWER_OFF_STATUSES, HUMIDITY_MAX, HUMIDITY_MIN
 from .util import find_dict_with_keyvalue_in_json, find_humidity_setpoint, is_number
 from .zone import NexiaThermostatZone
 
@@ -228,8 +222,7 @@ class NexiaThermostat:
         Returns True if the blower is active
         :return: bool
         """
-        system_status = self.get_system_status()
-        return system_status not in (SYSTEM_STATUS_WAIT, SYSTEM_STATUS_IDLE)
+        return self.get_system_status() not in BLOWER_OFF_STATUSES
 
     def is_emergency_heat_active(self):
         """
