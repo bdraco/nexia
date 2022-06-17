@@ -322,7 +322,7 @@ class NexiaThermostat:
         if self.has_dehumidify_support():
             return self.get_thermostat_settings_key("dehumidify")["current_value"]
 
-        raise AttributeError("This system does not support " "dehumidification")
+        raise AttributeError("This system does not support dehumidification")
 
     def get_humidify_setpoint(self):
         """
