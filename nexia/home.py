@@ -243,7 +243,7 @@ class NexiaHome:
                 raise Exception("Nothing in the JSON")
         else:
             await self._check_response(
-                "Failed to get house id JSON, session probably timed" " out",
+                "Failed to get house id JSON, session probably timed out",
                 request,
             )
 
