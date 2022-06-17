@@ -18,7 +18,6 @@ disable=
   locally-disabled,
   duplicate-code,
   cyclic-import,
-  abstract-class-not-used,
   unused-argument,
   global-statement,
   too-many-arguments,
