@@ -10,6 +10,7 @@ from .const import (
     HOLD_PERMANENT,
     OPERATION_MODE_COOL,
     OPERATION_MODE_HEAT,
+    OPERATION_MODE_OFF,
     OPERATION_MODES,
     PRESET_MODE_NONE,
     SYSTEM_STATUS_IDLE,
@@ -282,6 +283,11 @@ class NexiaThermostatZone:
             heat_temperature,
         )
 
+    async def call_permanent_off(self) -> None:
+        """Turn off permanently."""
+        await self._set_permanent_hold()
+        await self.set_mode(mode=OPERATION_MODE_OFF)
+
     async def set_heat_cool_temp(
         self,
         heat_temperature: float | None = None,
@@ -344,10 +350,8 @@ class NexiaThermostatZone:
 
         await self._set_setpoints(cool_temperature, heat_temperature)
 
-    async def _set_hold_and_setpoints(
-        self, cool_temperature: int | None, heat_temperature: int | None
-    ) -> None:
-        # Set the thermostat
+    async def _set_permanent_hold(self) -> None:
+        """Set to permanent hold."""
         run_mode = self._get_zone_run_mode()
         if run_mode:
             if run_mode["current_value"] != HOLD_PERMANENT:
@@ -355,6 +359,11 @@ class NexiaThermostatZone:
                     "run_mode", {"value": HOLD_PERMANENT}
                 )
 
+    async def _set_hold_and_setpoints(
+        self, cool_temperature: int | None, heat_temperature: int | None
+    ) -> None:
+        # Set the thermostat
+        await self._set_permanent_hold()
         await self._set_setpoints(cool_temperature, heat_temperature)
 
     async def _set_setpoints(
