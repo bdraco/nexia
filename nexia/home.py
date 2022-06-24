@@ -7,6 +7,7 @@ import logging
 from typing import Any
 
 import aiohttp
+import orjson
 
 from .automation import NexiaAutomation
 from .const import (
@@ -234,7 +235,9 @@ class NexiaHome:
             {"app_version": APP_VERSION, "device_uuid": str(self._uuid)},
         )
         if request and request.status == 200:
-            ts_json = await request.json()
+            ts_json = await request.json(
+                loads=orjson.loads  # pylint: disable=no-member
+            )
             if ts_json:
                 data = ts_json["result"]["_links"]["child"][0]["data"]
                 self.house_id = data["id"]
