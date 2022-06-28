@@ -306,33 +306,27 @@ class NexiaHome:
 
     def _update_devices(self):
         self.last_update = datetime.datetime.now()
+        children = []
+        for child in self.devices_json:
+            type_ = child.get('type')
+            if not type_ or "thermostat" in type_:
+                children.append(child)
+            elif type_ == "group" and '_links' in child and 'child' in child['_links']:
+                for sub_child in child['_links']['child']:
+                    children.append(sub_child['data'])
 
         if self.thermostats is None:
             self.thermostats = []
-            for thermostat_json in self.devices_json:
-                if (
-                    "type" in thermostat_json
-                    and "thermostat" not in thermostat_json["type"]
-                ):
-                    # Not a thermostat
-                    continue
-                nexia_thermostat = NexiaThermostat(self, thermostat_json)
+            for child in children:
+                nexia_thermostat = NexiaThermostat(self, child)
                 if not nexia_thermostat.get_zone_ids():
                     # No zones (likely an xl624 which is not supported at this time)
                     continue
                 self.thermostats.append(nexia_thermostat)
-            return
 
-        thermostat_updates_by_id = {}
-        for thermostat_json in self.devices_json:
-            if (
-                "type" in thermostat_json
-                and "thermostat" not in thermostat_json["type"]
-            ):
-                # Not a thermostat
-                continue
-            thermostat_updates_by_id[thermostat_json["id"]] = thermostat_json
-
+        thermostat_updates_by_id = {
+            child["id"]: child for child in children if "id" in child
+        }
         for thermostat in self.thermostats:
             if thermostat.thermostat_id in thermostat_updates_by_id:
                 thermostat.update_thermostat_json(
