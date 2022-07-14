@@ -308,12 +308,12 @@ class NexiaHome:
         self.last_update = datetime.datetime.now()
         children = []
         for child in self.devices_json:
-            type_ = child.get('type')
+            type_ = child.get("type")
             if not type_ or "thermostat" in type_:
                 children.append(child)
-            elif type_ == "group" and '_links' in child and 'child' in child['_links']:
-                for sub_child in child['_links']['child']:
-                    children.append(sub_child['data'])
+            elif type_ == "group" and "_links" in child and "child" in child["_links"]:
+                for sub_child in child["_links"]["child"]:
+                    children.append(sub_child["data"])
 
         if self.thermostats is None:
             self.thermostats = []
@@ -394,7 +394,9 @@ class NexiaHome:
                     f". Try to login manually on the website."
                 )
 
-            json_dict = await request.json()
+            json_dict = await request.json(
+                loads=orjson.loads  # pylint: disable=no-member
+            )
             if json_dict.get("success") is not True:
                 error_text = json_dict.get("error", "Unknown Error")
                 raise Exception(f"Failed to login, {error_text}")
