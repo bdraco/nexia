@@ -95,9 +95,9 @@ async def test_idle_thermo(aiohttp_session):
     assert zone_ids == [83261002, 83261005, 83261008, 83261011]
 
 
-async def test_idle_thermo_issue_33758(mock_aioresponse: aioresponses, aiohttp_session):
+async def test_idle_thermo_issue_33758(mock_aioresponse: aioresponses):
     """Get methods for an idle thermostat."""
-    assert isinstance(aiohttp_session, aiohttp.ClientSession)
+    aiohttp_session = aiohttp.ClientSession()
     nexia = NexiaHome(aiohttp_session)
     devices_json = json.loads(await load_fixture("mobile_house_issue_33758.json"))
     nexia.update_from_json(devices_json)
@@ -147,7 +147,7 @@ async def test_idle_thermo_issue_33758(mock_aioresponse: aioresponses, aiohttp_s
 
     zone_ids = thermostat.get_zone_ids()
     assert zone_ids == [12345678]
-
+    await aiohttp_session.close()
 
 async def test_idle_thermo_issue_33968_thermostat_1690380(aiohttp_session):
     """Get methods for an cooling thermostat."""
