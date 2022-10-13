@@ -367,7 +367,7 @@ class NexiaHome:
         :return: None
         """
         self._uuid = await self.loop.run_in_executor(  # type: ignore
-            None, load_or_create_uuid, self._state_file # type: ignore
+            None, load_or_create_uuid, self._state_file  # type: ignore
         )
         if self.login_attempts_left > 0:
             payload = {
