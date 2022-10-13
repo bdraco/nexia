@@ -285,7 +285,7 @@ class NexiaThermostatZone:
 
     async def call_permanent_off(self) -> None:
         """Turn off permanently."""
-        await self._set_permanent_hold()
+        await self.set_permanent_hold()
         await self.set_mode(mode=OPERATION_MODE_OFF)
 
     async def set_heat_cool_temp(
@@ -350,7 +350,7 @@ class NexiaThermostatZone:
 
         await self._set_setpoints(cool_temperature, heat_temperature)
 
-    async def _set_permanent_hold(self) -> None:
+    async def set_permanent_hold(self) -> None:
         """Set to permanent hold."""
         run_mode = self._get_zone_run_mode()
         if run_mode:
@@ -363,7 +363,7 @@ class NexiaThermostatZone:
         self, cool_temperature: int | None, heat_temperature: int | None
     ) -> None:
         # Set the thermostat
-        await self._set_permanent_hold()
+        await self.set_permanent_hold()
         await self._set_setpoints(cool_temperature, heat_temperature)
 
     async def _set_setpoints(
