@@ -149,6 +149,7 @@ async def test_idle_thermo_issue_33758(mock_aioresponse: aioresponses):
     assert zone_ids == [12345678]
     await aiohttp_session.close()
 
+
 async def test_idle_thermo_issue_33968_thermostat_1690380(aiohttp_session):
     """Get methods for an cooling thermostat."""
     nexia = NexiaHome(aiohttp_session)
@@ -716,3 +717,96 @@ async def test_x850_grouped(aiohttp_session):
     assert zone.get_setpoint_status() == "Permanent Hold"
     assert zone.is_calling() is True
     assert zone.is_in_permanent_hold() is True
+
+
+async def test_issue_79891(aiohttp_session):
+    """Get methods issue 79891 thermostat.
+
+    https://github.com/home-assistant/core/issues/79891
+    """
+    nexia = NexiaHome(aiohttp_session)
+    devices_json = json.loads(await load_fixture("issue_79891.json"))
+    nexia.update_from_json(devices_json)
+
+    thermostat_ids = nexia.get_thermostat_ids()
+    assert thermostat_ids == [2473073, 2222249]
+
+    # Thermostat 1
+    thermostat = nexia.get_thermostat_by_id(2473073)
+    assert thermostat.get_model() == "XL824"
+    assert thermostat.get_firmware() == "5.9.6"
+    assert thermostat.get_dev_build_number() == "1614575015"
+    assert thermostat.get_device_id() == "01695948"
+    assert thermostat.get_type() == "XL824"
+    assert thermostat.get_name() == "First floor"
+    assert thermostat.get_deadband() == 2
+    assert thermostat.get_setpoint_limits() == (13.0, 37.0)
+    assert thermostat.has_variable_fan_speed() is False
+    assert thermostat.get_unit() == "C"
+    assert thermostat.get_humidity_setpoint_limits() == (0.35, 0.65)
+    assert thermostat.get_fan_mode() == "Auto"
+    assert thermostat.get_fan_modes() == ["Auto", "On", "Circulate"]
+    assert thermostat.get_current_compressor_speed() == 0
+    assert thermostat.get_requested_compressor_speed() == 0
+    assert thermostat.has_dehumidify_support() is True
+    assert thermostat.has_humidify_support() is False
+    assert thermostat.has_emergency_heat() is False
+    assert thermostat.get_system_status() == "System Idle"
+    assert thermostat.has_air_cleaner() is True
+    assert thermostat.is_blower_active() is False
+
+    zone_ids = thermostat.get_zone_ids()
+    assert zone_ids == [83496154]
+    zone = thermostat.get_zone_by_id(83496154)
+
+    assert zone.get_name() == "First floor NativeZone"
+    assert zone.get_cooling_setpoint() == 26.5
+    assert zone.get_heating_setpoint() == 22.0
+    assert zone.get_current_mode() == "AUTO"
+    assert zone.get_requested_mode() == "AUTO"
+    assert zone.get_presets() == ["None", "Home", "Away", "Sleep"]
+    assert zone.get_preset() == "None"
+    assert zone.get_status() == "Idle"
+    assert zone.get_setpoint_status() == "Run Schedule - None"
+    assert zone.is_calling() is False
+    assert zone.is_in_permanent_hold() is False
+
+    # Thermostat 2
+    thermostat = nexia.get_thermostat_by_id(2222249)
+    assert thermostat.get_model() == "XR724"
+    assert thermostat.get_firmware() == "02.72.00"
+    assert thermostat.get_dev_build_number() is None
+    assert thermostat.get_device_id() == "0080E1CB6FF0"
+    assert thermostat.get_type() == "XR724"
+    assert thermostat.get_name() == "Second floor"
+    assert thermostat.get_deadband() == 2
+    assert thermostat.get_setpoint_limits() == (13.0, 37.0)
+    assert thermostat.has_variable_fan_speed() is False
+    assert thermostat.get_unit() == "C"
+    assert thermostat.get_humidity_setpoint_limits() == (0.35, 0.65)
+    assert thermostat.get_fan_mode() == "Auto"
+    assert thermostat.get_fan_modes() == ["Circulate", "Auto", "On"]
+    assert thermostat.get_current_compressor_speed() == 0
+    assert thermostat.get_requested_compressor_speed() == 0
+    assert thermostat.has_dehumidify_support() is False
+    assert thermostat.has_humidify_support() is False
+    assert thermostat.has_emergency_heat() is False
+    assert thermostat.get_system_status() == "System Idle"
+    assert thermostat.has_air_cleaner() is False
+    assert thermostat.is_blower_active() is False
+
+    zone_ids = thermostat.get_zone_ids()
+    assert zone_ids == [1]
+    zone = thermostat.get_zone_by_id(1)
+
+    assert zone.get_name() == "default"
+    assert zone.get_cooling_setpoint() == 27.0
+    assert zone.get_heating_setpoint() == 20.0
+    assert zone.get_current_mode() == "AUTO"
+    assert zone.get_requested_mode() == "AUTO"
+    assert zone.get_presets() == ["Off", "Auto", "Cool", "Heat"]
+    assert zone.get_preset() == "Auto"
+    assert zone.get_status() == "auto"
+    assert zone.get_setpoint_status() == "Run Schedule - Auto"
+    assert zone.is_calling() is True
+    assert zone.is_in_permanent_hold() is False
