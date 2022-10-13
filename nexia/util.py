@@ -30,7 +30,7 @@ def find_dict_with_keyvalue_in_json(json_dict, key_in_subdict, value_to_find):
     raise KeyError
 
 
-def load_or_create_uuid(filename):
+def load_or_create_uuid(filename: str) -> uuid.UUID | None:
     """Load or create a uuid for the device."""
     try:
         with open(filename, encoding="utf-8") as fptr:
