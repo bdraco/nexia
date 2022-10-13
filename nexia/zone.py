@@ -109,7 +109,14 @@ class NexiaThermostatZone:
         :return: str
         """
         preset_selected = self._get_zone_setting("preset_selected")
-        return preset_selected["labels"][preset_selected["current_value"]]
+        current_value = preset_selected["current_value"]
+        labels = preset_selected["labels"]
+        if isinstance(current_value, int):
+            return labels[current_value]
+        for option in preset_selected["options"]:
+            if option["value"] == current_value:
+                return option["label"]
+        raise ValueError(f"Unknown preset {current_value}")
 
     def get_status(self) -> str:
         """
@@ -441,11 +448,14 @@ class NexiaThermostatZone:
         :param key: str
         :return: The value of the key/value pair.
         """
-
         if not self._has_zoning:
+            thermostat = self.thermostat
             if key == "zone_mode":
                 key = "system_mode"
-            return self.thermostat.get_thermostat_settings_key(key)
+
+            return thermostat.get_thermostat_settings_key_or_none(
+                key
+            ) or thermostat.get_thermostat_settings_key_or_none("mode")
 
         zone = self._zone_json
         subdict = find_dict_with_keyvalue_in_json(zone["settings"], "type", key)

@@ -1,0 +1,1617 @@
+{
+  "success": true,
+  "error": null,
+  "result": {
+    "id": 123456,
+    "name": "My Home",
+    "third_party_integrations": [],
+    "latitude": null,
+    "longitude": null,
+    "dealer_opt_in": false,
+    "room_iq_enabled": false,
+    "_links": {
+      "self": {
+        "href": "https://www.mynexia.com/mobile/houses/123456"
+      },
+      "edit": [
+        {
+          "href": "https://www.mynexia.com/mobile/houses/123456/edit",
+          "method": "GET"
+        }
+      ],
+      "child": [
+        {
+          "href": "https://www.mynexia.com/mobile/houses/123456/devices",
+          "type": "application/vnd.nexia.collection+json",
+          "data": {
+            "items": [
+                {
+                  "id": 2473073,
+                  "name": "First floor",
+                  "name_editable": true,
+                  "features": [
+                    {
+                      "name": "advanced_info",
+                      "items": [
+                        {
+                          "type": "label_value",
+                          "label": "Model",
+                          "value": "XL824"
+                        },
+                        {
+                          "type": "label_value",
+                          "label": "AUID",
+                          "value": "01695948"
+                        },
+                        {
+                          "type": "label_value",
+                          "label": "Firmware Build Number",
+                          "value": "1614575015"
+                        },
+                        {
+                          "type": "label_value",
+                          "label": "Firmware Build Date",
+                          "value": "2021-03-01 05:03:35 UTC"
+                        },
+                        {
+                          "type": "label_value",
+                          "label": "Firmware Version",
+                          "value": "5.9.6"
+                        },
+                        {
+                          "type": "label_value",
+                          "label": "On Board Device",
+                          "value": "Bridge"
+                        }
+                      ]
+                    },
+                    {
+                      "name": "thermostat",
+                      "temperature": 26.0,
+                      "status": "System Idle",
+                      "status_icon": null,
+                      "actions": {
+                        "set_heat_setpoint": {
+                          "href": "https://www.mynexia.com/mobile/xxl_zones/83496154/setpoints"
+                        },
+                        "set_cool_setpoint": {
+                          "href": "https://www.mynexia.com/mobile/xxl_zones/83496154/setpoints"
+                        }
+                      },
+                      "setpoint_delta": 2,
+                      "scale": "c",
+                      "setpoint_increment": 0.5,
+                      "setpoint_heat_min": 13.0,
+                      "setpoint_heat_max": 32.0,
+                      "setpoint_cool_min": 15.5,
+                      "setpoint_cool_max": 37.0,
+                      "setpoint_heat": 22.0,
+                      "setpoint_cool": 26.5,
+                      "system_status": "System Idle"
+                    },
+                    {
+                      "name": "connection",
+                      "signal_strength": "unknown",
+                      "is_connected": true
+                    },
+                    {
+                      "name": "dealer_contact_info",
+                      "has_dealer_identifier": false,
+                      "actions": {
+                        "request_current_dealer_info": {},
+                        "request_dealers_by_zip": {
+                          "method": "POST",
+                          "href": "https://www.mynexia.com/mobile/dealers/2473073/search"
+                        }
+                      }
+                    },
+                    {
+                      "name": "thermostat_mode",
+                      "label": "System Mode",
+                      "value": "AUTO",
+                      "display_value": "Auto",
+                      "options": [
+                        {
+                          "id": "thermostat_mode",
+                          "label": "System Mode",
+                          "value": "thermostat_mode",
+                          "header": true
+                        },
+                        {
+                          "value": "AUTO",
+                          "label": "Auto"
+                        },
+                        {
+                          "value": "COOL",
+                          "label": "Cooling"
+                        },
+                        {
+                          "value": "HEAT",
+                          "label": "Heating"
+                        },
+                        {
+                          "value": "OFF",
+                          "label": "Off"
+                        }
+                      ],
+                      "actions": {
+                        "update_thermostat_mode": {
+                          "method": "POST",
+                          "href": "https://www.mynexia.com/mobile/xxl_zones/83496154/zone_mode"
+                        }
+                      }
+                    },
+                    {
+                      "name": "thermostat_run_mode",
+                      "label": "Run Mode",
+                      "options": [
+                        {
+                          "id": "thermostat_run_mode",
+                          "label": "Run Mode",
+                          "value": "thermostat_run_mode",
+                          "header": true
+                        },
+                        {
+                          "id": "info_text",
+                          "label": "Follow or override the schedule.",
+                          "value": "info_text",
+                          "info": true
+                        },
+                        {
+                          "value": "permanent_hold",
+                          "label": "Permanent Hold"
+                        },
+                        {
+                          "value": "run_schedule",
+                          "label": "Run Schedule"
+                        }
+                      ],
+                      "value": "run_schedule",
+                      "display_value": "Run Schedule",
+                      "actions": {
+                        "update_thermostat_run_mode": {
+                          "method": "POST",
+                          "href": "https://www.mynexia.com/mobile/xxl_zones/83496154/run_mode"
+                        }
+                      }
+                    },
+                    {
+                      "name": "room_iq_sensors",
+                      "sensors": [
+                        {
+                          "id": 14731783,
+                          "name": "First floor",
+                          "icon": {
+                            "name": "room_iq_onboard",
+                            "modifiers": []
+                          },
+                          "type": "thermostat",
+                          "serial_number": "NativeIDTUniqueID",
+                          "weight": 1.0,
+                          "temperature": 26.0,
+                          "temperature_valid": true,
+                          "humidity": 43,
+                          "humidity_valid": true,
+                          "has_online": false,
+                          "has_battery": false
+                        }
+                      ],
+                      "should_show": false,
+                      "actions": {
+                        "request_current_state": {
+                          "href": "https://www.mynexia.com/mobile/xxl_zones/83496154/request_current_sensor_state"
+                        },
+                        "update_active_sensors": {
+                          "method": "POST",
+                          "href": "https://www.mynexia.com/mobile/xxl_zones/83496154/update_active_sensors"
+                        }
+                      }
+                    },
+                    {
+                      "name": "thermostat_fan_mode",
+                      "label": "Fan Mode",
+                      "options": [
+                        {
+                          "id": "thermostat_fan_mode",
+                          "label": "Fan Mode",
+                          "value": "thermostat_fan_mode",
+                          "header": true
+                        },
+                        {
+                          "value": "auto",
+                          "label": "Auto"
+                        },
+                        {
+                          "value": "on",
+                          "label": "On"
+                        },
+                        {
+                          "value": "circulate",
+                          "label": "Circulate"
+                        }
+                      ],
+                      "value": "auto",
+                      "display_value": "Auto",
+                      "status_icon": {
+                        "name": "thermostat_fan_off",
+                        "modifiers": []
+                      },
+                      "actions": {
+                        "update_thermostat_fan_mode": {
+                          "method": "POST",
+                          "href": "https://www.mynexia.com/mobile/xxl_thermostats/2473073/fan_mode"
+                        }
+                      }
+                    },
+                    {
+                      "name": "runtime_history",
+                      "actions": {
+                        "get_runtime_history": {
+                          "method": "GET",
+                          "href": "https://www.mynexia.com/mobile/runtime_history/2473073?report_type=daily"
+                        },
+                        "get_monthly_runtime_history": {
+                          "method": "GET",
+                          "href": "https://www.mynexia.com/mobile/runtime_history/2473073?report_type=monthly"
+                        }
+                      }
+                    },
+                    {
+                      "name": "schedule",
+                      "enabled": true,
+                      "max_period_name_length": 10,
+                      "setpoint_increment": 0.5,
+                      "collection_url": "https://www.mynexia.com/mobile/schedules?device_identifier=TraneXl824-2473073&house_id=1318962",
+                      "actions": {
+                        "get_active_schedule": {
+                          "href": "https://www.mynexia.com/mobile/thermostat_schedules/get_active_schedule?device_identifier=TraneXl824-2473073",
+                          "method": "POST"
+                        },
+                        "set_active_schedule": {
+                          "href": "https://www.mynexia.com/mobile/thermostat_schedules/set_active_schedule?device_identifier=TraneXl824-2473073",
+                          "method": "POST"
+                        },
+                        "get_default_schedule": {
+                          "href": "https://www.mynexia.com/mobile/thermostat_schedules/get_default_schedule?device_identifier=TraneXl824-2473073",
+                          "method": "GET"
+                        },
+                        "enable_scheduling": {
+                          "href": "https://www.mynexia.com/mobile/xxl_zones/83496154/scheduling_enabled",
+                          "method": "POST",
+                          "data": {
+                            "value": true
+                          }
+                        }
+                      },
+                      "can_add_remove_periods": true,
+                      "max_periods_per_day": 6
+                    }
+                  ],
+                  "icon": [
+                    {
+                      "name": "thermostat",
+                      "modifiers": [
+                        "temperature-26"
+                      ]
+                    }
+                  ],
+                  "_links": {
+                    "self": {
+                      "href": "https://www.mynexia.com/mobile/xxl_thermostats/2473073"
+                    },
+                    "nexia:history": {
+                      "href": "https://www.mynexia.com/mobile/houses/1318962/events?device_id=2473073"
+                    },
+                    "filter_events": {
+                      "href": "https://www.mynexia.com/mobile/houses/1318962/events/collection?sys_guid=304b70e0-6901-4d6b-a667-fefeaa6d61e7"
+                    }
+                  },
+                  "last_updated_at": "2022-10-08T10:33:18.000-07:00",
+                  "settings": [
+                    {
+                      "type": "preset_selected",
+                      "title": "Preset",
+                      "current_value": 0,
+                      "options": [
+                        {
+                          "value": 0,
+                          "label": "None"
+                        },
+                        {
+                          "value": 1,
+                          "label": "Home"
+                        },
+                        {
+                          "value": 2,
+                          "label": "Away"
+                        },
+                        {
+                          "value": 3,
+                          "label": "Sleep"
+                        }
+                      ],
+                      "labels": [
+                        "None",
+                        "Home",
+                        "Away",
+                        "Sleep"
+                      ],
+                      "values": [
+                        0,
+                        1,
+                        2,
+                        3
+                      ],
+                      "_links": {
+                        "self": {
+                          "href": "https://www.mynexia.com/mobile/xxl_zones/83496154/preset_selected"
+                        }
+                      }
+                    },
+                    {
+                      "type": "system_mode",
+                      "title": "System Mode",
+                      "current_value": "AUTO",
+                      "options": [
+                        {
+                          "value": "AUTO",
+                          "label": "Auto"
+                        },
+                        {
+                          "value": "COOL",
+                          "label": "Cooling"
+                        },
+                        {
+                          "value": "HEAT",
+                          "label": "Heating"
+                        },
+                        {
+                          "value": "OFF",
+                          "label": "Off"
+                        }
+                      ],
+                      "labels": [
+                        "Auto",
+                        "Cooling",
+                        "Heating",
+                        "Off"
+                      ],
+                      "values": [
+                        "AUTO",
+                        "COOL",
+                        "HEAT",
+                        "OFF"
+                      ],
+                      "_links": {
+                        "self": {
+                          "href": "https://www.mynexia.com/mobile/xxl_zones/83496154/zone_mode"
+                        }
+                      }
+                    },
+                    {
+                      "type": "run_mode",
+                      "title": "Run Mode",
+                      "current_value": "run_schedule",
+                      "options": [
+                        {
+                          "value": "permanent_hold",
+                          "label": "Permanent Hold"
+                        },
+                        {
+                          "value": "run_schedule",
+                          "label": "Run Schedule"
+                        }
+                      ],
+                      "labels": [
+                        "Permanent Hold",
+                        "Run Schedule"
+                      ],
+                      "values": [
+                        "permanent_hold",
+                        "run_schedule"
+                      ],
+                      "_links": {
+                        "self": {
+                          "href": "https://www.mynexia.com/mobile/xxl_zones/83496154/run_mode"
+                        }
+                      }
+                    },
+                    {
+                      "type": "scheduling_enabled",
+                      "title": "Scheduling",
+                      "current_value": true,
+                      "options": [
+                        {
+                          "value": true,
+                          "label": "ON"
+                        },
+                        {
+                          "value": false,
+                          "label": "OFF"
+                        }
+                      ],
+                      "labels": [
+                        "ON",
+                        "OFF"
+                      ],
+                      "values": [
+                        true,
+                        false
+                      ],
+                      "_links": {
+                        "self": {
+                          "href": "https://www.mynexia.com/mobile/xxl_zones/83496154/scheduling_enabled"
+                        }
+                      }
+                    },
+                    {
+                      "type": "fan_mode",
+                      "title": "Fan Mode",
+                      "current_value": "auto",
+                      "options": [
+                        {
+                          "value": "auto",
+                          "label": "Auto"
+                        },
+                        {
+                          "value": "on",
+                          "label": "On"
+                        },
+                        {
+                          "value": "circulate",
+                          "label": "Circulate"
+                        }
+                      ],
+                      "labels": [
+                        "Auto",
+                        "On",
+                        "Circulate"
+                      ],
+                      "values": [
+                        "auto",
+                        "on",
+                        "circulate"
+                      ],
+                      "_links": {
+                        "self": {
+                          "href": "https://www.mynexia.com/mobile/xxl_thermostats/2473073/fan_mode"
+                        }
+                      }
+                    },
+                    {
+                      "type": "fan_circulation_time",
+                      "title": "Fan Circulation Time",
+                      "current_value": 30,
+                      "options": [
+                        {
+                          "value": 10,
+                          "label": "10 minutes"
+                        },
+                        {
+                          "value": 15,
+                          "label": "15 minutes"
+                        },
+                        {
+                          "value": 20,
+                          "label": "20 minutes"
+                        },
+                        {
+                          "value": 25,
+                          "label": "25 minutes"
+                        },
+                        {
+                          "value": 30,
+                          "label": "30 minutes"
+                        },
+                        {
+                          "value": 35,
+                          "label": "35 minutes"
+                        },
+                        {
+                          "value": 40,
+                          "label": "40 minutes"
+                        },
+                        {
+                          "value": 45,
+                          "label": "45 minutes"
+                        },
+                        {
+                          "value": 50,
+                          "label": "50 minutes"
+                        },
+                        {
+                          "value": 55,
+                          "label": "55 minutes"
+                        }
+                      ],
+                      "labels": [
+                        "10 minutes",
+                        "15 minutes",
+                        "20 minutes",
+                        "25 minutes",
+                        "30 minutes",
+                        "35 minutes",
+                        "40 minutes",
+                        "45 minutes",
+                        "50 minutes",
+                        "55 minutes"
+                      ],
+                      "values": [
+                        10,
+                        15,
+                        20,
+                        25,
+                        30,
+                        35,
+                        40,
+                        45,
+                        50,
+                        55
+                      ],
+                      "_links": {
+                        "self": {
+                          "href": "https://www.mynexia.com/mobile/xxl_thermostats/2473073/fan_circulation_time"
+                        }
+                      }
+                    },
+                    {
+                      "type": "air_cleaner_mode",
+                      "title": "Air Cleaner Mode",
+                      "current_value": "auto",
+                      "options": [
+                        {
+                          "value": "auto",
+                          "label": "Auto"
+                        },
+                        {
+                          "value": "quick",
+                          "label": "Quick"
+                        },
+                        {
+                          "value": "allergy",
+                          "label": "Allergy"
+                        }
+                      ],
+                      "labels": [
+                        "Auto",
+                        "Quick",
+                        "Allergy"
+                      ],
+                      "values": [
+                        "auto",
+                        "quick",
+                        "allergy"
+                      ],
+                      "_links": {
+                        "self": {
+                          "href": "https://www.mynexia.com/mobile/xxl_thermostats/2473073/air_cleaner_mode"
+                        }
+                      }
+                    },
+                    {
+                      "type": "dehumidify",
+                      "title": "Cooling Dehumidify Set Point",
+                      "current_value": 0.5,
+                      "options": [
+                        {
+                          "value": 0.35,
+                          "label": "35%"
+                        },
+                        {
+                          "value": 0.4,
+                          "label": "40%"
+                        },
+                        {
+                          "value": 0.45,
+                          "label": "45%"
+                        },
+                        {
+                          "value": 0.5,
+                          "label": "50%"
+                        },
+                        {
+                          "value": 0.55,
+                          "label": "55%"
+                        },
+                        {
+                          "value": 0.6,
+                          "label": "60%"
+                        },
+                        {
+                          "value": 0.65,
+                          "label": "65%"
+                        }
+                      ],
+                      "labels": [
+                        "35%",
+                        "40%",
+                        "45%",
+                        "50%",
+                        "55%",
+                        "60%",
+                        "65%"
+                      ],
+                      "values": [
+                        0.35,
+                        0.4,
+                        0.45,
+                        0.5,
+                        0.55,
+                        0.6,
+                        0.65
+                      ],
+                      "_links": {
+                        "self": {
+                          "href": "https://www.mynexia.com/mobile/xxl_thermostats/2473073/dehumidify"
+                        }
+                      }
+                    },
+                    {
+                      "type": "scale",
+                      "title": "Temperature Scale",
+                      "current_value": "c",
+                      "options": [
+                        {
+                          "value": "f",
+                          "label": "F"
+                        },
+                        {
+                          "value": "c",
+                          "label": "C"
+                        }
+                      ],
+                      "labels": [
+                        "F",
+                        "C"
+                      ],
+                      "values": [
+                        "f",
+                        "c"
+                      ],
+                      "_links": {
+                        "self": {
+                          "href": "https://www.mynexia.com/mobile/xxl_thermostats/2473073/scale"
+                        }
+                      }
+                    }
+                  ],
+                  "status_secondary": null,
+                  "status_tertiary": null,
+                  "type": "xxl_thermostat",
+                  "has_outdoor_temperature": true,
+                  "outdoor_temperature": "26.0",
+                  "has_indoor_humidity": true,
+                  "connected": true,
+                  "indoor_humidity": "44",
+                  "system_status": "System Idle",
+                  "delta": 2,
+                  "manufacturer": "Trane",
+                  "zones": [
+                    {
+                      "type": "xxl_zone",
+                      "id": 83496154,
+                      "name": "NativeZone",
+                      "current_zone_mode": "AUTO",
+                      "temperature": 26.0,
+                      "setpoints": {
+                        "heat": 22.0,
+                        "cool": 26.5
+                      },
+                      "operating_state": "",
+                      "heating_setpoint": 22.0,
+                      "cooling_setpoint": 26.5,
+                      "zone_status": "",
+                      "settings": [],
+                      "icon": {
+                        "name": "thermostat",
+                        "modifiers": [
+                          "temperature-26"
+                        ]
+                      },
+                      "features": [
+                        {
+                          "name": "thermostat",
+                          "temperature": 26.0,
+                          "status": "",
+                          "status_icon": null,
+                          "actions": {
+                            "set_heat_setpoint": {
+                              "href": "https://www.mynexia.com/mobile/xxl_zones/83496154/setpoints"
+                            },
+                            "set_cool_setpoint": {
+                              "href": "https://www.mynexia.com/mobile/xxl_zones/83496154/setpoints"
+                            }
+                          },
+                          "setpoint_delta": 2,
+                          "scale": "c",
+                          "setpoint_increment": 0.5,
+                          "setpoint_heat_min": 13.0,
+                          "setpoint_heat_max": 32.0,
+                          "setpoint_cool_min": 15.5,
+                          "setpoint_cool_max": 37.0,
+                          "setpoint_heat": 22.0,
+                          "setpoint_cool": 26.5,
+                          "system_status": "System Idle"
+                        },
+                        {
+                          "name": "connection",
+                          "signal_strength": "unknown",
+                          "is_connected": true
+                        },
+                        {
+                          "name": "dealer_contact_info",
+                          "has_dealer_identifier": false,
+                          "actions": {
+                            "request_current_dealer_info": {},
+                            "request_dealers_by_zip": {
+                              "method": "POST",
+                              "href": "https://www.mynexia.com/mobile/dealers/2473073/search"
+                            }
+                          }
+                        },
+                        {
+                          "name": "thermostat_mode",
+                          "label": "System Mode",
+                          "value": "AUTO",
+                          "display_value": "Auto",
+                          "options": [
+                            {
+                              "id": "thermostat_mode",
+                              "label": "System Mode",
+                              "value": "thermostat_mode",
+                              "header": true
+                            },
+                            {
+                              "value": "AUTO",
+                              "label": "Auto"
+                            },
+                            {
+                              "value": "COOL",
+                              "label": "Cooling"
+                            },
+                            {
+                              "value": "HEAT",
+                              "label": "Heating"
+                            },
+                            {
+                              "value": "OFF",
+                              "label": "Off"
+                            }
+                          ],
+                          "actions": {
+                            "update_thermostat_mode": {
+                              "method": "POST",
+                              "href": "https://www.mynexia.com/mobile/xxl_zones/83496154/zone_mode"
+                            }
+                          }
+                        },
+                        {
+                          "name": "thermostat_run_mode",
+                          "label": "Run Mode",
+                          "options": [
+                            {
+                              "id": "thermostat_run_mode",
+                              "label": "Run Mode",
+                              "value": "thermostat_run_mode",
+                              "header": true
+                            },
+                            {
+                              "id": "info_text",
+                              "label": "Follow or override the schedule.",
+                              "value": "info_text",
+                              "info": true
+                            },
+                            {
+                              "value": "permanent_hold",
+                              "label": "Permanent Hold"
+                            },
+                            {
+                              "value": "run_schedule",
+                              "label": "Run Schedule"
+                            }
+                          ],
+                          "value": "run_schedule",
+                          "display_value": "Run Schedule",
+                          "actions": {
+                            "update_thermostat_run_mode": {
+                              "method": "POST",
+                              "href": "https://www.mynexia.com/mobile/xxl_zones/83496154/run_mode"
+                            }
+                          }
+                        },
+                        {
+                          "name": "room_iq_sensors",
+                          "sensors": [
+                            {
+                              "id": 14731783,
+                              "name": "First floor",
+                              "icon": {
+                                "name": "room_iq_onboard",
+                                "modifiers": []
+                              },
+                              "type": "thermostat",
+                              "serial_number": "NativeIDTUniqueID",
+                              "weight": 1.0,
+                              "temperature": 26.0,
+                              "temperature_valid": true,
+                              "humidity": 43,
+                              "humidity_valid": true,
+                              "has_online": false,
+                              "has_battery": false
+                            }
+                          ],
+                          "should_show": false,
+                          "actions": {
+                            "request_current_state": {
+                              "href": "https://www.mynexia.com/mobile/xxl_zones/83496154/request_current_sensor_state"
+                            },
+                            "update_active_sensors": {
+                              "method": "POST",
+                              "href": "https://www.mynexia.com/mobile/xxl_zones/83496154/update_active_sensors"
+                            }
+                          }
+                        },
+                        {
+                          "name": "schedule",
+                          "enabled": true,
+                          "max_period_name_length": 10,
+                          "setpoint_increment": 0.5,
+                          "collection_url": "https://www.mynexia.com/mobile/schedules?device_identifier=XxlZone-83496154&house_id=1318962",
+                          "actions": {
+                            "get_active_schedule": {
+                              "href": "https://www.mynexia.com/mobile/thermostat_schedules/get_active_schedule?device_identifier=XxlZone-83496154",
+                              "method": "POST"
+                            },
+                            "set_active_schedule": {
+                              "href": "https://www.mynexia.com/mobile/thermostat_schedules/set_active_schedule?device_identifier=XxlZone-83496154",
+                              "method": "POST"
+                            },
+                            "get_default_schedule": {
+                              "href": "https://www.mynexia.com/mobile/thermostat_schedules/get_default_schedule?device_identifier=XxlZone-83496154",
+                              "method": "GET"
+                            },
+                            "enable_scheduling": {
+                              "href": "https://www.mynexia.com/mobile/xxl_zones/83496154/scheduling_enabled",
+                              "method": "POST",
+                              "data": {
+                                "value": true
+                              }
+                            }
+                          },
+                          "can_add_remove_periods": true,
+                          "max_periods_per_day": 6
+                        }
+                      ],
+                      "_links": {
+                        "self": {
+                          "href": "https://www.mynexia.com/mobile/xxl_zones/83496154"
+                        }
+                      }
+                    }
+                  ],
+                  "generic_input_sensors": []
+                },
+                {
+                  "id": 2222249,
+                  "name": "Second floor",
+                  "name_editable": true,
+                  "features": [
+                    {
+                      "name": "advanced_info",
+                      "items": [
+                        {
+                          "type": "label_value",
+                          "label": "Model",
+                          "value": "XR724"
+                        },
+                        {
+                          "type": "label_value",
+                          "label": "Serial Number",
+                          "value": "1936R4CMNX"
+                        },
+                        {
+                          "type": "label_value",
+                          "label": "AUID",
+                          "value": "0080E1CB6FF0"
+                        },
+                        {
+                          "type": "label_value",
+                          "label": "Connection Status",
+                          "value": "Online"
+                        },
+                        {
+                          "type": "label_value",
+                          "label": "Main Firmware Version",
+                          "value": "02.72.00"
+                        }
+                      ]
+                    },
+                    {
+                      "name": "unenroll",
+                      "actions": {
+                        "unenroll": {
+                          "method": "POST",
+                          "href": "https://www.mynexia.com/mobile/devices/2222249/unenroll"
+                        }
+                      }
+                    },
+                    {
+                      "name": "thermostat",
+                      "temperature": 26.0,
+                      "status": "System Idle",
+                      "status_icon": null,
+                      "actions": {
+                        "set_setpoints": {
+                          "method": "PUT",
+                          "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/2222249/setpoints/1"
+                        },
+                        "set_alert_temperature_low": {
+                          "method": "POST",
+                          "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/2222249/alert_temperature_low"
+                        },
+                        "set_alert_temperature_high": {
+                          "method": "POST",
+                          "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/2222249/alert_temperature_high"
+                        }
+                      },
+                      "setpoint_delta": 2,
+                      "scale": "c",
+                      "setpoint_increment": 0.5,
+                      "setpoint_heat_min": 13,
+                      "setpoint_heat_max": 32,
+                      "setpoint_cool_min": 16,
+                      "setpoint_cool_max": 37,
+                      "setpoint_heat": 20.0,
+                      "setpoint_cool": 27.0,
+                      "alert_temperature_low": 0,
+                      "alert_temperature_high": 120
+                    },
+                    {
+                      "name": "connection",
+                      "signal_strength": "unknown",
+                      "is_connected": true
+                    },
+                    {
+                      "name": "thermostat_mode",
+                      "label": "System Mode",
+                      "value": "auto",
+                      "display_value": "Auto",
+                      "options": [
+                        {
+                          "id": "thermostat_mode",
+                          "label": "System Mode",
+                          "value": "thermostat_mode",
+                          "header": true
+                        },
+                        {
+                          "label": "Off",
+                          "value": "off"
+                        },
+                        {
+                          "label": "Auto",
+                          "value": "auto"
+                        },
+                        {
+                          "label": "Cool",
+                          "value": "cool"
+                        },
+                        {
+                          "label": "Heat",
+                          "value": "heat"
+                        }
+                      ],
+                      "actions": {
+                        "update_thermostat_mode": {
+                          "method": "POST",
+                          "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/2222249/mode/1"
+                        }
+                      }
+                    },
+                    {
+                      "name": "thermostat_run_mode",
+                      "label": "Run Mode",
+                      "options": [
+                        {
+                          "id": "thermostat_run_mode",
+                          "label": "Run Mode",
+                          "value": "thermostat_run_mode",
+                          "header": true
+                        },
+                        {
+                          "id": "info_text",
+                          "label": "Follow or override the schedule.",
+                          "value": "info_text",
+                          "info": true
+                        },
+                        {
+                          "label": "Hold Temp",
+                          "value": "hold"
+                        },
+                        {
+                          "label": "Run Schedule",
+                          "value": "schedule"
+                        },
+                        {
+                          "label": "Energy Save",
+                          "value": "esm"
+                        }
+                      ],
+                      "value": "schedule",
+                      "display_value": "Run Schedule",
+                      "actions": {
+                        "update_thermostat_run_mode": {
+                          "method": "POST",
+                          "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/2222249/run_mode/1"
+                        }
+                      }
+                    },
+                    {
+                      "name": "thermostat_fan_mode",
+                      "label": "Fan Mode",
+                      "options": [
+                        {
+                          "id": "thermostat_fan_mode",
+                          "label": "Fan Mode",
+                          "value": "thermostat_fan_mode",
+                          "header": true
+                        },
+                        {
+                          "label": "Circulate",
+                          "value": "circulate"
+                        },
+                        {
+                          "label": "Auto",
+                          "value": "auto"
+                        },
+                        {
+                          "label": "On",
+                          "value": "on"
+                        }
+                      ],
+                      "value": "auto",
+                      "display_value": "Auto",
+                      "status_icon": {
+                        "name": "thermostat_fan_off",
+                        "modifiers": []
+                      },
+                      "actions": {
+                        "update_thermostat_fan_mode": {
+                          "method": "POST",
+                          "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/2222249/fan_mode"
+                        }
+                      }
+                    },
+                    {
+                      "name": "dealer_contact_info",
+                      "has_dealer_identifier": false,
+                      "actions": {
+                        "request_current_dealer_info": {},
+                        "request_dealers_by_zip": {
+                          "method": "POST",
+                          "href": "https://www.mynexia.com/mobile/dealers/2222249/search"
+                        }
+                      }
+                    },
+                    {
+                      "name": "xr724_wifi_configuration",
+                      "get_last_update_time": {
+                        "method": "GET",
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/2222249/last_update_time"
+                      }
+                    },
+                    {
+                      "name": "schedule",
+                      "enabled": true,
+                      "max_period_name_length": 10,
+                      "setpoint_increment": 1,
+                      "collection_url": "https://www.mynexia.com/mobile/schedules?device_identifier=2222249&house_id=1318962",
+                      "actions": {
+                        "get_active_schedule": {
+                          "href": "https://www.mynexia.com/mobile/thermostat_schedules/get_active_schedule?device_identifier=2222249",
+                          "method": "POST"
+                        },
+                        "set_active_schedule": {
+                          "href": "https://www.mynexia.com/mobile/thermostat_schedules/set_active_schedule?device_identifier=2222249",
+                          "method": "POST"
+                        },
+                        "get_default_schedule": {
+                          "href": "https://www.mynexia.com/mobile/thermostat_schedules/get_default_schedule?device_identifier=2222249",
+                          "method": "GET"
+                        },
+                        "enable_scheduling": {
+                          "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/2222249/enable_scheduling",
+                          "method": "POST"
+                        }
+                      },
+                      "can_add_remove_periods": false,
+                      "max_periods_per_day": 4
+                    }
+                  ],
+                  "icon": {
+                    "name": "thermostat",
+                    "modifiers": [
+                      "temperature-26"
+                    ]
+                  },
+                  "_links": {
+                    "self": {
+                      "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/2222249"
+                    },
+                    "nexia:history": {
+                      "href": "https://www.mynexia.com/mobile/houses/1318962/events?device_id=2222249"
+                    },
+                    "filter_events": {
+                      "href": "https://www.mynexia.com/mobile/houses/1318962/events/collection?sys_guid=9b701744-e496-4e8c-b64d-b3d59d937b9f"
+                    }
+                  },
+                  "last_updated_at": "2022-10-08T17:28:47.000Z",
+                  "settings": [
+                    {
+                      "type": "mode",
+                      "title": "Mode",
+                      "current_value": "auto",
+                      "options": [
+                        {
+                          "value": "off",
+                          "label": "Off"
+                        },
+                        {
+                          "value": "auto",
+                          "label": "Auto"
+                        },
+                        {
+                          "value": "cool",
+                          "label": "Cool"
+                        },
+                        {
+                          "value": "heat",
+                          "label": "Heat"
+                        }
+                      ],
+                      "labels": [
+                        "Off",
+                        "Auto",
+                        "Cool",
+                        "Heat"
+                      ],
+                      "values": [
+                        "off",
+                        "auto",
+                        "cool",
+                        "heat"
+                      ],
+                      "_links": {
+                        "self": {
+                          "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/2222249/mode/1"
+                        }
+                      }
+                    },
+                    {
+                      "type": "run_mode",
+                      "title": "Run Mode",
+                      "current_value": "schedule",
+                      "options": [
+                        {
+                          "value": "hold",
+                          "label": "Hold Temp"
+                        },
+                        {
+                          "value": "schedule",
+                          "label": "Run Schedule"
+                        },
+                        {
+                          "value": "esm",
+                          "label": "Energy Save"
+                        }
+                      ],
+                      "labels": [
+                        "Hold Temp",
+                        "Run Schedule",
+                        "Energy Save"
+                      ],
+                      "values": [
+                        "hold",
+                        "schedule",
+                        "esm"
+                      ],
+                      "_links": {
+                        "self": {
+                          "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/2222249/run_mode/1"
+                        }
+                      }
+                    },
+                    {
+                      "type": "fan_mode",
+                      "title": "Fan Mode",
+                      "current_value": "auto",
+                      "options": [
+                        {
+                          "value": "circulate",
+                          "label": "Circulate"
+                        },
+                        {
+                          "value": "auto",
+                          "label": "Auto"
+                        },
+                        {
+                          "value": "on",
+                          "label": "On"
+                        }
+                      ],
+                      "labels": [
+                        "Circulate",
+                        "Auto",
+                        "On"
+                      ],
+                      "values": [
+                        "circulate",
+                        "auto",
+                        "on"
+                      ],
+                      "_links": {
+                        "self": {
+                          "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/2222249/fan_mode"
+                        }
+                      }
+                    },
+                    {
+                      "type": "scale",
+                      "title": "Temperature Scale",
+                      "current_value": "c",
+                      "options": [
+                        {
+                          "value": "f",
+                          "label": "F"
+                        },
+                        {
+                          "value": "c",
+                          "label": "C"
+                        }
+                      ],
+                      "labels": [
+                        "F",
+                        "C"
+                      ],
+                      "values": [
+                        "f",
+                        "c"
+                      ],
+                      "_links": {
+                        "self": {
+                          "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/2222249/scale"
+                        }
+                      }
+                    },
+                    {
+                      "type": "high_low_alerts",
+                      "title": "Send High and Low Temperature Alerts",
+                      "current_value": false,
+                      "options": [
+                        {
+                          "value": "1",
+                          "label": "ON"
+                        },
+                        {
+                          "value": "0",
+                          "label": "OFF"
+                        }
+                      ],
+                      "labels": [
+                        "ON",
+                        "OFF"
+                      ],
+                      "values": [
+                        "1",
+                        "0"
+                      ],
+                      "_links": {
+                        "self": {
+                          "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/2222249/high_low_alerts"
+                        }
+                      }
+                    },
+                    {
+                      "type": "send_delta_temperature_alert",
+                      "title": "Send Setpoint Delta Temperature Alert",
+                      "current_value": false,
+                      "options": [
+                        {
+                          "value": "1",
+                          "label": "ON"
+                        },
+                        {
+                          "value": "0",
+                          "label": "OFF"
+                        }
+                      ],
+                      "labels": [
+                        "ON",
+                        "OFF"
+                      ],
+                      "values": [
+                        "1",
+                        "0"
+                      ],
+                      "_links": {
+                        "self": {
+                          "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/2222249/send_delta_temperature_alert"
+                        }
+                      }
+                    }
+                  ],
+                  "value": null,
+                  "status_secondary": null,
+                  "status_tertiary": null,
+                  "type": "faceplate_thermostat",
+                  "has_indoor_humidity": true,
+                  "indoor_humidity": 44.0,
+                  "has_outdoor_temperature": true,
+                  "outdoor_temperature": null,
+                  "manufacturer": "Trane",
+                  "zones": [
+                    {
+                      "type": "thermostat_zone",
+                      "id": 1,
+                      "name": "default",
+                      "current_zone_mode": "auto",
+                      "temperature": 26.0,
+                      "setpoints": {
+                        "heat": 20.0,
+                        "cool": 27.0
+                      },
+                      "operating_state": "auto",
+                      "heating_setpoint": 20.0,
+                      "cooling_setpoint": 27.0,
+                      "zone_status": "auto",
+                      "settings": [],
+                      "icon": {
+                        "name": "thermostat",
+                        "modifiers": [
+                          "temperature-26"
+                        ]
+                      },
+                      "features": [
+                        {
+                          "name": "thermostat",
+                          "temperature": 26.0,
+                          "status": "System Idle",
+                          "status_icon": null,
+                          "actions": {
+                            "set_setpoints": {
+                              "method": "PUT",
+                              "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/2222249/setpoints/1"
+                            }
+                          },
+                          "setpoint_delta": 2,
+                          "scale": "c",
+                          "setpoint_increment": 0.5,
+                          "setpoint_heat_min": 13,
+                          "setpoint_heat_max": 32,
+                          "setpoint_cool_min": 16,
+                          "setpoint_cool_max": 37,
+                          "setpoint_heat": 20.0,
+                          "setpoint_cool": 27.0
+                        },
+                        {
+                          "name": "connection",
+                          "signal_strength": "unknown",
+                          "is_connected": true
+                        },
+                        {
+                          "name": "thermostat_mode",
+                          "label": "Zone Mode",
+                          "value": "auto",
+                          "display_value": "Auto",
+                          "options": [
+                            {
+                              "id": "thermostat_mode",
+                              "label": "Zone Mode",
+                              "value": "thermostat_mode",
+                              "header": true
+                            },
+                            {
+                              "label": "Off",
+                              "value": "off"
+                            },
+                            {
+                              "label": "Auto",
+                              "value": "auto"
+                            },
+                            {
+                              "label": "Cool",
+                              "value": "cool"
+                            },
+                            {
+                              "label": "Heat",
+                              "value": "heat"
+                            }
+                          ],
+                          "actions": {
+                            "update_thermostat_mode": {
+                              "method": "POST",
+                              "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/2222249/mode/1"
+                            }
+                          }
+                        },
+                        {
+                          "name": "thermostat_run_mode",
+                          "label": "Run Mode",
+                          "options": [
+                            {
+                              "id": "thermostat_run_mode",
+                              "label": "Run Mode",
+                              "value": "thermostat_run_mode",
+                              "header": true
+                            },
+                            {
+                              "id": "info_text",
+                              "label": "Follow or override the schedule.",
+                              "value": "info_text",
+                              "info": true
+                            },
+                            {
+                              "label": "Hold Temp",
+                              "value": "hold"
+                            },
+                            {
+                              "label": "Run Schedule",
+                              "value": "schedule"
+                            },
+                            {
+                              "label": "Energy Save",
+                              "value": "esm"
+                            }
+                          ],
+                          "value": "schedule",
+                          "display_value": "Run Schedule",
+                          "actions": {
+                            "update_thermostat_run_mode": {
+                              "method": "POST",
+                              "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/2222249/run_mode/1"
+                            }
+                          }
+                        }
+                      ],
+                      "_links": {
+                        "self": {
+                          "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/2222249/zones/1"
+                        }
+                      }
+                    }
+                  ]
+                }
+            ],
+            "_links": {
+              "self": {
+                "href": "https://www.mynexia.com/mobile/houses/123456/devices"
+              },
+              "template": {
+                "data": {
+                  "title": null,
+                  "fields": [],
+                  "_links": {
+                    "child-schema": [
+                      {
+                        "data": {
+                          "label": "Connect New Device",
+                          "icon": {
+                            "name": "new_device",
+                            "modifiers": []
+                          },
+                          "_links": {
+                            "next": {
+                              "href": "https://www.mynexia.com/mobile/houses/123456/enrollables_schema"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "data": {
+                          "label": "Create Group",
+                          "icon": {
+                            "name": "create_group",
+                            "modifiers": []
+                          },
+                          "_links": {
+                            "next": {
+                              "href": "https://www.mynexia.com/mobile/houses/123456/groups/new"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            "item_type": "application/vnd.nexia.device+json"
+          }
+        },
+        {
+          "href": "https://www.mynexia.com/mobile/houses/123456/automations",
+          "type": "application/vnd.nexia.collection+json",
+          "data": {
+            "items": [],
+            "_links": {
+              "self": {
+                "href": "https://www.mynexia.com/mobile/houses/123456/automations"
+              },
+              "template": {
+                "href": "https://www.mynexia.com/mobile/houses/123456/automation_edit_buffers",
+                "method": "POST"
+              }
+            },
+            "item_type": "application/vnd.nexia.automation+json"
+          }
+        },
+        {
+          "href": "https://www.mynexia.com/mobile/houses/123456/modes",
+          "type": "application/vnd.nexia.collection+json",
+          "data": {
+            "items": [
+              {
+                "id": 4243588,
+                "name": "Day",
+                "current_mode": false,
+                "icon": "home.png",
+                "settings": [],
+                "_links": {
+                  "self": {
+                    "href": "https://www.mynexia.com/mobile/modes/4243588"
+                  }
+                }
+              },
+              {
+                "id": 4243591,
+                "name": "Night",
+                "current_mode": true,
+                "icon": "home.png",
+                "settings": [],
+                "_links": {
+                  "self": {
+                    "href": "https://www.mynexia.com/mobile/modes/4243591"
+                  }
+                }
+              }
+            ],
+            "_links": {
+              "self": {
+                "href": "https://www.mynexia.com/mobile/houses/123456/modes"
+              }
+            },
+            "item_type": "application/vnd.nexia.mode+json"
+          }
+        },
+        {
+          "href": "https://www.mynexia.com/mobile/houses/123456/events/collection",
+          "type": "application/vnd.nexia.collection+json",
+          "data": {
+            "item_type": "application/vnd.nexia.event+json"
+          }
+        },
+        {
+          "href": "https://www.mynexia.com/mobile/houses/123456/videos/collection",
+          "type": "application/vnd.nexia.collection+json",
+          "data": {
+            "item_type": "application/vnd.nexia.video+json"
+          }
+        }
+      ],
+      "feature_code_url": [
+        {
+          "href": "https://www.mynexia.com/mobile/houses/123456/feature_code",
+          "method": "POST"
+        }
+      ],
+      "remove_zwave_device": [
+        {
+          "href": "https://www.mynexia.com/mobile/houses/123456/remove_zwave_device",
+          "cancel_href": "https://www.mynexia.com/mobile/houses/123456/cancel_remove_zwave_device",
+          "method": "POST",
+          "timeout": 240,
+          "display": true
+        }
+      ]
+    }
+  }
+}

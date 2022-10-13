@@ -339,9 +339,11 @@ class NexiaThermostat:
         Returns the system status such as "System Idle" or "Cooling"
         :return: str
         """
-        return self._get_thermostat_key_or_none(
-            "system_status"
-        ) or self._get_thermostat_key("operating_state")
+        return (
+            self._get_thermostat_key_or_none("system_status")
+            or self._get_thermostat_key_or_none("operating_state")
+            or self._get_thermostat_features_key("thermostat")["status"]
+        )
 
     def has_air_cleaner(self):
         """
@@ -557,7 +559,9 @@ class NexiaThermostat:
                 return zone
         raise KeyError
 
-    def _get_thermostat_deep_key(self, area, area_primary_key, key):
+    def _get_thermostat_deep_key(
+        self, area: str, area_primary_key: str, key: str
+    ) -> Any:
         """
         Returns the thermostat value from deep inside the thermostat's
         JSON.
@@ -574,7 +578,7 @@ class NexiaThermostat:
             raise KeyError(f'Key "{key}" not in the thermostat JSON!')
         return data
 
-    def _get_thermostat_features_key_or_none(self, key):
+    def _get_thermostat_features_key_or_none(self, key: str):
         """
         Returns the thermostat value from the provided key in the thermostat's
         JSON.
@@ -586,7 +590,7 @@ class NexiaThermostat:
         except KeyError:
             return None
 
-    def _get_thermostat_features_key(self, key):
+    def _get_thermostat_features_key(self, key: str):
         """
         Returns the thermostat value from the provided key in the thermostat's
         JSON.
@@ -618,7 +622,7 @@ class NexiaThermostat:
         if key in thermostat:
             return thermostat[key]
 
-        raise KeyError(f'Key "{key}" not in the thermostat JSON!')
+        raise KeyError(f'Key "{key}" not in the thermostat JSON ({thermostat}!')
 
     def get_thermostat_settings_key_or_none(self, key):
         """
