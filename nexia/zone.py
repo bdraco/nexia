@@ -351,7 +351,10 @@ class NexiaThermostatZone:
         await self._set_setpoints(cool_temperature, heat_temperature)
 
     async def set_permanent_hold(self) -> None:
-        """Set to permanent hold."""
+        """Set to permanent hold.
+
+        This does not set the temperature, it just sets the hold.
+        """
         run_mode = self._get_zone_run_mode()
         if run_mode:
             if run_mode["current_value"] != HOLD_PERMANENT:
