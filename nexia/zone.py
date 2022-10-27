@@ -55,14 +55,20 @@ class NexiaThermostatZone:
         Returns the cooling setpoint in the temperature unit of the thermostat
         :return: int
         """
-        return self._get_zone_key("setpoints")["cool"]
+        return (
+            self._get_zone_key("setpoints")["cool"]
+            or self.thermostat.get_setpoint_limits()[1]
+        )
 
     def get_heating_setpoint(self) -> int:
         """
         Returns the heating setpoint in the temperature unit of the thermostat
         :return: int
         """
-        return self._get_zone_key("setpoints")["heat"]
+        return (
+            self._get_zone_key("setpoints")["heat"]
+            or self.thermostat.get_setpoint_limits()[0]
+        )
 
     def get_current_mode(self) -> str:
         """
