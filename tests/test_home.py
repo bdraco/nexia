@@ -860,3 +860,52 @@ async def test_new_xl1050(aiohttp_session):
     assert zone.get_setpoint_status() == "Run Schedule - None"
     assert zone.is_calling() is False
     assert zone.is_in_permanent_hold() is False
+
+async def test_new_xl824(aiohttp_session):
+    """Get with a new xl824."""
+    nexia = NexiaHome(aiohttp_session)
+    devices_json = json.loads(await load_fixture("xl824.json"))
+    nexia.update_from_json(devices_json)
+
+    thermostat_ids = nexia.get_thermostat_ids()
+    assert thermostat_ids == [1841910]
+
+    # Thermostat 1
+    thermostat = nexia.get_thermostat_by_id(1841910)
+    assert thermostat.get_model() == "XL824"
+    assert thermostat.get_firmware() == "5.9.6"
+    assert thermostat.get_dev_build_number() == "1614575015"
+    assert thermostat.get_device_id() == "0160F840"
+    assert thermostat.get_type() == "XL824"
+    assert thermostat.get_name() == "Office Thermostat"
+    assert thermostat.get_deadband() == 3
+    assert thermostat.get_setpoint_limits() == (55, 99)
+    assert thermostat.has_variable_fan_speed() is True
+    assert thermostat.get_unit() == "F"
+    assert thermostat.get_humidity_setpoint_limits() == (0.35, 0.65)
+    assert thermostat.get_fan_mode() == "On"
+    assert thermostat.get_fan_modes() == ["Auto", "On", "Circulate"]
+    assert thermostat.get_current_compressor_speed() == 0
+    assert thermostat.get_requested_compressor_speed() == 0
+    assert thermostat.has_dehumidify_support() is False
+    assert thermostat.has_humidify_support() is True
+    assert thermostat.has_emergency_heat() is False
+    assert thermostat.get_system_status() == 'Fan Running'
+    assert thermostat.has_air_cleaner() is True
+    assert thermostat.is_blower_active() is True
+
+    zone_ids = thermostat.get_zone_ids()
+    assert zone_ids == [83128724]
+    zone = thermostat.get_zone_by_id(83128724)
+
+    assert zone.get_name() == 'Office Thermostat NativeZone'
+    assert zone.get_cooling_setpoint() == 99
+    assert zone.get_heating_setpoint() == 55
+    assert zone.get_current_mode() == "OFF"
+    assert zone.get_requested_mode() == "OFF"
+    assert zone.get_presets() == ["None", "Home", "Away", "Sleep"]
+    assert zone.get_preset() == "None"
+    assert zone.get_status() == "Idle"
+    assert zone.get_setpoint_status() == "Permanent Hold"
+    assert zone.is_calling() is True
+    assert zone.is_in_permanent_hold() is True
