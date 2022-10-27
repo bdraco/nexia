@@ -861,6 +861,7 @@ async def test_new_xl1050(aiohttp_session):
     assert zone.is_calling() is False
     assert zone.is_in_permanent_hold() is False
 
+
 async def test_new_xl824(aiohttp_session):
     """Get with a new xl824."""
     nexia = NexiaHome(aiohttp_session)
@@ -890,7 +891,7 @@ async def test_new_xl824(aiohttp_session):
     assert thermostat.has_dehumidify_support() is False
     assert thermostat.has_humidify_support() is True
     assert thermostat.has_emergency_heat() is False
-    assert thermostat.get_system_status() == 'Fan Running'
+    assert thermostat.get_system_status() == "Fan Running"
     assert thermostat.has_air_cleaner() is True
     assert thermostat.is_blower_active() is True
 
@@ -898,7 +899,7 @@ async def test_new_xl824(aiohttp_session):
     assert zone_ids == [83128724]
     zone = thermostat.get_zone_by_id(83128724)
 
-    assert zone.get_name() == 'Office Thermostat NativeZone'
+    assert zone.get_name() == "Office Thermostat NativeZone"
     assert zone.get_cooling_setpoint() == 99
     assert zone.get_heating_setpoint() == 55
     assert zone.get_current_mode() == "OFF"
