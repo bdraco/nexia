@@ -894,6 +894,7 @@ async def test_new_xl824(aiohttp_session):
     assert thermostat.get_system_status() == "Fan Running"
     assert thermostat.has_air_cleaner() is True
     assert thermostat.is_blower_active() is True
+    assert thermostat.is_online is True
 
     zone_ids = thermostat.get_zone_ids()
     assert zone_ids == [83128724]
@@ -907,6 +908,58 @@ async def test_new_xl824(aiohttp_session):
     assert zone.get_presets() == ["None", "Home", "Away", "Sleep"]
     assert zone.get_preset() == "None"
     assert zone.get_status() == "Idle"
+    assert zone.get_setpoint_status() == "Permanent Hold"
+    assert zone.is_calling() is True
+    assert zone.is_in_permanent_hold() is True
+
+
+
+async def test_system_offline(aiohttp_session):
+    """Get a system offline."""
+    nexia = NexiaHome(aiohttp_session)
+    devices_json = json.loads(await load_fixture("system_offline.json"))
+    nexia.update_from_json(devices_json)
+
+    thermostat_ids = nexia.get_thermostat_ids()
+    assert thermostat_ids == [2224092, 3887969, 3295333]
+
+    # Thermostat 1
+    thermostat = nexia.get_thermostat_by_id(2224092)
+    assert thermostat.get_model() == "XL1050"
+    assert thermostat.get_firmware() == "5.9.6"
+    assert thermostat.get_dev_build_number() == "1614588140"
+    assert thermostat.get_device_id() == "02863D94"
+    assert thermostat.get_type() == "XL1050"
+    assert thermostat.get_name() == 'Game Room'
+    assert thermostat.get_deadband() == 3
+    assert thermostat.get_setpoint_limits() == (55, 99)
+    assert thermostat.has_variable_fan_speed() is True
+    assert thermostat.get_unit() == "F"
+    assert thermostat.get_humidity_setpoint_limits() == (0.35, 0.65)
+    assert thermostat.get_fan_mode() == "Auto"
+    assert thermostat.get_fan_modes() == ["Auto", "On", "Circulate"]
+    assert thermostat.get_current_compressor_speed() == 0.35
+    assert thermostat.get_requested_compressor_speed() == 0.35
+    assert thermostat.has_dehumidify_support() is True
+    assert thermostat.has_humidify_support() is False
+    assert thermostat.has_emergency_heat() is False
+    assert thermostat.get_system_status() == 'NOT CONNECTED'
+    assert thermostat.has_air_cleaner() is True
+    assert thermostat.is_blower_active() is True
+    assert thermostat.is_online is False
+
+    zone_ids = thermostat.get_zone_ids()
+    assert zone_ids == [83354736, 83354739, 83354742, 83354745]
+    zone = thermostat.get_zone_by_id(83354736)
+
+    assert zone.get_name() == 'Game Room'
+    assert zone.get_cooling_setpoint() == 75
+    assert zone.get_heating_setpoint() == 55
+    assert zone.get_current_mode() == "COOL"
+    assert zone.get_requested_mode() == "COOL"
+    assert zone.get_presets() == ["None", "Home", "Away", "Sleep"]
+    assert zone.get_preset() == "None"
+    assert zone.get_status() == "Damper Open"
     assert zone.get_setpoint_status() == "Permanent Hold"
     assert zone.is_calling() is True
     assert zone.is_in_permanent_hold() is True
