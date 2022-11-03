@@ -37,6 +37,14 @@ class NexiaThermostat:
             self._nexia_home.mobile_url + "/xxl_thermostats/{thermostat_id}/{end_point}"
         )
 
+    @property
+    def is_online(self):
+        """
+        Returns whether the thermostat is online or not.
+        :return: bool
+        """
+        return self.get_system_status().upper() != 'NOT CONNECTED'
+
     def _get_thermostat_advanced_info_label(self, label):
         """
         Lookup advanced_info in the thermostat features and find the value of the
