@@ -9,7 +9,7 @@ BRAND_TRANE = "trane"
 
 NEXIA_ROOT_URL = "https://www.mynexia.com"
 NEXIA_IDENTIFIER = "com.tranetechnologies.nexia"
-ASAIR_ROOT_URL = "https://www.asairhome.com"
+ASAIR_ROOT_URL = "https://asairhome.com"
 ASAIR_IDENTIFIER = "com.tranetechnologies.asair"
 TRANE_ROOT_URL = "https://www.tranehome.com"
 TRANE_IDENTIFIER = "com.tranetechnologies.trane"
