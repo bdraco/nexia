@@ -43,7 +43,7 @@ class NexiaThermostat:
         Returns whether the thermostat is online or not.
         :return: bool
         """
-        return self.get_system_status().upper() != 'NOT CONNECTED'
+        return self.get_system_status().upper() != "NOT CONNECTED"
 
     def _get_thermostat_advanced_info_label(self, label):
         """
@@ -239,7 +239,7 @@ class NexiaThermostat:
         """
         if self.has_emergency_heat():
             return self.get_thermostat_settings_key("emergency_heat")["current_value"]
-        raise Exception("This system does not support emergency heat")
+        raise RuntimeError("This system does not support emergency heat")
 
     ########################################################################
     # System Universal Get Methods
@@ -276,7 +276,7 @@ class NexiaThermostat:
             if is_number(outdoor_temp):
                 return float(outdoor_temp)
             return float("Nan")
-        raise Exception("This system does not have an outdoor temperature sensor")
+        raise RuntimeError("This system does not have an outdoor temperature sensor")
 
     def get_relative_humidity(self):
         """
@@ -290,7 +290,7 @@ class NexiaThermostat:
                 # this has the value "--" when data is unavailable
                 return None
 
-        raise Exception("This system does not have a relative humidity sensor.")
+        raise RuntimeError("This system does not have a relative humidity sensor.")
 
     def get_current_compressor_speed(self):
         """
@@ -445,7 +445,7 @@ class NexiaThermostat:
                 "emergency_heat", {"value": "true" if emergency_heat_on else "false"}
             )
         else:
-            raise Exception("This thermostat does not support emergency heat.")
+            raise RuntimeError("This thermostat does not support emergency heat.")
 
     async def set_humidity_setpoints(self, **kwargs):
         """
@@ -463,7 +463,7 @@ class NexiaThermostat:
             return
 
         if not self.has_relative_humidity():
-            raise Exception(
+            raise RuntimeError(
                 "Setting target humidity is not supported on this thermostat."
             )
         (min_humidity, max_humidity) = self.get_humidity_setpoint_limits()
@@ -473,7 +473,7 @@ class NexiaThermostat:
                 humidify_setpoint = self.get_humidify_setpoint()
         else:
             if humidify_setpoint is not None:
-                raise SystemError("This thermostat does not support humidifying.")
+                raise RuntimeError("This thermostat does not support humidifying.")
             humidify_supported = False
             humidify_setpoint = 0
 
@@ -483,7 +483,7 @@ class NexiaThermostat:
                 dehumidify_setpoint = self.get_dehumidify_setpoint()
         else:
             if dehumidify_setpoint is not None:
-                raise SystemError("This thermostat does not support dehumidifying.")
+                raise RuntimeError("This thermostat does not support dehumidifying.")
             dehumidify_supported = False
             dehumidify_setpoint = 0
 
