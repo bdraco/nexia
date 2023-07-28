@@ -263,14 +263,14 @@ class NexiaHome:
         self._update_devices()
         self._update_automations()
 
-    async def update(self, force_update: bool = True) -> dict[str, Any]:
+    async def update(self, force_update: bool = True) -> dict[str, Any] | None:
         """
         Forces a status update from nexia
         :return: None
         """
         if not self.mobile_id:
             # not yet authenticated
-            return
+            return None
 
         headers = {}
         if self._last_update_etag:
