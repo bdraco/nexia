@@ -24,6 +24,11 @@ from .const import (
 from .thermostat import NexiaThermostat
 from .util import load_or_create_uuid
 
+
+class LoginFailedException(Exception):
+    """Login failed."""
+
+
 MAX_LOGIN_ATTEMPTS = 4
 TIMEOUT = 20
 
@@ -225,8 +230,8 @@ class NexiaHome:
         if request is None or request.status != 200:
             if request is not None:
                 text = await request.text()
-                raise Exception(f"{error_text}\n{text}")
-            raise Exception(f"No response from session. {error_text}")
+                raise ValueError(f"{error_text}\n{text}")
+            raise ValueError(f"No response from session. {error_text}")
 
     async def _find_house_id(self) -> None:
         """Finds the house id if none is provided."""
@@ -243,7 +248,7 @@ class NexiaHome:
                 self.house_id = data["id"]
                 self._name = data["name"]
             else:
-                raise Exception("Nothing in the JSON")
+                raise ValueError("Nothing in the JSON")
         else:
             await self._check_response(
                 "Failed to get house id JSON, session probably timed out",
@@ -299,7 +304,7 @@ class NexiaHome:
             self.automations_json = _extract_automations_from_houses_json(ts_json)
             self._last_update_etag = response.headers.get("etag")
         else:
-            raise Exception("Nothing in the JSON")
+            raise ValueError("Nothing in the JSON")
         self._update_devices()
         self._update_automations()
         return ts_json
@@ -389,7 +394,7 @@ class NexiaHome:
             await self._check_response("Failed to login", request)
 
             if request.url == self.AUTH_FORGOTTEN_PASSWORD_STRING:
-                raise Exception(
+                raise LoginFailedException(
                     f"Failed to login, getting redirected to {request.url}"
                     f". Try to login manually on the website."
                 )
@@ -399,12 +404,12 @@ class NexiaHome:
             )
             if json_dict.get("success") is not True:
                 error_text = json_dict.get("error", "Unknown Error")
-                raise Exception(f"Failed to login, {error_text}")
+                raise LoginFailedException(f"Failed to login, {error_text}")
 
             self.mobile_id = json_dict["result"]["mobile_id"]
             self.api_key = json_dict["result"]["api_key"]
         else:
-            raise Exception(
+            raise LoginFailedException(
                 f"Failed to login after {MAX_LOGIN_ATTEMPTS} attempts! Any "
                 f"more attempts may lock your account!"
             )
