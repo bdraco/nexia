@@ -258,7 +258,7 @@ class NexiaHome:
         self._update_devices()
         self._update_automations()
 
-    async def update(self, force_update: bool = True) -> None:
+    async def update(self, force_update: bool = True) -> dict[str, Any]:
         """
         Forces a status update from nexia
         :return: None
@@ -302,7 +302,7 @@ class NexiaHome:
             raise Exception("Nothing in the JSON")
         self._update_devices()
         self._update_automations()
-        return
+        return ts_json
 
     def _update_devices(self):
         self.last_update = datetime.datetime.now()
