@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Any
 from .const import AIR_CLEANER_MODES, BLOWER_OFF_STATUSES, HUMIDITY_MAX, HUMIDITY_MIN
 from .util import find_dict_with_keyvalue_in_json, find_humidity_setpoint, is_number
 from .zone import NexiaThermostatZone
+from .room_iq import NexiaThermostatRoomIq
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -30,6 +31,12 @@ class NexiaThermostat:
         if self.has_zones():
             for zone in thermostat_json["zones"]:
                 self.zones.append(NexiaThermostatZone(nexia_home, self, zone))
+
+        self.room_iqs: list[NexiaThermostatRoomIq] = []
+        if self.has_room_iq():
+            for iq in self._get_thermostat_features_key("room_iq_sensors")["sensors"]:
+                self.room_iqs.append(NexiaThermostatRoomIq(nexia_home, self, iq))
+
 
     @property
     def API_MOBILE_THERMOSTAT_URL(self):  # pylint: disable=invalid-name
@@ -154,6 +161,14 @@ class NexiaThermostat:
         :return: bool
         """
         return bool(self._get_thermostat_key_or_none("zones"))
+
+    def has_room_iq(self):
+        """
+        Indication of whether room iq is enabled or not on the thermostat.
+        :return: bool
+        """
+        json = self._get_thermostat_features_key_or_none("room_iq_sensors")
+        return (json is not None and json["should_show"])
 
     def has_dehumidify_support(self):
         """
@@ -565,6 +580,27 @@ class NexiaThermostat:
         for zone in self.zones:
             if zone.zone_id == zone_id:
                 return zone
+        raise KeyError
+
+########################################################################
+    # Room IQ Sensors Get Methods
+
+    def get_room_iq_ids(self):
+        """
+        Returns a list of available Room IQ IDs with a starting index of 0.
+        :return: list(int)
+        """
+        iq_list = []
+        for iq in self.room_iqs:
+            iq_list.append(iq.iq_id)
+
+        return iq_list
+
+    def get_room_iq_by_id(self, iq_id):
+        """Get a room iq by its nexia id."""
+        for iq in self.room_iqs:
+            if iq.iq_id == iq_id:
+                return iq
         raise KeyError
 
     def _get_thermostat_deep_key(

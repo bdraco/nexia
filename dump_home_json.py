@@ -7,6 +7,7 @@ import asyncio
 import logging
 
 import aiohttp
+import orjson
 
 from nexia.const import BRAND_NEXIA
 from nexia.home import NexiaHome
@@ -42,5 +43,5 @@ else:
     parser.print_help()
     exit()
 
-print(nexia_home.devices_json)
-print(nexia_home.automations_json)
+print(orjson.dumps(nexia_home.devices_json, option=orjson.OPT_INDENT_2).decode('utf-8'))
+print(orjson.dumps(nexia_home.automations_json, option=orjson.OPT_INDENT_2).decode('utf-8'))
