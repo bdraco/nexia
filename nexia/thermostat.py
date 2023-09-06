@@ -37,7 +37,6 @@ class NexiaThermostat:
             for iq in self._get_thermostat_features_key("room_iq_sensors")["sensors"]:
                 self.room_iqs.append(NexiaThermostatRoomIq(nexia_home, self, iq))
 
-
     @property
     def API_MOBILE_THERMOSTAT_URL(self):  # pylint: disable=invalid-name
         return (
