@@ -21,6 +21,13 @@ class NexiaThermostatRoomIq:
         self.thermostat: NexiaThermostat = nexia_thermostat
         self.iq_id: int = iq_json["id"]
 
+    def get_type(self) -> str:
+        """
+        Returns the Room IQ sensor type.
+        :return: str
+        """
+        return str(self._get_iq_key("type"))
+
     def get_name(self) -> str:
         """
         Returns the Room IQ name
