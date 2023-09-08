@@ -731,3 +731,11 @@ class NexiaThermostat:
         for zone in self.zones:
             if zone.zone_id in zone_updates_by_id:
                 zone.update_zone_json(zone_updates_by_id[zone.zone_id])
+
+        iq_updates_by_id = {}
+        for iq_json in self._get_thermostat_features_key("room_iq_sensors")["sensors"]:
+            iq_updates_by_id[iq_json["id"]] = iq_json
+
+        for iq in self.room_iqs:
+            if iq.iq_id in iq_updates_by_id:
+                iq.update_iq_json(iq_updates_by_id[iq.iq_id])

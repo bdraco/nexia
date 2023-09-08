@@ -81,3 +81,15 @@ class NexiaThermostatRoomIq:
             return self._get_iq_key(key)
         except KeyError:
             return None
+
+    def update_iq_json(self, iq_json: dict[str, Any]) -> None:
+        """Update with new json from the api"""
+        if self._iq_json is None:
+            return
+
+        _LOGGER.debug(
+            "Updated thermostat_id:%s iq_id:%s with new data from post",
+            self.thermostat.thermostat_id,
+            self.iq_id,
+        )
+        self._iq_json.update(iq_json)
