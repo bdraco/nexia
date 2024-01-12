@@ -614,10 +614,7 @@ class NexiaThermostat:
         :param key: str
         :return: value
         """
-        try:
-            return self._get_thermostat_key(key)
-        except KeyError:
-            return None
+        return self._thermostat_json.get(key)
 
     def _get_thermostat_key(self, key):
         """
