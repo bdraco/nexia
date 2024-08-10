@@ -33,6 +33,7 @@ MAX_LOGIN_ATTEMPTS = 4
 TIMEOUT = 20
 
 _LOGGER = logging.getLogger(__name__)
+# logging.basicConfig(level=logging.DEBUG)
 
 DEVICES_ELEMENT = 0
 AUTOMATIONS_ELEMENT = 1

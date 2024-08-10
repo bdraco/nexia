@@ -38,7 +38,13 @@ class NexiaThermostatZone:
 
     @property
     def API_MOBILE_ZONE_URL(self) -> str:  # pylint: disable=invalid-name
-        return self._nexia_home.mobile_url + "/xxl_zones/{zone_id}/{end_point}"
+        _url = self._nexia_home.mobile_url + "/xxl_zones/{zone_id}/{end_point}"
+
+        # Support for UX360 Thermostat
+        if self.thermostat.get_model() == "TSYS2C60A2VVUEA":   
+            end_point = "{end_point}"
+
+        return _url
 
     def get_name(self) -> str:
         """
@@ -509,6 +515,18 @@ class NexiaThermostatZone:
         self, end_point: str, payload: dict[str, Any]
     ) -> None:
         url = self.API_MOBILE_ZONE_URL.format(end_point=end_point, zone_id=self.zone_id)
+        # Support for UX360 Thermostat
+        if self.get_model() == "TSYS2C60A2VVUEA":   
+            print( f'UX360 End Point      : {end_point}' )
+            if end_point == "run_mode":   
+                url = self._get_zone_features("thermostat_fan_mode")["actions"]["update_thermostat_run_mode"]["href"]
+            
+            if end_point == "setpoints":   
+                url = self._get_zone_features("thermostat")["actions"]["set_setpoints"]["href"]
+
+            if end_point == "zone_mode":   
+                url = self._get_zone_features("thermostat_mode")["actions"]["update_thermostat_mode"]["href"]
+
         response = await self._nexia_home.post_url(url, payload)
         self.update_zone_json((await response.json())["result"])
 

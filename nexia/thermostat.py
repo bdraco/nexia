@@ -33,9 +33,9 @@ class NexiaThermostat:
 
     @property
     def API_MOBILE_THERMOSTAT_URL(self):  # pylint: disable=invalid-name
-        return (
-            self._nexia_home.mobile_url + "/xxl_thermostats/{thermostat_id}/{end_point}"
-        )
+        _url = self._nexia_home.mobile_url + "/xxl_thermostats/{thermostat_id}/{end_point}"
+
+        return _url
 
     @property
     def is_online(self):
@@ -606,6 +606,7 @@ class NexiaThermostat:
         :return: value
         """
         return self._get_thermostat_deep_key("features", "name", key)
+    
 
     def _get_thermostat_key_or_none(self, key):
         """
@@ -669,9 +670,15 @@ class NexiaThermostat:
         return zone
 
     async def _post_and_update_thermostat_json(self, end_point, payload):
-        url = self.API_MOBILE_THERMOSTAT_URL.format(
-            end_point=end_point, thermostat_id=self._thermostat_json["id"]
-        )
+        url = self.API_MOBILE_THERMOSTAT_URL.format(end_point=end_point, thermostat_id=self._thermostat_json["id"])
+
+        # Support for UX360 Thermostat
+        if self.get_model() == "TSYS2C60A2VVUEA":   
+            print( f'UX360 End Point      : {end_point}' )
+            if end_point == "fan_mode":   # update_thermostat_fan_mode
+                url = self._get_thermostat_deep_key("features","name","thermostat_fan_mode")["actions"]["update_thermostat_fan_mode"]["href"]
+       
+    
         response = await self._nexia_home.post_url(url, payload)
         self.update_thermostat_json((await response.json())["result"])
 
@@ -684,6 +691,7 @@ class NexiaThermostat:
             "Updated thermostat_id:%s with new data from post",
             self.thermostat_id,
         )
+       
         self._thermostat_json.update(thermostat_json)
 
         zone_updates_by_id = {}

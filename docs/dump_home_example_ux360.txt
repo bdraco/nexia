@@ -1,0 +1,5 @@
+Login onto the Trane provided interface provides values for:
+
+SERIALNUMBER
+API_PROVIDED_GUID_STRING
+HOUSEID
