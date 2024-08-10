@@ -103,3 +103,18 @@ ENV/
 
 # IDE settings
 .vscode/
+pyvenv.cfg
+bin/activate
+bin/activate_this.py
+bin/activate.csh
+bin/activate.fish
+bin/activate.nu
+bin/activate.ps1
+bin/pip
+bin/pip-3.12
+bin/pip3
+bin/pip3.12
+bin/python
+bin/python3
+bin/python3.12
+trane_config_davidhewing.conf
