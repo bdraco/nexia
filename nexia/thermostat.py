@@ -672,7 +672,7 @@ class NexiaThermostat:
     async def _post_and_update_thermostat_json(self, end_point, payload):
         url = self.API_MOBILE_THERMOSTAT_URL.format(end_point=end_point, thermostat_id=self._thermostat_json["id"])
 
-        # Support for UX360 Thermostat
+        """ Support for UX360 Thermostat """
         if self.get_model() == "TSYS2C60A2VVUEA":   
             print( f'UX360 End Point      : {end_point}' )
             if end_point == "fan_mode":   # update_thermostat_fan_mode

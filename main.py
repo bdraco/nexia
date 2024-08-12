@@ -70,7 +70,7 @@ async def _runner(username, password, brand):
         await nexia_home.update()
         displaystatus(nexia_home)
 
-        await nexia_home.thermostats[0].set_fan_mode("auto")
+        await nexia_home.thermostats[0].zones[0].set_heat_cool_temp(cool_temperature=75.0)
 
         time.sleep(5)
 

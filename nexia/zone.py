@@ -510,24 +510,51 @@ class NexiaThermostatZone:
             return self._zone_json[key]
 
         raise KeyError(f'Zone key "{key}" invalid.')
+    
+    def _get_ux360_url(self, parent, action):
+        """
+        Returns a tuple of the URL and HTTP Method provided by the API features
+        based on the parent feature and the action name
+        :param parent: str, action: str
+        :return: tuple url,method
+        """
+        _zone_features = self._get_zone_features(parent)
+
+        _url=""
+        _method=""
+
+        if "actions" in _zone_features:
+            if action in _zone_features["actions"]:
+                _url = _zone_features["actions"][action]["href"]
+                _method = _zone_features["actions"][action]["method"]
+
+        return(_url, _method)
 
     async def _post_and_update_zone_json(
         self, end_point: str, payload: dict[str, Any]
     ) -> None:
         url = self.API_MOBILE_ZONE_URL.format(end_point=end_point, zone_id=self.zone_id)
-        # Support for UX360 Thermostat
-        if self.get_model() == "TSYS2C60A2VVUEA":   
+        method = "POST"
+
+        """ Detection of the UX360 Trane Themostat Model """
+        if self.thermostat.get_model() == "TSYS2C60A2VVUEA":   
             print( f'UX360 End Point      : {end_point}' )
             if end_point == "run_mode":   
-                url = self._get_zone_features("thermostat_fan_mode")["actions"]["update_thermostat_run_mode"]["href"]
+                url,method = self._get_ux360_url("thermostat_fan_mode","update_thermostat_run_mode")
             
-            if end_point == "setpoints":   
-                url = self._get_zone_features("thermostat")["actions"]["set_setpoints"]["href"]
+            if end_point == "setpoints":
+                url,method = self._get_ux360_url("thermostat","set_setpoints")
 
             if end_point == "zone_mode":   
-                url = self._get_zone_features("thermostat_mode")["actions"]["update_thermostat_mode"]["href"]
+                url,method = self._get_ux360_url("thermostat_mode","update_thermostat_mode")   
 
-        response = await self._nexia_home.post_url(url, payload)
+        if method == "POST":
+            response = await self._nexia_home.post_url(url, payload)
+        elif method == "PUT":
+            response = await self._nexia_home.put_url(url, payload)
+        else:
+            _LOGGER.debug("Unknown URL method")
+
         self.update_zone_json((await response.json())["result"])
 
     def update_zone_json(self, zone_json: dict[str, Any]) -> None:
