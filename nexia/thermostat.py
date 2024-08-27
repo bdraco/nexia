@@ -1,7 +1,9 @@
 """Nexia Themostat."""
+
 from __future__ import annotations
 
 import logging
+import asyncio
 from typing import TYPE_CHECKING, Any
 
 from .const import AIR_CLEANER_MODES, BLOWER_OFF_STATUSES, HUMIDITY_MAX, HUMIDITY_MIN
@@ -33,7 +35,9 @@ class NexiaThermostat:
 
     @property
     def API_MOBILE_THERMOSTAT_URL(self):  # pylint: disable=invalid-name
-        _url = self._nexia_home.mobile_url + "/xxl_thermostats/{thermostat_id}/{end_point}"
+        _url = (
+            self._nexia_home.mobile_url + "/xxl_thermostats/{thermostat_id}/{end_point}"
+        )
 
         return _url
 
@@ -365,7 +369,11 @@ class NexiaThermostat:
         Returns the system's air cleaner mode
         :return: str
         """
-        return self.get_thermostat_settings_key("air_cleaner_mode")["current_value"]
+        _air_cleaner_mode = self.get_thermostat_settings_key_or_none("air_cleaner_mode")
+        if _air_cleaner_mode == None:
+            return AIR_CLEANER_MODES[0]
+        else:
+            return _air_cleaner_mode["current_value"]
 
     ########################################################################
     # System Universal Set Methods
@@ -606,7 +614,6 @@ class NexiaThermostat:
         :return: value
         """
         return self._get_thermostat_deep_key("features", "name", key)
-    
 
     def _get_thermostat_key_or_none(self, key):
         """
@@ -670,17 +677,28 @@ class NexiaThermostat:
         return zone
 
     async def _post_and_update_thermostat_json(self, end_point, payload):
-        url = self.API_MOBILE_THERMOSTAT_URL.format(end_point=end_point, thermostat_id=self._thermostat_json["id"])
+        url = self.API_MOBILE_THERMOSTAT_URL.format(
+            end_point=end_point, thermostat_id=self._thermostat_json["id"]
+        )
 
         """ Support for UX360 Thermostat """
-        if self.get_model() == "TSYS2C60A2VVUEA":   
-            print( f'UX360 End Point      : {end_point}' )
-            if end_point == "fan_mode":   # update_thermostat_fan_mode
-                url = self._get_thermostat_deep_key("features","name","thermostat_fan_mode")["actions"]["update_thermostat_fan_mode"]["href"]
-       
-    
+        if self.get_model() == "TSYS2C60A2VVUEA":
+            print(f"UX360 End Point      : {end_point}")
+            if end_point == "fan_mode":  # update_thermostat_fan_mode
+                url = self._get_thermostat_deep_key(
+                    "features", "name", "thermostat_fan_mode"
+                )["actions"]["update_thermostat_fan_mode"]["href"]
+
         response = await self._nexia_home.post_url(url, payload)
-        self.update_thermostat_json((await response.json())["result"])
+        response_json = (await response.json())["result"]
+
+        """ Make sure that the data return is was is expected """
+        if response_json.get("zones"):
+            self.update_thermostat_json(response_json)
+        else:
+            """ Probably means a PUT request was used -- call update """
+            await asyncio.sleep(10)
+            await self._nexia_home.update()
 
     def update_thermostat_json(self, thermostat_json):
         """Update with new json from the api"""
@@ -691,13 +709,18 @@ class NexiaThermostat:
             "Updated thermostat_id:%s with new data from post",
             self.thermostat_id,
         )
-       
+
         self._thermostat_json.update(thermostat_json)
 
         zone_updates_by_id = {}
-        for zone_json in thermostat_json["zones"]:
-            zone_updates_by_id[zone_json["id"]] = zone_json
+        if thermostat_json.get("zones"):
+            for zone_json in thermostat_json["zones"]:
+                zone_updates_by_id[zone_json["id"]] = zone_json
 
-        for zone in self.zones:
-            if zone.zone_id in zone_updates_by_id:
-                zone.update_zone_json(zone_updates_by_id[zone.zone_id])
+            for zone in self.zones:
+                if zone.zone_id in zone_updates_by_id:
+                    zone.update_zone_json(zone_updates_by_id[zone.zone_id])
+
+        else:
+            """ Probably means a PUT request was used -- call update """
+            print(thermostat_json)
