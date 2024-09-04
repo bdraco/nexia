@@ -1,0 +1,774 @@
+[
+    {
+        "_links": {
+            "filter_events": {
+                "href": "https://www.mynexia.com/mobile/houses/HOUSEID/events/collection?sys_guid=API_PROVIDED_GUID_STRING"
+            },
+            "nexia:history": {
+                "href": "https://www.mynexia.com/mobile/houses/HOUSEID/events?device_id=SERIALNUMBER"
+            },
+            "self": {
+                "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/SERIALNUMBER"
+            }
+        },
+        "country_code": "US",
+        "features": [
+            {
+                "items": [
+                    {
+                        "label": "Model",
+                        "type": "label_value",
+                        "value": "TSYS2C60A2VVUEA"
+                    },
+                    {
+                        "label": "Serial Number",
+                        "type": "label_value",
+                        "value": "SERIALNUMBER"
+                    },
+                    {
+                        "label": "AUID",
+                        "type": "label_value",
+                        "value": "SERIALNUMBER"
+                    },
+                    {
+                        "label": "Connection Status",
+                        "type": "label_value",
+                        "value": "Online"
+                    },
+                    {
+                        "label": "Main Firmware Version",
+                        "type": "label_value",
+                        "value": "08.01.00.240517"
+                    }
+                ],
+                "name": "advanced_info"
+            },
+            {
+                "actions": {
+                    "unenroll": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/SERIALNUMBER/unenroll",
+                        "method": "POST"
+                    }
+                },
+                "name": "unenroll"
+            },
+            {
+                "actions": {
+                    "set_alert_temperature_high": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/SERIALNUMBER/alert_temperature_high",
+                        "method": "POST"
+                    },
+                    "set_alert_temperature_low": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/SERIALNUMBER/alert_temperature_low",
+                        "method": "POST"
+                    },
+                    "set_setpoints": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/SERIALNUMBER/setpoints/1",
+                        "method": "PUT"
+                    }
+                },
+                "alert_temperature_high": 120,
+                "alert_temperature_low": 0,
+                "device_identifier": "SERIALNUMBER",
+                "name": "thermostat",
+                "operating_state": "cool",
+                "scale": "f",
+                "setpoint_cool": 74,
+                "setpoint_cool_max": 99.0,
+                "setpoint_cool_min": 60,
+                "setpoint_delta": 3.0,
+                "setpoint_heat_max": 90,
+                "setpoint_heat_min": 55.0,
+                "setpoint_increment": 1,
+                "status": "Cooling",
+                "status_icon": {
+                    "modifiers": [],
+                    "name": "cooling"
+                },
+                "temperature": 74
+            },
+            {
+                "is_connected": true,
+                "name": "connection",
+                "signal_strength": "unknown"
+            },
+            {
+                "actions": {
+                    "update_thermostat_mode": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/SERIALNUMBER/mode/1",
+                        "method": "POST"
+                    }
+                },
+                "display_value": "Cool",
+                "label": "System Mode",
+                "name": "thermostat_mode",
+                "options": [
+                    {
+                        "header": true,
+                        "id": "thermostat_mode",
+                        "label": "System Mode",
+                        "value": "thermostat_mode"
+                    },
+                    {
+                        "label": "Off",
+                        "value": "off"
+                    },
+                    {
+                        "label": "Auto",
+                        "value": "auto"
+                    },
+                    {
+                        "label": "Cool",
+                        "value": "cool"
+                    },
+                    {
+                        "label": "Heat",
+                        "value": "heat"
+                    },
+                    {
+                        "label": "EM Heat",
+                        "value": "emergency_heat"
+                    }
+                ],
+                "value": "cool"
+            },
+            {
+                "actions": {
+                    "update_thermostat_run_mode": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/SERIALNUMBER/run_mode/1",
+                        "method": "POST"
+                    }
+                },
+                "display_value": "Hold Temp",
+                "label": "Run Mode",
+                "name": "thermostat_run_mode",
+                "options": [
+                    {
+                        "header": true,
+                        "id": "thermostat_run_mode",
+                        "label": "Run Mode",
+                        "value": "thermostat_run_mode"
+                    },
+                    {
+                        "id": "info_text",
+                        "info": true,
+                        "label": "Follow or override the schedule.",
+                        "value": "info_text"
+                    },
+                    {
+                        "label": "Hold Temp",
+                        "value": "hold"
+                    },
+                    {
+                        "label": "Run Schedule",
+                        "value": "schedule"
+                    }
+                ],
+                "value": "hold"
+            },
+            {
+                "actions": {
+                    "request_current_dealer_info": {},
+                    "request_dealers_by_zip": {
+                        "href": "https://www.mynexia.com/mobile/dealers/SERIALNUMBER/search",
+                        "method": "POST"
+                    }
+                },
+                "has_dealer_identifier": false,
+                "name": "dealer_contact_info"
+            },
+            {
+                "actions": {
+                    "update_thermostat_fan_mode": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/SERIALNUMBER/fan_mode",
+                        "method": "POST"
+                    }
+                },
+                "display_value": "Auto",
+                "label": "Fan Mode",
+                "name": "thermostat_fan_mode",
+                "options": [
+                    {
+                        "header": true,
+                        "id": "thermostat_fan_mode",
+                        "label": "Fan Mode",
+                        "value": "thermostat_fan_mode"
+                    },
+                    {
+                        "label": "Circulate",
+                        "value": "circulate"
+                    },
+                    {
+                        "label": "Auto",
+                        "value": "auto"
+                    },
+                    {
+                        "label": "On",
+                        "value": "on"
+                    }
+                ],
+                "status_icon": {
+                    "modifiers": [],
+                    "name": "thermostat_fan_on"
+                },
+                "value": "auto"
+            },
+            {
+                "actions": {
+                    "update_thermostat_default_fan_mode": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/SERIALNUMBER/fan_mode",
+                        "method": "POST"
+                    }
+                },
+                "name": "thermostat_default_fan_mode",
+                "value": "auto"
+            },
+            {
+                "is_supported": false,
+                "name": "gen_2_app",
+                "validation_failures": [
+                    "Thermostat model is not supported."
+                ]
+            },
+            {
+                "actions": {
+                    "enable_scheduling": {
+                        "data": {
+                            "value": true
+                        },
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/SERIALNUMBER/scheduling_enabled",
+                        "method": "POST"
+                    },
+                    "get_active_schedule": {
+                        "href": "https://www.mynexia.com/mobile/thermostat_schedules/get_active_schedule?device_identifier=SERIALNUMBER",
+                        "method": "POST"
+                    },
+                    "get_default_schedule": {
+                        "href": "https://www.mynexia.com/mobile/thermostat_schedules/get_default_schedule?device_identifier=SERIALNUMBER",
+                        "method": "GET"
+                    },
+                    "set_active_schedule": {
+                        "href": "https://www.mynexia.com/mobile/thermostat_schedules/set_active_schedule?device_identifier=SERIALNUMBER",
+                        "method": "POST"
+                    }
+                },
+                "can_add_remove_periods": true,
+                "collection_url": "https://www.mynexia.com/mobile/schedules?device_identifier=SERIALNUMBER&house_id=HOUSEID",
+                "enabled": true,
+                "max_period_name_length": 10,
+                "max_periods_per_day": 4,
+                "name": "schedule",
+                "setpoint_increment": 1
+            }
+        ],
+        "has_indoor_humidity": true,
+        "has_outdoor_temperature": true,
+        "icon": {
+            "modifiers": [
+                "temperature-74"
+            ],
+            "name": "thermostat"
+        },
+        "id": "SERIALNUMBER",
+        "indoor_humidity": 47.0,
+        "last_updated_at": "2024-08-08T21:20:36.000Z",
+        "manufacturer": "Trane",
+        "name": "THERMOSTAT_NAME",
+        "name_editable": true,
+        "outdoor_temperature": 90,
+        "settings": [
+            {
+                "_links": {
+                    "self": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/SERIALNUMBER/mode/1"
+                    }
+                },
+                "current_value": "cool",
+                "labels": [
+                    "Off",
+                    "Auto",
+                    "Cool",
+                    "Heat",
+                    "EM Heat"
+                ],
+                "options": [
+                    {
+                        "label": "Off",
+                        "value": "off"
+                    },
+                    {
+                        "label": "Auto",
+                        "value": "auto"
+                    },
+                    {
+                        "label": "Cool",
+                        "value": "cool"
+                    },
+                    {
+                        "label": "Heat",
+                        "value": "heat"
+                    },
+                    {
+                        "label": "EM Heat",
+                        "value": "emergency_heat"
+                    }
+                ],
+                "title": "Mode",
+                "type": "mode",
+                "values": [
+                    "off",
+                    "auto",
+                    "cool",
+                    "heat",
+                    "emergency_heat"
+                ]
+            },
+            {
+                "_links": {
+                    "self": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/SERIALNUMBER/run_mode/1"
+                    }
+                },
+                "current_value": "hold",
+                "labels": [
+                    "Hold Temp",
+                    "Run Schedule"
+                ],
+                "options": [
+                    {
+                        "label": "Hold Temp",
+                        "value": "hold"
+                    },
+                    {
+                        "label": "Run Schedule",
+                        "value": "schedule"
+                    }
+                ],
+                "title": "Run Mode",
+                "type": "run_mode",
+                "values": [
+                    "hold",
+                    "schedule"
+                ]
+            },
+            {
+                "_links": {
+                    "self": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/SERIALNUMBER/scheduling_enabled"
+                    }
+                },
+                "current_value": true,
+                "labels": [
+                    "ON",
+                    "OFF"
+                ],
+                "options": [
+                    {
+                        "label": "ON",
+                        "value": true
+                    },
+                    {
+                        "label": "OFF",
+                        "value": false
+                    }
+                ],
+                "title": "Scheduling",
+                "type": "scheduling_enabled",
+                "values": [
+                    true,
+                    false
+                ]
+            },
+            {
+                "_links": {
+                    "self": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/SERIALNUMBER/fan_mode"
+                    }
+                },
+                "current_value": "auto",
+                "labels": [
+                    "Circulate",
+                    "Auto",
+                    "On"
+                ],
+                "options": [
+                    {
+                        "label": "Circulate",
+                        "value": "circulate"
+                    },
+                    {
+                        "label": "Auto",
+                        "value": "auto"
+                    },
+                    {
+                        "label": "On",
+                        "value": "on"
+                    }
+                ],
+                "title": "Fan Mode",
+                "type": "fan_mode",
+                "values": [
+                    "circulate",
+                    "auto",
+                    "on"
+                ]
+            },
+            {
+                "_links": {
+                    "self": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/SERIALNUMBER/scale"
+                    }
+                },
+                "current_value": "f",
+                "labels": [
+                    "F",
+                    "C"
+                ],
+                "options": [
+                    {
+                        "label": "F",
+                        "value": "f"
+                    },
+                    {
+                        "label": "C",
+                        "value": "c"
+                    }
+                ],
+                "title": "Temperature Scale",
+                "type": "scale",
+                "values": [
+                    "f",
+                    "c"
+                ]
+            },
+            {
+                "_links": {
+                    "self": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/SERIALNUMBER/high_low_alerts"
+                    }
+                },
+                "current_value": "0",
+                "labels": [
+                    "ON",
+                    "OFF"
+                ],
+                "options": [
+                    {
+                        "label": "ON",
+                        "value": "1"
+                    },
+                    {
+                        "label": "OFF",
+                        "value": "0"
+                    }
+                ],
+                "title": "Send High and Low Temperature Alerts",
+                "type": "high_low_alerts",
+                "values": [
+                    "1",
+                    "0"
+                ]
+            },
+            {
+                "_links": {
+                    "self": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/SERIALNUMBER/send_delta_temperature_alert"
+                    }
+                },
+                "current_value": "0",
+                "labels": [
+                    "ON",
+                    "OFF"
+                ],
+                "options": [
+                    {
+                        "label": "ON",
+                        "value": "1"
+                    },
+                    {
+                        "label": "OFF",
+                        "value": "0"
+                    }
+                ],
+                "title": "Send Setpoint Delta Temperature Alert",
+                "type": "send_delta_temperature_alert",
+                "values": [
+                    "1",
+                    "0"
+                ]
+            },
+            {
+                "_links": {
+                    "self": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/SERIALNUMBER/filter_reminders_enabled"
+                    }
+                },
+                "current_value": false,
+                "labels": [
+                    "ON",
+                    "OFF"
+                ],
+                "options": [
+                    {
+                        "label": "ON",
+                        "value": true
+                    },
+                    {
+                        "label": "OFF",
+                        "value": false
+                    }
+                ],
+                "title": "Send Filter Reminders",
+                "type": "filter_reminders_enabled",
+                "values": [
+                    true,
+                    false
+                ]
+            },
+            {
+                "_links": {
+                    "self": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/SERIALNUMBER/filter_size"
+                    }
+                },
+                "current_value": null,
+                "labels": [
+                    "14x14x1",
+                    "14x20x1",
+                    "14x25x1",
+                    "16x16x1",
+                    "16x20x1",
+                    "16x25x1",
+                    "20x20x1",
+                    "20x22x1",
+                    "20x25x1",
+                    "20x30x1"
+                ],
+                "options": [
+                    {
+                        "label": "14x14x1",
+                        "value": "14x14x1"
+                    },
+                    {
+                        "label": "14x20x1",
+                        "value": "14x20x1"
+                    },
+                    {
+                        "label": "14x25x1",
+                        "value": "14x25x1"
+                    },
+                    {
+                        "label": "16x16x1",
+                        "value": "16x16x1"
+                    },
+                    {
+                        "label": "16x20x1",
+                        "value": "16x20x1"
+                    },
+                    {
+                        "label": "16x25x1",
+                        "value": "16x25x1"
+                    },
+                    {
+                        "label": "20x20x1",
+                        "value": "20x20x1"
+                    },
+                    {
+                        "label": "20x22x1",
+                        "value": "20x22x1"
+                    },
+                    {
+                        "label": "20x25x1",
+                        "value": "20x25x1"
+                    },
+                    {
+                        "label": "20x30x1",
+                        "value": "20x30x1"
+                    }
+                ],
+                "title": "Filter Size",
+                "type": "filter_size",
+                "values": [
+                    "14x14x1",
+                    "14x20x1",
+                    "14x25x1",
+                    "16x16x1",
+                    "16x20x1",
+                    "16x25x1",
+                    "20x20x1",
+                    "20x22x1",
+                    "20x25x1",
+                    "20x30x1"
+                ]
+            }
+        ],
+        "state_code": "AR",
+        "status_secondary": null,
+        "status_tertiary": null,
+        "type": "faceplate_thermostat",
+        "zones": [
+            {
+                "_links": {
+                    "self": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/SERIALNUMBER/zones/1"
+                    }
+                },
+                "cooling_setpoint": 74,
+                "current_zone_mode": "cool",
+                "features": [
+                    {
+                        "actions": {
+                            "set_setpoints": {
+                                "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/SERIALNUMBER/setpoints/1",
+                                "method": "PUT"
+                            }
+                        },
+                        "device_identifier": "SERIALNUMBER-1",
+                        "name": "thermostat",
+                        "scale": "f",
+                        "setpoint_cool": 74,
+                        "setpoint_cool_max": 99.0,
+                        "setpoint_cool_min": 60,
+                        "setpoint_delta": 3.0,
+                        "setpoint_heat_max": 90,
+                        "setpoint_heat_min": 55.0,
+                        "setpoint_increment": 1,
+                        "status": "Cooling",
+                        "status_icon": {
+                            "modifiers": [],
+                            "name": "cooling"
+                        },
+                        "temperature": 74
+                    },
+                    {
+                        "is_connected": true,
+                        "name": "connection",
+                        "signal_strength": "unknown"
+                    },
+                    {
+                        "actions": {
+                            "update_thermostat_mode": {
+                                "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/SERIALNUMBER/mode/1",
+                                "method": "POST"
+                            }
+                        },
+                        "display_value": "Cool",
+                        "label": "Zone Mode",
+                        "name": "thermostat_mode",
+                        "options": [
+                            {
+                                "header": true,
+                                "id": "thermostat_mode",
+                                "label": "Zone Mode",
+                                "value": "thermostat_mode"
+                            },
+                            {
+                                "label": "Off",
+                                "value": "off"
+                            },
+                            {
+                                "label": "Auto",
+                                "value": "auto"
+                            },
+                            {
+                                "label": "Cool",
+                                "value": "cool"
+                            },
+                            {
+                                "label": "Heat",
+                                "value": "heat"
+                            },
+                            {
+                                "label": "EM Heat",
+                                "value": "emergency_heat"
+                            }
+                        ],
+                        "value": "cool"
+                    },
+                    {
+                        "actions": {
+                            "update_thermostat_run_mode": {
+                                "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/SERIALNUMBER/run_mode/1",
+                                "method": "POST"
+                            }
+                        },
+                        "display_value": "Hold Temp",
+                        "label": "Run Mode",
+                        "name": "thermostat_run_mode",
+                        "options": [
+                            {
+                                "header": true,
+                                "id": "thermostat_run_mode",
+                                "label": "Run Mode",
+                                "value": "thermostat_run_mode"
+                            },
+                            {
+                                "id": "info_text",
+                                "info": true,
+                                "label": "Follow or override the schedule.",
+                                "value": "info_text"
+                            },
+                            {
+                                "label": "Hold Temp",
+                                "value": "hold"
+                            },
+                            {
+                                "label": "Run Schedule",
+                                "value": "schedule"
+                            }
+                        ],
+                        "value": "hold"
+                    },
+                    {
+                        "actions": {
+                            "enable_scheduling": {
+                                "data": {
+                                    "value": true
+                                },
+                                "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/SERIALNUMBER/scheduling_enabled",
+                                "method": "POST"
+                            },
+                            "get_active_schedule": {
+                                "href": "https://www.mynexia.com/mobile/thermostat_schedules/get_active_schedule?device_identifier=SERIALNUMBER-1",
+                                "method": "POST"
+                            },
+                            "get_default_schedule": {
+                                "href": "https://www.mynexia.com/mobile/thermostat_schedules/get_default_schedule?device_identifier=SERIALNUMBER-1",
+                                "method": "GET"
+                            },
+                            "set_active_schedule": {
+                                "href": "https://www.mynexia.com/mobile/thermostat_schedules/set_active_schedule?device_identifier=SERIALNUMBER-1",
+                                "method": "POST"
+                            }
+                        },
+                        "can_add_remove_periods": true,
+                        "collection_url": "https://www.mynexia.com/mobile/schedules?device_identifier=SERIALNUMBER-1&house_id=HOUSEID",
+                        "enabled": true,
+                        "max_period_name_length": 10,
+                        "max_periods_per_day": 4,
+                        "name": "schedule",
+                        "setpoint_increment": 1
+                    }
+                ],
+                "heating_setpoint": 62,
+                "icon": {
+                    "modifiers": [
+                        "temperature-74"
+                    ],
+                    "name": "thermostat"
+                },
+                "id": 1,
+                "name": "Zone 1",
+                "operating_state": "cool",
+                "setpoints": {
+                    "cool": 74,
+                    "heat": 62
+                },
+                "settings": [],
+                "temperature": 74,
+                "type": "thermostat_zone",
+                "zone_status": "cooling"
+            }
+        ]
+    }
+]

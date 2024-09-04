@@ -11,4 +11,4 @@ Development
 Contributors
 ------------
 
-None yet. Why not be the first?
+UX360 Initial Support Attempt - David Ewing <davidhewing@gmail.com>

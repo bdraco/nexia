@@ -1,4 +1,5 @@
 """Utils."""
+
 from __future__ import annotations
 
 import json
@@ -27,6 +28,7 @@ def find_dict_with_keyvalue_in_json(json_dict, key_in_subdict, value_to_find):
         if data_group.get(key_in_subdict) == value_to_find:
             return data_group
 
+    print(f"Unable to find value   : {value_to_find}")
     raise KeyError
 
 
