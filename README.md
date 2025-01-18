@@ -18,270 +18,264 @@ Not supported XL624, others
 
 By connecting this component, you will have access to all thermostats and zones in your associated home.
 
-### Concepts 
+### Concepts
 
 The Nexia Thermostat supports the following key concepts.
 
-
-
-## Attributes 
+## Attributes
 
 The following attributes are provided by the Nexia Thermostat
-`aux_heat`, `away_mode`, `current_humidity`, `current_temperature`, 
-`fan_list`, `fan_mode`, `firmware`, `friendly_name`, `hold_mode`, `humidity`, `humidify_supported`, 
+`aux_heat`, `away_mode`, `current_humidity`, `current_temperature`,
+`fan_list`, `fan_mode`, `firmware`, `friendly_name`, `hold_mode`, `humidity`, `humidify_supported`,
 `dehumidify_supported`, `humidify_setpoint`, `dehumidify_setpoint`
-`max_humidity`, `max_temp`, `min_humidity`, `min_temp`, `model`, `operation_list`, 
-`operation_mode`, `setpoint_status`, `target_temp_high`, `target_temp_low`, 
-`target_temp_step`, `temperature`, `thermostat_id`, `thermostat_name`, `zone_id`, 
+`max_humidity`, `max_temp`, `min_humidity`, `min_temp`, `model`, `operation_list`,
+`operation_mode`, `setpoint_status`, `target_temp_high`, `target_temp_low`,
+`target_temp_step`, `temperature`, `thermostat_id`, `thermostat_name`, `zone_id`,
 `zone_status`
 
-### `aux_heat` 
+### `aux_heat`
 
-Indicates whether or not aux heat / emergency heat is enabled. 
+Indicates whether or not aux heat / emergency heat is enabled.
 
-| Attribute type | Description | 
-| -------------- | ----------- |
-| String | 'on' or 'off' |
+| Attribute type | Description   |
+| -------------- | ------------- |
+| String         | 'on' or 'off' |
 
 ### `away_mode`
 
-Indicates whether the 'away' preset is selected. 
+Indicates whether the 'away' preset is selected.
 
-| Attribute type | Description | 
-| -------------- | ----------- |
-| String | 'on' or 'off' |
+| Attribute type | Description   |
+| -------------- | ------------- |
+| String         | 'on' or 'off' |
 
 ### Attribute `current_humidity`
 
-Provides you with the main thermostat's relative humidity. Outdoor humidity or zone specific 
-humidity is not currently available via Nexia's published data. 
+Provides you with the main thermostat's relative humidity. Outdoor humidity or zone specific
+humidity is not currently available via Nexia's published data.
 
-| Attribute type | Description | 
-| -------------- | ----------- |
-| Float | current humidity |
+| Attribute type | Description      |
+| -------------- | ---------------- |
+| Float          | current humidity |
 
 ### Attribute `current_temperature`
 
-Provides you with the current zone's temperature. 
+Provides you with the current zone's temperature.
 
-| Attribute type | Description | 
-| -------------- | ----------- |
-| Integer | current temperature |
+| Attribute type | Description         |
+| -------------- | ------------------- |
+| Integer        | current temperature |
 
 ### Attribute `fan_list`
 
-This is a list of all available fan modes you can select, separated by commas. 
+This is a list of all available fan modes you can select, separated by commas.
 
-| Attribute type | Description | 
-| -------------- | ----------- |
-| String | 'auto,on,circulate' |
+| Attribute type | Description         |
+| -------------- | ------------------- |
+| String         | 'auto,on,circulate' |
 
 ### Attribute `fan_mode`
 
 The currently selected fan mode.
 
-| Attribute type | Description | 
-| -------------- | ----------- |
-| String | 'auto', 'on', or 'circulate' |
+| Attribute type | Description                  |
+| -------------- | ---------------------------- |
+| String         | 'auto', 'on', or 'circulate' |
 
 ### Attribute `firmware`
 
 Provides you with the current firmware version of the main thermostat.
 
-| Attribute type | Description | 
-| -------------- | ----------- |
-| String | firmware version |
+| Attribute type | Description      |
+| -------------- | ---------------- |
+| String         | firmware version |
 
 ### Attribute `hold_mode`
 
-Indicates if a hold is currently in place on this zone. Examples of such are 'away', 
+Indicates if a hold is currently in place on this zone. Examples of such are 'away',
 'home', 'sleep', or 'evening'
 
-| Attribute type | Description | 
+| Attribute type | Description |
 | -------------- | ----------- |
-| String | hold mode |
+| String         | hold mode   |
 
 ### Attribute `humidity`
 
-The target dehumidify set point (%) of the system. 
+The target dehumidify set point (%) of the system.
 
-| Attribute type | Description | 
-| -------------- | ----------- |
-| Integer | dehumidify setpoint as an integer |
+| Attribute type | Description                       |
+| -------------- | --------------------------------- |
+| Integer        | dehumidify setpoint as an integer |
 
 ### Attribute `humidify_supported`
 
-Indicates if the system supports humidification. 
+Indicates if the system supports humidification.
 
-| Attribute type | Description | 
-| -------------- | ----------- |
-| Boolean | humidification supported |
+| Attribute type | Description              |
+| -------------- | ------------------------ |
+| Boolean        | humidification supported |
 
 ### Attribute `dehumidify_supported`
 
-Indicates if the system supports dehumidification. 
+Indicates if the system supports dehumidification.
 
-| Attribute type | Description | 
-| -------------- | ----------- |
-| Boolean | dehumidification supported |
-
+| Attribute type | Description                |
+| -------------- | -------------------------- |
+| Boolean        | dehumidification supported |
 
 ### Attribute `humidify_setpoint`
 
-The target humidify set point (%) of the system. 
+The target humidify set point (%) of the system.
 
-| Attribute type | Description | 
-| -------------- | ----------- |
-| Integer | humidify setpoint as an integer |
-
+| Attribute type | Description                     |
+| -------------- | ------------------------------- |
+| Integer        | humidify setpoint as an integer |
 
 ### Attribute `dehumidify_setpoint`
 
-Same as `humidity` The target dehumidify set point (%) of the system. 
+Same as `humidity` The target dehumidify set point (%) of the system.
 
-| Attribute type | Description | 
-| -------------- | ----------- |
-| Integer | dehumidify setpoint as an integer |
-
+| Attribute type | Description                       |
+| -------------- | --------------------------------- |
+| Integer        | dehumidify setpoint as an integer |
 
 ### Attribute `max_humidity`
 
-Hard-coded value indicating the maximum dehumidify set point (%) you can set, as an integer.  
+Hard-coded value indicating the maximum dehumidify set point (%) you can set, as an integer.
 
-| Attribute type | Description | 
-| -------------- | ----------- |
-| Integer | maximum humidity set point, always 65 |
+| Attribute type | Description                           |
+| -------------- | ------------------------------------- |
+| Integer        | maximum humidity set point, always 65 |
 
 ### Attribute `max_temp`
 
 The maximum temperature set point of the zone. This can change based on the thermostat's settings.
 
-| Attribute type | Description | 
-| -------------- | ----------- |
-| Integer | maximum temperature, such as 90 |
+| Attribute type | Description                     |
+| -------------- | ------------------------------- |
+| Integer        | maximum temperature, such as 90 |
 
 ### Attribute `min_humidity`
 
-Hard-coded value indicating the minimum dehumidify set point (%) you can set, as an integer.  
+Hard-coded value indicating the minimum dehumidify set point (%) you can set, as an integer.
 
-| Attribute type | Description | 
-| -------------- | ----------- |
-| Integer | minimum humidity set point, always 35  |
+| Attribute type | Description                           |
+| -------------- | ------------------------------------- |
+| Integer        | minimum humidity set point, always 35 |
 
 ### Attribute `min_temp`
 
 The minimum temperature set point of the zone. This can change based on the thermostat's settings.
 
-| Attribute type | Description | 
-| -------------- | ----------- |
-| Integer | minimum temperature, such as 55 |
+| Attribute type | Description                     |
+| -------------- | ------------------------------- |
+| Integer        | minimum temperature, such as 55 |
 
 ### Attribute `model`
 
 The thermostat model, such as 'TZON1050AC52ZAA'
 
-| Attribute type | Description | 
-| -------------- | ----------- |
-| String | thermostat model |
+| Attribute type | Description      |
+| -------------- | ---------------- |
+| String         | thermostat model |
 
 ### Attribute `operation_list`
 
 List of available operation modes such as 'AUTO,COOL,HEAT,OFF'
 
-| Attribute type | Description | 
-| -------------- | ----------- |
-| String | operation modes |
+| Attribute type | Description     |
+| -------------- | --------------- |
+| String         | operation modes |
 
 ### Attribute `operation_mode`
 
 The current operation mode, such as 'AUTO', 'COOL', 'HEAT', or 'OFF'
 
-| Attribute type | Description | 
-| -------------- | ----------- |
-| String | operation mode |
+| Attribute type | Description    |
+| -------------- | -------------- |
+| String         | operation mode |
 
 ### Attribute `setpoint_status`
 
-This provides you with a system set point status, such as 'Holding Permanently', 
-'Following Schedule - Away', or 'Following Schedule - Home'. This is not an exhaustive list. 
+This provides you with a system set point status, such as 'Holding Permanently',
+'Following Schedule - Away', or 'Following Schedule - Home'. This is not an exhaustive list.
 
-| Attribute type | Description | 
-| -------------- | ----------- |
-| String | set point status |
+| Attribute type | Description      |
+| -------------- | ---------------- |
+| String         | set point status |
 
 ### Attribute `target_temp_high`
 
-The target cooling (upper-bound) temperature for the current zone. 
+The target cooling (upper-bound) temperature for the current zone.
 
-| Attribute type | Description | 
-| -------------- | ----------- |
-| Integer | upper-bound target temperature |
+| Attribute type | Description                    |
+| -------------- | ------------------------------ |
+| Integer        | upper-bound target temperature |
 
 ### Attribute `target_temp_low`
 
 The target heating (lower-bound) temperature for the current zone.
 
-| Attribute type | Description | 
-| -------------- | ----------- |
-| Integer | lower-bound target temperature |
+| Attribute type | Description                    |
+| -------------- | ------------------------------ |
+| Integer        | lower-bound target temperature |
 
 ### Attribute `target_temp_step`
 
-The step at which the temperature can be increased or decreased. For Fahrenheit, 
+The step at which the temperature can be increased or decreased. For Fahrenheit,
 this is 1.0 degrees per step, and for Celsius, this is 0.5 degrees per step.
 
-| Attribute type | Description | 
+| Attribute type | Description |
 | -------------- | ----------- |
-| Float | step |
+| Float          | step        |
 
 ### Attribute `temperature`
 
-Based on the current system mode, this is the target temperature for the zone. 
+Based on the current system mode, this is the target temperature for the zone.
 
-| Attribute type | Description | 
-| -------------- | ----------- |
-| Integer | target temperature |
- 
+| Attribute type | Description        |
+| -------------- | ------------------ |
+| Integer        | target temperature |
+
 ### Attribute `thermostat_id`
 
 This is the main thermostat's ID, here for reference. This will match up with the 'id'
 in the JSON data provided by Nexia.
 
-| Attribute type | Description | 
-| -------------- | ----------- |
-| Integer | thermostat ID |
+| Attribute type | Description   |
+| -------------- | ------------- |
+| Integer        | thermostat ID |
 
 ### Attribute `thermostat_name`
 
 The name of the system. This will be shared across all zones of your Trane / American Standard
-system. 
+system.
 
-| Attribute type | Description | 
-| -------------- | ----------- |
-| String | thermostat name|
+| Attribute type | Description     |
+| -------------- | --------------- |
+| String         | thermostat name |
 
 ### Attribute `zone_id`
 
-The zone ID for this particular zone, here for reference. This will match up with the 'id' 
-in the JSON data provided by Nexia under the 'zones' list. 
+The zone ID for this particular zone, here for reference. This will match up with the 'id'
+in the JSON data provided by Nexia under the 'zones' list.
 
-| Attribute type | Description | 
+| Attribute type | Description |
 | -------------- | ----------- |
-| Integer | zone ID |
+| Integer        | zone ID     |
 
 ### Attribute `zone_status`
 
 The status of the zone, such as 'Cooling', or 'Heating"
 
-| Attribute type | Description | 
+| Attribute type | Description |
 | -------------- | ----------- |
-| String | zone status |
- 
- 
+| String         | zone status |
+
 ## Services
 
 The following `climate` services are provided by the Nexia Thermostat:
-`set_aux_heat`, `set_away_mode`, `set_fan_mode`, `set_hold_mode`, `set_humidity`, 
+`set_aux_heat`, `set_away_mode`, `set_fan_mode`, `set_hold_mode`, `set_humidity`,
 `set_operation_mode`, `set_temperature`, `turn_on`, `turn_off`
 
 The service `set_swing_mode` offered by the [Climate component](/components/climate/)
@@ -294,29 +288,28 @@ The following `nexia` climate service is provided by the Nexia Thermostat:
 
 Enable the aux / emergency heat for the system. This is a system-wide setting.
 
-| Service data attribute | Optional | Description |
-| ---------------------- | -------- | ----------- |
-| `entity_id` | yes | String or list of strings that point at `entity_id`'s of climate devices to control. Else targets all.
-| `away_mode` | no | 'on' or 'off'
+| Service data attribute | Optional | Description                                                                                            |
+| ---------------------- | -------- | ------------------------------------------------------------------------------------------------------ |
+| `entity_id`            | yes      | String or list of strings that point at `entity_id`'s of climate devices to control. Else targets all. |
+| `away_mode`            | no       | 'on' or 'off'                                                                                          |
 
 ### Service `set_away_mode`
 
 Turns the away mode on or off for the thermostat.
 
-| Service data attribute | Optional | Description |
-| ---------------------- | -------- | ----------- |
-| `entity_id` | yes | String or list of strings that point at `entity_id`'s of climate devices to control. Else targets all.
-| `away_mode` | no | 'on' or 'off'
+| Service data attribute | Optional | Description                                                                                            |
+| ---------------------- | -------- | ------------------------------------------------------------------------------------------------------ |
+| `entity_id`            | yes      | String or list of strings that point at `entity_id`'s of climate devices to control. Else targets all. |
+| `away_mode`            | no       | 'on' or 'off'                                                                                          |
 
 ### Service `set_fan_mode`
 
-Sets the fan mode for the system. See the `fan_list` attribute for options. This is a system-wide setting. 
+Sets the fan mode for the system. See the `fan_list` attribute for options. This is a system-wide setting.
 
-| Service data attribute | Optional | Description |
-| ---------------------- | -------- | ----------- |
-| `entity_id` | yes | String or list of strings that point at `entity_id`'s of climate devices to control. Else targets all.
-| `fan_mode` | no | 'auto', 'on', or 'circulate'
-
+| Service data attribute | Optional | Description                                                                                            |
+| ---------------------- | -------- | ------------------------------------------------------------------------------------------------------ |
+| `entity_id`            | yes      | String or list of strings that point at `entity_id`'s of climate devices to control. Else targets all. |
+| `fan_mode`             | no       | 'auto', 'on', or 'circulate'                                                                           |
 
 ### Service `set_hold_mode`
 
@@ -324,77 +317,77 @@ Puts the thermostat into the given hold mode. For 'home', 'away', 'sleep',
 and any other hold based on a reference climate, the
 target temperature is taken from the reference climate.
 
-| Service data attribute | Optional | Description |
-| ---------------------- | -------- | ----------- |
-| `entity_id` | yes | String or list of strings that point at `entity_id`'s of climate devices to control. Else targets all.
-| `hold_mode` | no | `home`, `away`, `sleep`
+| Service data attribute | Optional | Description                                                                                            |
+| ---------------------- | -------- | ------------------------------------------------------------------------------------------------------ |
+| `entity_id`            | yes      | String or list of strings that point at `entity_id`'s of climate devices to control. Else targets all. |
+| `hold_mode`            | no       | `home`, `away`, `sleep`                                                                                |
 
 ### Service `set_humidity`
 
 Sets the dehumidify set point of the system. Range from 35-65. This is a system-wide setting.
 
-| Service data attribute | Optional | Description |
-| ---------------------- | -------- | ----------- |
-| `entity_id` | yes | String or list of strings that point at `entity_id`'s of climate devices to control. Else targets all.
-| `humidity` | no | The dehumidify setpoint, like 50.  
+| Service data attribute | Optional | Description                                                                                            |
+| ---------------------- | -------- | ------------------------------------------------------------------------------------------------------ |
+| `entity_id`            | yes      | String or list of strings that point at `entity_id`'s of climate devices to control. Else targets all. |
+| `humidity`             | no       | The dehumidify setpoint, like 50.                                                                      |
 
 ### Service `set_temperature`
 
 Puts the thermostat into a temporary hold at the given temperature.
 
-| Service data attribute | Optional | Description |
-| ---------------------- | -------- | ----------- |
-| `entity_id` | yes | String or list of strings that point at `entity_id`'s of climate devices to control. Else targets all.
-| `target_temp_low` | no | Desired heating target temperature (when in auto mode)
-| `target_temp_high` | no | Desired cooling target temperature (when in auto mode)
-| `temperature` | no | Desired target temperature (when not in auto mode)
+| Service data attribute | Optional | Description                                                                                            |
+| ---------------------- | -------- | ------------------------------------------------------------------------------------------------------ |
+| `entity_id`            | yes      | String or list of strings that point at `entity_id`'s of climate devices to control. Else targets all. |
+| `target_temp_low`      | no       | Desired heating target temperature (when in auto mode)                                                 |
+| `target_temp_high`     | no       | Desired cooling target temperature (when in auto mode)                                                 |
+| `temperature`          | no       | Desired target temperature (when not in auto mode)                                                     |
 
 Only the target temperatures relevant for the current operation mode need to
 be provided.
 
 ### Service `set_operation_mode`
 
-Sets the current operation mode of the thermostat. See attribute `operation_list` for options. 
+Sets the current operation mode of the thermostat. See attribute `operation_list` for options.
 
-| Service data attribute | Optional | Description |
-| ---------------------- | -------- | ----------- |
-| `entity_id` | yes | String or list of strings that point at `entity_id`'s of climate devices to control. Else targets all.
-| `operation_mode` | no | 'AUTO', 'COOL', 'HEAT', or 'OFF'
+| Service data attribute | Optional | Description                                                                                            |
+| ---------------------- | -------- | ------------------------------------------------------------------------------------------------------ |
+| `entity_id`            | yes      | String or list of strings that point at `entity_id`'s of climate devices to control. Else targets all. |
+| `operation_mode`       | no       | 'AUTO', 'COOL', 'HEAT', or 'OFF'                                                                       |
 
 ### Service `turn_on`
 
-Turns the zone on. 
+Turns the zone on.
 
-| Service data attribute | Optional | Description |
-| ---------------------- | -------- | ----------- |
-| `entity_id` | yes | String or list of strings that point at `entity_id`'s of climate devices to control. Else targets all.
+| Service data attribute | Optional | Description                                                                                            |
+| ---------------------- | -------- | ------------------------------------------------------------------------------------------------------ |
+| `entity_id`            | yes      | String or list of strings that point at `entity_id`'s of climate devices to control. Else targets all. |
 
 ### Service `turn_off`
 
-Turns the zone off. 
+Turns the zone off.
 
-| Service data attribute | Optional | Description |
-| ---------------------- | -------- | ----------- |
-| `entity_id` | yes | String or list of strings that point at `entity_id`'s of climate devices to control. Else targets all.
+| Service data attribute | Optional | Description                                                                                            |
+| ---------------------- | -------- | ------------------------------------------------------------------------------------------------------ |
+| `entity_id`            | yes      | String or list of strings that point at `entity_id`'s of climate devices to control. Else targets all. |
 
 ### Service `set_aircleaner_mode`
 
-Part of the `nexia.` services. Sets the air cleaner mode. Options include 'AUTO', 'QUICK', and 
-'ALLERGY'. This is a system-wide setting. 
+Part of the `nexia.` services. Sets the air cleaner mode. Options include 'AUTO', 'QUICK', and
+'ALLERGY'. This is a system-wide setting.
 
-| Service data attribute | Optional | Description |
-| ---------------------- | -------- | ----------- |
-| `entity_id` | yes | String or list of strings that point at `entity_id`'s of climate devices to control. Else targets all.
-| `aircleaner_mode` | no | 'AUTO', 'QUICK', or 'ALLERGY'
+| Service data attribute | Optional | Description                                                                                            |
+| ---------------------- | -------- | ------------------------------------------------------------------------------------------------------ |
+| `entity_id`            | yes      | String or list of strings that point at `entity_id`'s of climate devices to control. Else targets all. |
+| `aircleaner_mode`      | no       | 'AUTO', 'QUICK', or 'ALLERGY'                                                                          |
 
 ### Service `set_humidify_setpoint`
 
-Part of the `nexia.` services. Sets the humidify setpoint. This is a system-wide setting. 
+Part of the `nexia.` services. Sets the humidify setpoint. This is a system-wide setting.
 
-| Service data attribute | Optional | Description |
-| ---------------------- | -------- | ----------- |
-| `entity_id` | yes | String or list of strings that point at `entity_id`'s of climate devices to control. Else targets all.
-| `humidity` | no | Humidify setpoint level, from 35 to 65. 
+| Service data attribute | Optional | Description                                                                                            |
+| ---------------------- | -------- | ------------------------------------------------------------------------------------------------------ |
+| `entity_id`            | yes      | String or list of strings that point at `entity_id`'s of climate devices to control. Else targets all. |
+| `humidity`             | no       | Humidify setpoint level, from 35 to 65.                                                                |
 
 [code-coverage]: https://codecov.io/gh/bdraco/nexia
 [code-cover-shield]: https://codecov.io/gh/bdraco/nexia/branch/master/graph/badge.svg

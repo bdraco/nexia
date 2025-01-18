@@ -1,6 +1,6 @@
-* Nexia version:
-* Python version:
-* Operating System:
+- Nexia version:
+- Python version:
+- Operating System:
 
 ### Description
 

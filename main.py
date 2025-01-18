@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-
+# type: ignore
 """Nexia Climate Device Access"""
 
 import argparse

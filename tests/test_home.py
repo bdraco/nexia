@@ -341,9 +341,6 @@ async def test_xl824_2(aiohttp_session):
     assert zone_ids == [99999999]
 
 
-"""Tests for nexia home."""
-
-
 async def test_basic(aiohttp_session):
     """Basic tests for NexiaHome."""
     nexia = NexiaHome(aiohttp_session)
@@ -364,9 +361,6 @@ async def test_basic_issue_33758(aiohttp_session):
     assert nexia.get_name() == "Hidden"
     thermostat_ids = nexia.get_thermostat_ids()
     assert thermostat_ids == [12345678]
-
-
-"""Tests for nexia thermostat zone."""
 
 
 async def test_zone_issue_33968_zone_83037337(aiohttp_session):
@@ -630,9 +624,6 @@ async def test_single_zone_system_off(aiohttp_session):
     assert zone.get_setpoint_status() == "Permanent Hold"
     assert zone.is_calling() is True
     assert zone.is_in_permanent_hold() is True
-
-
-"""Automations tests."""
 
 
 async def test_automations(aiohttp_session):
@@ -913,7 +904,6 @@ async def test_new_xl824(aiohttp_session):
     assert zone.is_in_permanent_hold() is True
 
 
-
 async def test_system_offline(aiohttp_session):
     """Get a system offline."""
     nexia = NexiaHome(aiohttp_session)
@@ -930,7 +920,7 @@ async def test_system_offline(aiohttp_session):
     assert thermostat.get_dev_build_number() == "1614588140"
     assert thermostat.get_device_id() == "02863D94"
     assert thermostat.get_type() == "XL1050"
-    assert thermostat.get_name() == 'Game Room'
+    assert thermostat.get_name() == "Game Room"
     assert thermostat.get_deadband() == 3
     assert thermostat.get_setpoint_limits() == (55, 99)
     assert thermostat.has_variable_fan_speed() is True
@@ -943,7 +933,7 @@ async def test_system_offline(aiohttp_session):
     assert thermostat.has_dehumidify_support() is True
     assert thermostat.has_humidify_support() is False
     assert thermostat.has_emergency_heat() is False
-    assert thermostat.get_system_status() == 'NOT CONNECTED'
+    assert thermostat.get_system_status() == "NOT CONNECTED"
     assert thermostat.has_air_cleaner() is True
     assert thermostat.is_blower_active() is True
     assert thermostat.is_online is False
@@ -952,7 +942,7 @@ async def test_system_offline(aiohttp_session):
     assert zone_ids == [83354736, 83354739, 83354742, 83354745]
     zone = thermostat.get_zone_by_id(83354736)
 
-    assert zone.get_name() == 'Game Room'
+    assert zone.get_name() == "Game Room"
     assert zone.get_cooling_setpoint() == 75
     assert zone.get_heating_setpoint() == 55
     assert zone.get_current_mode() == "COOL"
@@ -963,7 +953,6 @@ async def test_system_offline(aiohttp_session):
     assert zone.get_setpoint_status() == "Permanent Hold"
     assert zone.is_calling() is True
     assert zone.is_in_permanent_hold() is True
-
 
 
 async def test_emergency_heat(aiohttp_session):
@@ -982,7 +971,7 @@ async def test_emergency_heat(aiohttp_session):
     assert thermostat.get_dev_build_number() == "1614581867"
     assert thermostat.get_device_id() == "00D68470"
     assert thermostat.get_type() == "XL850"
-    assert thermostat.get_name() == 'XL850 Home'
+    assert thermostat.get_name() == "XL850 Home"
     assert thermostat.get_deadband() == 3
     assert thermostat.get_setpoint_limits() == (55, 99)
     assert thermostat.has_variable_fan_speed() is True
@@ -995,7 +984,7 @@ async def test_emergency_heat(aiohttp_session):
     assert thermostat.has_dehumidify_support() is True
     assert thermostat.has_humidify_support() is True
     assert thermostat.has_emergency_heat() is True
-    assert thermostat.get_system_status() == 'Fan Running'
+    assert thermostat.get_system_status() == "Fan Running"
     assert thermostat.has_air_cleaner() is True
     assert thermostat.is_blower_active() is True
     assert thermostat.is_online is True
@@ -1004,7 +993,7 @@ async def test_emergency_heat(aiohttp_session):
     assert zone_ids == [84326108]
     zone = thermostat.get_zone_by_id(84326108)
 
-    assert zone.get_name() ==  'XL850 Home NativeZone'
+    assert zone.get_name() == "XL850 Home NativeZone"
     assert zone.get_cooling_setpoint() == 99
     assert zone.get_heating_setpoint() == 68
     assert zone.get_current_mode() == "HEAT"

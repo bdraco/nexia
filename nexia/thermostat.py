@@ -1,4 +1,5 @@
 """Nexia Themostat."""
+
 from __future__ import annotations
 
 import logging
@@ -504,15 +505,13 @@ class NexiaThermostat:
             min_humidity <= dehumidify_setpoint <= max_humidity
         ):
             raise ValueError(
-                f"dehumidify_setpoint must be between "
-                f"({min_humidity} - {max_humidity})"
+                f"dehumidify_setpoint must be between ({min_humidity} - {max_humidity})"
             )
         if (humidify_supported) and not (
             min_humidity <= humidify_setpoint <= max_humidity
         ):
             raise ValueError(
-                f"humidify_setpoint must be between "
-                f"({min_humidity} - {max_humidity})"
+                f"humidify_setpoint must be between ({min_humidity} - {max_humidity})"
             )
 
         if dehumidify_supported:

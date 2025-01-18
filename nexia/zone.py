@@ -1,4 +1,5 @@
 """Nexia Themostat Zone."""
+
 from __future__ import annotations
 
 import logging
@@ -424,8 +425,7 @@ class NexiaThermostatZone:
             await self._post_and_update_zone_json("zone_mode", {"value": mode})
         else:
             raise KeyError(
-                f'Invalid mode "{mode}". Select one of the following: '
-                f"{OPERATION_MODES}"
+                f'Invalid mode "{mode}". Select one of the following: {OPERATION_MODES}'
             )
 
     def round_temp(self, temperature: float) -> float:
