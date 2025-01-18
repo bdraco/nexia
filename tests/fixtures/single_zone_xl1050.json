@@ -226,9 +226,7 @@
                 "icon": [
                   {
                     "name": "thermostat",
-                    "modifiers": [
-                      "temperature-74"
-                    ]
+                    "modifiers": ["temperature-74"]
                   }
                 ],
                 "_links": {
@@ -269,18 +267,8 @@
                         "label": "Sleep"
                       }
                     ],
-                    "labels": [
-                      "None",
-                      "Home",
-                      "Away",
-                      "Sleep"
-                    ],
-                    "values": [
-                      0,
-                      1,
-                      2,
-                      3
-                    ],
+                    "labels": ["None", "Home", "Away", "Sleep"],
+                    "values": [0, 1, 2, 3],
                     "_links": {
                       "self": {
                         "href": "https://www.mynexia.com/mobile/xxl_zones/234567/preset_selected"
@@ -309,18 +297,8 @@
                         "label": "Off"
                       }
                     ],
-                    "labels": [
-                      "Auto",
-                      "Cooling",
-                      "Heating",
-                      "Off"
-                    ],
-                    "values": [
-                      "AUTO",
-                      "COOL",
-                      "HEAT",
-                      "OFF"
-                    ],
+                    "labels": ["Auto", "Cooling", "Heating", "Off"],
+                    "values": ["AUTO", "COOL", "HEAT", "OFF"],
                     "_links": {
                       "self": {
                         "href": "https://www.mynexia.com/mobile/xxl_zones/234567/zone_mode"
@@ -341,14 +319,8 @@
                         "label": "OFF"
                       }
                     ],
-                    "labels": [
-                      "ON",
-                      "OFF"
-                    ],
-                    "values": [
-                      true,
-                      false
-                    ],
+                    "labels": ["ON", "OFF"],
+                    "values": [true, false],
                     "_links": {
                       "self": {
                         "href": "https://www.mynexia.com/mobile/xxl_zones/234567/scheduling_enabled"
@@ -373,16 +345,8 @@
                         "label": "Circulate"
                       }
                     ],
-                    "labels": [
-                      "Auto",
-                      "On",
-                      "Circulate"
-                    ],
-                    "values": [
-                      "auto",
-                      "on",
-                      "circulate"
-                    ],
+                    "labels": ["Auto", "On", "Circulate"],
+                    "values": ["auto", "on", "circulate"],
                     "_links": {
                       "self": {
                         "href": "https://www.mynexia.com/mobile/xxl_thermostats/345678/fan_mode"
@@ -468,20 +432,8 @@
                       "100%"
                     ],
                     "values": [
-                      0.35,
-                      0.4,
-                      0.45,
-                      0.5,
-                      0.55,
-                      0.6,
-                      0.65,
-                      0.7,
-                      0.75,
-                      0.8,
-                      0.85,
-                      0.9,
-                      0.95,
-                      1
+                      0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8,
+                      0.85, 0.9, 0.95, 1
                     ],
                     "_links": {
                       "self": {
@@ -547,18 +499,7 @@
                       "50 minutes",
                       "55 minutes"
                     ],
-                    "values": [
-                      10,
-                      15,
-                      20,
-                      25,
-                      30,
-                      35,
-                      40,
-                      45,
-                      50,
-                      55
-                    ],
+                    "values": [10, 15, 20, 25, 30, 35, 40, 45, 50, 55],
                     "_links": {
                       "self": {
                         "href": "https://www.mynexia.com/mobile/xxl_thermostats/345678/fan_circulation_time"
@@ -583,16 +524,8 @@
                         "label": "Allergy"
                       }
                     ],
-                    "labels": [
-                      "Auto",
-                      "Quick",
-                      "Allergy"
-                    ],
-                    "values": [
-                      "auto",
-                      "quick",
-                      "allergy"
-                    ],
+                    "labels": ["Auto", "Quick", "Allergy"],
+                    "values": ["auto", "quick", "allergy"],
                     "_links": {
                       "self": {
                         "href": "https://www.mynexia.com/mobile/xxl_thermostats/345678/air_cleaner_mode"
@@ -633,24 +566,8 @@
                         "label": "65%"
                       }
                     ],
-                    "labels": [
-                      "35%",
-                      "40%",
-                      "45%",
-                      "50%",
-                      "55%",
-                      "60%",
-                      "65%"
-                    ],
-                    "values": [
-                      0.35,
-                      0.4,
-                      0.45,
-                      0.5,
-                      0.55,
-                      0.6,
-                      0.65
-                    ],
+                    "labels": ["35%", "40%", "45%", "50%", "55%", "60%", "65%"],
+                    "values": [0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65],
                     "_links": {
                       "self": {
                         "href": "https://www.mynexia.com/mobile/xxl_thermostats/345678/dehumidify"
@@ -671,14 +588,8 @@
                         "label": "OFF"
                       }
                     ],
-                    "labels": [
-                      "ON",
-                      "OFF"
-                    ],
-                    "values": [
-                      true,
-                      false
-                    ],
+                    "labels": ["ON", "OFF"],
+                    "values": [true, false],
                     "_links": {
                       "self": {
                         "href": "https://www.mynexia.com/mobile/xxl_thermostats/345678/emergency_heat"
@@ -699,14 +610,8 @@
                         "label": "C"
                       }
                     ],
-                    "labels": [
-                      "F",
-                      "C"
-                    ],
-                    "values": [
-                      "f",
-                      "c"
-                    ],
+                    "labels": ["F", "C"],
+                    "values": ["f", "c"],
                     "_links": {
                       "self": {
                         "href": "https://www.mynexia.com/mobile/xxl_thermostats/345678/scale"
@@ -743,9 +648,7 @@
                     "settings": [],
                     "icon": {
                       "name": "thermostat",
-                      "modifiers": [
-                        "temperature-74"
-                      ]
+                      "modifiers": ["temperature-74"]
                     },
                     "features": [
                       {
