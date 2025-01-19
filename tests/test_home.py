@@ -1,12 +1,14 @@
 """Tests for Nexia Home."""
 
+import asyncio
 import json
 import os
 from os.path import dirname
-from aioresponses import aioresponses
-import pytest
+
 import aiohttp
-import asyncio
+import pytest
+from aioresponses import aioresponses
+
 from nexia.home import NexiaHome, _extract_devices_from_houses_json
 from nexia.thermostat import NexiaThermostat
 
@@ -39,8 +41,7 @@ def _load_fixture(filename):
 async def load_fixture(filename):
     """Load a fixture."""
     loop = asyncio.get_running_loop()
-    text = await loop.run_in_executor(None, _load_fixture, filename)
-    return text
+    return await loop.run_in_executor(None, _load_fixture, filename)
 
 
 async def test_update(aiohttp_session):

@@ -5,9 +5,8 @@ from __future__ import annotations
 import asyncio
 import datetime
 import logging
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-import aiohttp
 import orjson
 
 from .automation import NexiaAutomation
@@ -24,6 +23,9 @@ from .const import (
 )
 from .thermostat import NexiaThermostat
 from .util import load_or_create_uuid
+
+if TYPE_CHECKING:
+    import aiohttp
 
 
 class LoginFailedException(Exception):
@@ -59,8 +61,7 @@ class NexiaHome:
         brand=BRAND_NEXIA,
         state_file=None,
     ):
-        """
-        Connects to and provides the ability to get and set parameters of your
+        """Connects to and provides the ability to get and set parameters of your
         Nexia connected thermostat.
 
         :param house_id: int - Your house_id. You can get this from logging in
@@ -75,7 +76,6 @@ class NexiaHome:
 
         JSON update. Default is 300s.
         """
-
         self.username = username
         self.password = password
         self.house_id = house_id
@@ -146,11 +146,10 @@ class NexiaHome:
         return headers
 
     async def post_url(self, request_url: str, payload: dict) -> aiohttp.ClientResponse:
-        """
-        Posts data to the session from the url and payload
+        """Posts data to the session from the url and payload
         :param url: str
         :param payload: dict
-        :return: response
+        :return: response.
         """
         headers = self._api_key_headers()
         _LOGGER.debug(
@@ -172,7 +171,7 @@ class NexiaHome:
         if response.status == 302:
             # assuming its redirecting to login
             _LOGGER.debug(
-                "POST Response returned code 302, re-attempting login and resending request."
+                "POST Response returned code 302, re-attempting login and resending request.",
             )
             await self.login()
             return await self.post_url(request_url, payload)
@@ -183,12 +182,13 @@ class NexiaHome:
         return response
 
     async def _get_url(
-        self, request_url: str, headers: dict[str, str] | None = None
+        self,
+        request_url: str,
+        headers: dict[str, str] | None = None,
     ) -> aiohttp.ClientResponse:
-        """
-        Returns the full session.get from the URL (ROOT_URL + url)
+        """Returns the full session.get from the URL (ROOT_URL + url)
         :param url: str
-        :return: response
+        :return: response.
         """
         if not headers:
             headers = {}
@@ -210,7 +210,7 @@ class NexiaHome:
 
         if response.status == 302:
             _LOGGER.debug(
-                "GET Response returned code 302, re-attempting login and resending request."
+                "GET Response returned code 302, re-attempting login and resending request.",
             )
             # assuming its redirecting to login
             await self.login()
@@ -220,13 +220,14 @@ class NexiaHome:
         return response
 
     async def _check_response(
-        self, error_text: str, request: aiohttp.ClientResponse
+        self,
+        error_text: str,
+        request: aiohttp.ClientResponse,
     ) -> None:
-        """
-        Checks the request response, throws exception with the description text
+        """Checks the request response, throws exception with the description text
         :param error_text: str
         :param request: response
-        :return: None
+        :return: None.
         """
         if request is None or request.status != 200:
             if request is not None:
@@ -242,7 +243,7 @@ class NexiaHome:
         )
         if request and request.status == 200:
             ts_json = await request.json(
-                loads=orjson.loads  # pylint: disable=no-member
+                loads=orjson.loads,  # pylint: disable=no-member
             )
             if ts_json:
                 data = ts_json["result"]["_links"]["child"][0]["data"]
@@ -265,9 +266,8 @@ class NexiaHome:
         self._update_automations()
 
     async def update(self, force_update: bool = True) -> dict[str, Any] | None:
-        """
-        Forces a status update from nexia
-        :return: None
+        """Forces a status update from nexia
+        :return: None.
         """
         if not self.mobile_id:
             # not yet authenticated
@@ -278,7 +278,8 @@ class NexiaHome:
             headers["If-None-Match"] = self._last_update_etag
 
         response = await self._get_url(
-            self.API_MOBILE_HOUSES_URL.format(house_id=self.house_id), headers=headers
+            self.API_MOBILE_HOUSES_URL.format(house_id=self.house_id),
+            headers=headers,
         )
 
         if not response:
@@ -286,17 +287,17 @@ class NexiaHome:
                 "Failed to get house JSON, session probably timed out",
                 response,
             )
-            return
+            return None
         if response.status == 304:
             _LOGGER.debug("Update returned 304")
             # already up to date
-            return
+            return None
         if response.status != 200:
             await self._check_response(
                 "Unexpected http status while fetching house JSON",
                 response,
             )
-            return
+            return None
 
         ts_json = await response.json()
         if ts_json:
@@ -319,7 +320,7 @@ class NexiaHome:
                 children.append(child)
             elif type_ == "group" and "_links" in child and "child" in child["_links"]:
                 for sub_child in child["_links"]["child"]:
-                    children.append(sub_child["data"])
+                    children.append(sub_child["data"])  # noqa: PERF401
 
         if self.thermostats is None:
             self.thermostats = []
@@ -336,7 +337,7 @@ class NexiaHome:
         for thermostat in self.thermostats:
             if thermostat.thermostat_id in thermostat_updates_by_id:
                 thermostat.update_thermostat_json(
-                    thermostat_updates_by_id[thermostat.thermostat_id]
+                    thermostat_updates_by_id[thermostat.thermostat_id],
                 )
 
     def _update_automations(self) -> None:
@@ -356,15 +357,14 @@ class NexiaHome:
         for automation in self.automations:
             if automation.automation_id in automation_updates_by_id:
                 automation.update_automation_json(
-                    automation_updates_by_id[automation.automation_id]
+                    automation_updates_by_id[automation.automation_id],
                 )
 
     ########################################################################
     # Session Methods
 
     async def login(self) -> None:
-        """
-        Provides you with a Nexia web session.
+        """Provides you with a Nexia web session.
 
         All parameters should be set prior to calling this.
         - username - (str) Your email address
@@ -399,11 +399,11 @@ class NexiaHome:
             if request.url == self.AUTH_FORGOTTEN_PASSWORD_STRING:
                 raise LoginFailedException(
                     f"Failed to login, getting redirected to {request.url}"
-                    f". Try to login manually on the website."
+                    f". Try to login manually on the website.",
                 )
 
             json_dict = await request.json(
-                loads=orjson.loads  # pylint: disable=no-member
+                loads=orjson.loads,  # pylint: disable=no-member
             )
             if json_dict.get("success") is not True:
                 error_text = json_dict.get("error", "Unknown Error")
@@ -414,23 +414,22 @@ class NexiaHome:
         else:
             raise LoginFailedException(
                 f"Failed to login after {MAX_LOGIN_ATTEMPTS} attempts! Any "
-                f"more attempts may lock your account!"
+                f"more attempts may lock your account!",
             )
 
         if not self.house_id:
             await self._find_house_id()
 
     def get_name(self) -> str:
-        """Name of the house"""
+        """Name of the house."""
         assert self._name is not None
         return self._name
 
     def get_last_update(self) -> str:
-        """
-        Returns a string indicating the ISO formatted time string of the last
+        """Returns a string indicating the ISO formatted time string of the last
         update
         :return: The ISO formatted time string of the last update,
-        datetime.datetime.min if never updated
+        datetime.datetime.min if never updated.
         """
         if self.last_update is None:
             return datetime.datetime.isoformat(datetime.datetime.min)
@@ -444,8 +443,7 @@ class NexiaHome:
         raise KeyError
 
     def get_thermostat_ids(self) -> list[int]:
-        """
-        Returns the number of thermostats available to Nexia
+        """Returns the number of thermostats available to Nexia
         :return:
         """
         return [thermostat.thermostat_id for thermostat in self.thermostats]
@@ -462,14 +460,10 @@ class NexiaHome:
         response = await self._get_url(self.API_MOBILE_PHONE_URL)
         data = await response.json()
         items = data["result"]["items"]
-        phones = []
-        for phone in items:
-            phones.append(phone["phone_id"])
-        return phones
+        return [phone["phone_id"] for phone in items]
 
     def get_automation_ids(self) -> list[int]:
-        """
-        Returns the number of automations available to Nexia
+        """Returns the number of automations available to Nexia
         :return:
         """
         return [automation.automation_id for automation in self.automations]
@@ -478,14 +472,14 @@ class NexiaHome:
 def _extract_devices_from_houses_json(json_dict: dict) -> list[dict[str, Any]]:
     """Extras the payload from the houses json endpoint data."""
     return _extract_items(
-        json_dict["result"]["_links"]["child"][DEVICES_ELEMENT]["data"]
+        json_dict["result"]["_links"]["child"][DEVICES_ELEMENT]["data"],
     )
 
 
 def _extract_automations_from_houses_json(json_dict: dict) -> list[dict[str, Any]]:
     """Extras the payload from the houses json endpoint data."""
     return _extract_items(
-        json_dict["result"]["_links"]["child"][AUTOMATIONS_ELEMENT]["data"]
+        json_dict["result"]["_links"]["child"][AUTOMATIONS_ELEMENT]["data"],
     )
 
 

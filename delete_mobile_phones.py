@@ -5,6 +5,7 @@
 import argparse
 import asyncio
 import pprint
+import sys
 
 import aiohttp
 
@@ -28,7 +29,7 @@ async def _runner(username, password, brand):
             print("Delete phone id: ", phone_id)
             response = await nexia_home.session.delete(
                 "https://www.mynexia.com/mobile/phones/" + str(phone_id),
-                headers=nexia_home._api_key_headers(),
+                headers=nexia_home._api_key_headers(),  # noqa: SLF001
             )
             pprint.pprint(response)
     finally:
@@ -47,4 +48,4 @@ if args.username and args.password:
     nexia_home = asyncio.run(_runner(args.username, args.password, brand))
 else:
     parser.print_help()
-    exit()
+    sys.exit()

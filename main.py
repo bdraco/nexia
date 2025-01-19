@@ -6,6 +6,7 @@ import argparse
 import code
 import readline
 import rlcompleter
+import sys
 
 from nexia.home import NexiaHome
 
@@ -19,7 +20,7 @@ if args.username and args.password:
     nexia_home = NexiaHome(username=args.username, password=args.password)
 else:
     parser.print_help()
-    exit()
+    sys.exit()
 
 print("NexiaThermostat instance can be referenced using nt.<command>.")
 print("List of available thermostats and zones:")
