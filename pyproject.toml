@@ -106,6 +106,7 @@ select = [
 
 
 ignore = [
+    "T201", # used in examples
     "D102", # Too many to fix now
     "D103", # Too many to fix now
     "D202", # No blank lines allowed after function docstring
