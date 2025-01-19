@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+"""Nexia Climate Device Access."""
 #
 # nexia documentation build configuration file, created by
 # sphinx-quickstart on Fri Jun  9 13:47:02 2017.
@@ -20,7 +21,7 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath(".."))
+sys.path.insert(0, os.path.abspath(".."))  # noqa: PTH100
 
 import nexia
 
@@ -48,7 +49,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "Nexia"
-copyright = "2020, J. Nick Koston"
+copyright = "2020, J. Nick Koston"  # noqa: A001
 author = "J. Nick Koston"
 
 # The version info for the project you're documenting, acts as replacement

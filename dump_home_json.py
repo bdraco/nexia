@@ -5,6 +5,7 @@
 import argparse
 import asyncio
 import logging
+import sys
 
 import aiohttp
 
@@ -40,7 +41,7 @@ if args.username and args.password:
     nexia_home = asyncio.run(_runner(args.username, args.password, brand))
 else:
     parser.print_help()
-    exit()
+    sys.exit()
 
 print(nexia_home.devices_json)
 print(nexia_home.automations_json)
