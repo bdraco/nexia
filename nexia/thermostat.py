@@ -512,7 +512,7 @@ class NexiaThermostat:
         """
         self_ref = f"{self._nexia_home.mobile_url}/xxl_thermostats/{self.thermostat_id}"
 
-        async with await self._nexia_home._get_url(self_ref) as response:
+        async with await self._nexia_home._get_url(self_ref) as response:  # noqa: SLF001
             self.update_thermostat_json((await response.json())["result"])
 
     ########################################################################

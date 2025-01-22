@@ -421,7 +421,7 @@ class NexiaThermostatZone:
                 f'Invalid mode "{mode}". Select one of the following: {OPERATION_MODES}',
             )
 
-    async def load_current_sensor_state(self, polling_delay=0.7, max_polls=50) -> bool:
+    async def load_current_sensor_state(self, polling_delay=5.0, max_polls=50) -> bool:
         """Load the current state of a zone's sensors into the physical thermostat.
         :param polling_delay: seconds to wait before each polling attempt
         :param max_polls: maximum number of times to poll for completion
@@ -441,7 +441,7 @@ class NexiaThermostatZone:
 
         while attempts:
             await asyncio.sleep(polling_delay)
-            async with await self._nexia_home._get_url(polling_url) as response:
+            async with await self._nexia_home._get_url(polling_url) as response:  # noqa: SLF001
                 payload = (await response.read()).strip()
 
             if payload != b"null":
