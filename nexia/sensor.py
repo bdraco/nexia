@@ -1,7 +1,7 @@
 """Nexia Thermostat Sensor."""
 
 import dataclasses
-from typing import Optional, Type, TypeVar
+from typing import Optional, TypeVar
 
 
 @dataclasses.dataclass
@@ -27,10 +27,11 @@ class NexiaSensor:
     T = TypeVar("T", bound="NexiaSensor")
 
     @classmethod
-    def from_json(cls: Type[T], sensor_json) -> T:
+    def from_json(cls: type[T], sensor_json) -> T:
         """Factory method for json data.
         :param sensor_json: json dict with some or all of our fields
         :return: a NexiaSensor instance
         """
-        return cls(*[sensor_json.get(fld.name)
-                     for fld in dataclasses.fields(NexiaSensor)])
+        return cls(
+            *[sensor_json.get(fld.name) for fld in dataclasses.fields(NexiaSensor)]
+        )
