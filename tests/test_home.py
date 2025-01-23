@@ -1102,6 +1102,23 @@ async def test_sensor_access(mock_aioresponse: aioresponses):
         assert sensor.battery_low is False
         assert sensor.battery_valid is True
 
+        # execute log response code path
+        nexia.log_response = True
+
+        # execute no completion code path
+        mock_aioresponse.post(
+            "https://www.mynexia.com/mobile/xxl_zones/85034552/request_current_sensor_state",
+            payload={
+                "success": True,
+                "error": None,
+                "result": {
+                    "polling_path": "https://www.mynexia.com/backstage/announcements/6a31e745716789b84603036489fe8d1e35ca80fa50000000"
+                },
+            },
+        )
+        assert await zone.load_current_sensor_state(max_polls=0) is False
+
+        # execute normal code path
         mock_aioresponse.post(
             "https://www.mynexia.com/mobile/xxl_zones/85034552/request_current_sensor_state",
             payload={

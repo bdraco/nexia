@@ -447,8 +447,8 @@ This service returns a bool indicating if it completed successfully.
 
 | Service data attribute | Optional | Default | Description                                    |
 | ---------------------- | -------- | ------- | ---------------------------------------------- |
-| `polling_delay`        | yes      | 0.7     | seconds to wait before each polling attempt    |
-| `max_polls`            | yes      | 50      | maximum number of times to poll for completion |
+| `polling_delay`        | yes      | 5.0     | seconds to wait before each polling attempt    |
+| `max_polls`            | yes      | 8       | maximum number of times to poll for completion |
 
 [code-coverage]: https://codecov.io/gh/bdraco/nexia
 [code-cover-shield]: https://codecov.io/gh/bdraco/nexia/branch/master/graph/badge.svg
