@@ -5,8 +5,9 @@ from __future__ import annotations
 import asyncio
 import datetime
 import logging
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
+import aiohttp
 import orjson
 
 from .automation import NexiaAutomation
@@ -24,16 +25,13 @@ from .const import (
 from .thermostat import NexiaThermostat
 from .util import load_or_create_uuid
 
-if TYPE_CHECKING:
-    import aiohttp
-
 
 class LoginFailedException(Exception):
     """Login failed."""
 
 
 MAX_LOGIN_ATTEMPTS = 4
-TIMEOUT = 20
+TIMEOUT = aiohttp.ClientTimeout(total=20)
 
 _LOGGER = logging.getLogger(__name__)
 
