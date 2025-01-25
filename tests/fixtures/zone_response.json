@@ -18,9 +18,7 @@
     "settings": [],
     "icon": {
       "name": "thermostat",
-      "modifiers": [
-        "temperature-69"
-      ]
+      "modifiers": ["temperature-69"]
     },
     "features": [
       {
