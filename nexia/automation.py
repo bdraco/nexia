@@ -45,7 +45,8 @@ class NexiaAutomation:
 
     async def activate(self) -> None:
         """Run the automation."""
-        await self._post_automation_json("activate", "")
+        async with await self._post_automation_json("activate", ""):
+            pass
 
     def _get_automation_key(self, key: str) -> Any:
         """Returns the automation value from the provided key in the automation's

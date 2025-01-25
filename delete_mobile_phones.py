@@ -27,11 +27,11 @@ async def _runner(username, password, brand):
                 continue
 
             print("Delete phone id: ", phone_id)
-            response = await nexia_home.session.delete(
+            async with await nexia_home.session.delete(
                 "https://www.mynexia.com/mobile/phones/" + str(phone_id),
                 headers=nexia_home._api_key_headers(),  # noqa: SLF001
-            )
-            pprint.pprint(response)
+            ) as response:
+                pprint.pprint(response)
     finally:
         await session.close()
     return nexia_home
