@@ -75,7 +75,7 @@ async def test_login(mock_aioresponse: aioresponses):
         assert await nexia.update() is not None
         mock_aioresponse.get(
             "https://www.mynexia.com/mobile/phones",
-            body=await load_fixture("mobile_phones_response.json")
+            body=await load_fixture("mobile_phones_response.json"),
         )
         assert await nexia.get_phone_ids() == [5488863]
         assert nexia.get_thermostat_ids() == [2059661, 2059676, 2293892, 2059652]
