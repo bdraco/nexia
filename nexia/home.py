@@ -281,7 +281,6 @@ class NexiaHome:
             self.API_MOBILE_HOUSES_URL.format(house_id=self.house_id),
             headers=headers,
         ) as response:
-
             if not response:
                 await self._check_response(
                     "Failed to get house JSON, session probably timed out",
@@ -390,8 +389,9 @@ class NexiaHome:
                 "app_version": APP_VERSION,
                 "is_commercial": False,
             }
-            async with await self.post_url(self.API_MOBILE_ACCOUNTS_SIGN_IN_URL, payload) as request:
-
+            async with await self.post_url(
+                self.API_MOBILE_ACCOUNTS_SIGN_IN_URL, payload
+            ) as request:
                 if request is None or request.status not in (302, 200):
                     self.login_attempts_left -= 1
                 await self._check_response("Failed to login", request)
