@@ -1,0 +1,41 @@
+{
+  "success": true,
+  "error": null,
+  "result": {
+    "items": [
+      {
+        "phone_id": 5488863,
+        "name": "Lenovo2024",
+        "app_identifier": null,
+        "app_version": "6.0.0",
+        "platform": null,
+        "os_version": null,
+        "manufacturer": null,
+        "model": null,
+        "geofencing_enabled": false,
+        "is_browser": false,
+        "can_activate": true,
+        "is_activated": true,
+        "is_activated_by_activation_code": false,
+        "locale": "en_us",
+        "_links": {
+          "self": {
+            "href": "https://www.mynexia.com/mobile/phones/5488863"
+          },
+          "edit": {
+            "href": "https://www.mynexia.com/mobile/phones/5488863/edit"
+          }
+        }
+      }
+    ],
+    "_links": {
+      "self": {
+        "href": "https://www.mynexia.com/mobile/phones"
+      },
+      "child-schema": {
+        "href": "https://www.mynexia.com/mobile/phones/new"
+      }
+    },
+    "item_type": "application/vnd.nexia.phone+json"
+  }
+}

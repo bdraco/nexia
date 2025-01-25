@@ -234,25 +234,25 @@ class NexiaHome:
 
     async def _find_house_id(self) -> None:
         """Finds the house id if none is provided."""
-        request = await self.post_url(
+        async with await self.post_url(
             self.API_MOBILE_SESSION_URL,
             {"app_version": APP_VERSION, "device_uuid": str(self._uuid)},
-        )
-        if request and request.status == 200:
-            ts_json = await request.json(
-                loads=orjson.loads,  # pylint: disable=no-member
-            )
-            if ts_json:
-                data = ts_json["result"]["_links"]["child"][0]["data"]
-                self.house_id = data["id"]
-                self._name = data["name"]
+        ) as request:
+            if request and request.status == 200:
+                ts_json = await request.json(
+                    loads=orjson.loads,  # pylint: disable=no-member
+                )
+                if ts_json:
+                    data = ts_json["result"]["_links"]["child"][0]["data"]
+                    self.house_id = data["id"]
+                    self._name = data["name"]
+                else:
+                    raise ValueError("Nothing in the JSON")
             else:
-                raise ValueError("Nothing in the JSON")
-        else:
-            await self._check_response(
-                "Failed to get house id JSON, session probably timed out",
-                request,
-            )
+                await self._check_response(
+                    "Failed to get house id JSON, session probably timed out",
+                    request,
+                )
 
     def update_from_json(self, json_dict: dict[str, Any]) -> None:
         """Update the json from the houses endpoint if fetched externally."""
@@ -274,36 +274,35 @@ class NexiaHome:
         if self._last_update_etag:
             headers["If-None-Match"] = self._last_update_etag
 
-        response = await self._get_url(
+        async with await self._get_url(
             self.API_MOBILE_HOUSES_URL.format(house_id=self.house_id),
             headers=headers,
-        )
+        ) as response:
+            if not response:
+                await self._check_response(
+                    "Failed to get house JSON, session probably timed out",
+                    response,
+                )
+                return None
+            if response.status == 304:
+                _LOGGER.debug("Update returned 304")
+                # already up to date
+                return None
+            if response.status != 200:
+                await self._check_response(
+                    "Unexpected http status while fetching house JSON",
+                    response,
+                )
+                return None
 
-        if not response:
-            await self._check_response(
-                "Failed to get house JSON, session probably timed out",
-                response,
-            )
-            return None
-        if response.status == 304:
-            _LOGGER.debug("Update returned 304")
-            # already up to date
-            return None
-        if response.status != 200:
-            await self._check_response(
-                "Unexpected http status while fetching house JSON",
-                response,
-            )
-            return None
-
-        ts_json = await response.json()
-        if ts_json:
-            self._name = ts_json["result"]["name"]
-            self.devices_json = _extract_devices_from_houses_json(ts_json)
-            self.automations_json = _extract_automations_from_houses_json(ts_json)
-            self._last_update_etag = response.headers.get("etag")
-        else:
-            raise ValueError("Nothing in the JSON")
+            ts_json = await response.json()
+            if ts_json:
+                self._name = ts_json["result"]["name"]
+                self.devices_json = _extract_devices_from_houses_json(ts_json)
+                self.automations_json = _extract_automations_from_houses_json(ts_json)
+                self._last_update_etag = response.headers.get("etag")
+            else:
+                raise ValueError("Nothing in the JSON")
         self._update_devices()
         self._update_automations()
         return ts_json
@@ -387,21 +386,22 @@ class NexiaHome:
                 "app_version": APP_VERSION,
                 "is_commercial": False,
             }
-            request = await self.post_url(self.API_MOBILE_ACCOUNTS_SIGN_IN_URL, payload)
+            async with await self.post_url(
+                self.API_MOBILE_ACCOUNTS_SIGN_IN_URL, payload
+            ) as request:
+                if request is None or request.status not in (302, 200):
+                    self.login_attempts_left -= 1
+                await self._check_response("Failed to login", request)
 
-            if request is None or request.status not in (302, 200):
-                self.login_attempts_left -= 1
-            await self._check_response("Failed to login", request)
+                if str(request.url) == self.AUTH_FORGOTTEN_PASSWORD_STRING:
+                    raise LoginFailedException(
+                        f"Failed to login, getting redirected to {request.url}"
+                        f". Try to login manually on the website.",
+                    )
 
-            if request.url == self.AUTH_FORGOTTEN_PASSWORD_STRING:
-                raise LoginFailedException(
-                    f"Failed to login, getting redirected to {request.url}"
-                    f". Try to login manually on the website.",
+                json_dict = await request.json(
+                    loads=orjson.loads,  # pylint: disable=no-member
                 )
-
-            json_dict = await request.json(
-                loads=orjson.loads,  # pylint: disable=no-member
-            )
             if json_dict.get("success") is not True:
                 error_text = json_dict.get("error", "Unknown Error")
                 raise LoginFailedException(f"Failed to login, {error_text}")
@@ -454,8 +454,8 @@ class NexiaHome:
 
     async def get_phone_ids(self) -> list[int]:
         """Get all the mobile phone ids."""
-        response = await self._get_url(self.API_MOBILE_PHONE_URL)
-        data = await response.json()
+        async with await self._get_url(self.API_MOBILE_PHONE_URL) as response:
+            data = await response.json()
         items = data["result"]["items"]
         return [phone["phone_id"] for phone in items]
 
