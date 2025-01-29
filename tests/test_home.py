@@ -4,6 +4,7 @@ import asyncio
 import json
 import os
 from os.path import dirname
+from pathlib import Path
 
 import aiohttp
 import pytest
@@ -42,6 +43,54 @@ async def load_fixture(filename):
     """Load a fixture."""
     loop = asyncio.get_running_loop()
     return await loop.run_in_executor(None, _load_fixture, filename)
+
+
+async def test_login(mock_aioresponse: aioresponses):
+    """Test login sequence."""
+    async with aiohttp.ClientSession() as aiohttp_session:
+        persist_file = Path("nexia_config_test.conf")
+        nexia = NexiaHome(aiohttp_session, state_file=persist_file)
+        mock_aioresponse.post(
+            "https://www.mynexia.com/mobile/accounts/sign_in",
+            payload={
+                "success": True,
+                "error": None,
+                "result": {
+                    "mobile_id": 5400000,
+                    "api_key": "10654c0be00000000000000000000000",
+                    "setup_step": "done",
+                    "locale": "en_us",
+                },
+            },
+        )
+        mock_aioresponse.post(
+            "https://www.mynexia.com/mobile/session",
+            body=await load_fixture("mobile_session.json"),
+        )
+        await nexia.login()
+        mock_aioresponse.get(
+            "https://www.mynexia.com/mobile/houses/2582941",
+            body=await load_fixture("mobile_houses_123456.json"),
+        )
+        assert await nexia.update() is not None
+        mock_aioresponse.get(
+            "https://www.mynexia.com/mobile/phones",
+            body=await load_fixture("mobile_phones_response.json"),
+        )
+        assert await nexia.get_phone_ids() == [5488863]
+        assert nexia.get_thermostat_ids() == [2059661, 2059676, 2293892, 2059652]
+        thermostat = nexia.get_thermostat_by_id(2059661)
+        assert thermostat.get_zone_ids() == [83261002, 83261005, 83261008, 83261011]
+        zone = thermostat.get_zone_by_id(83261002)
+        mock_aioresponse.post(
+            "https://www.mynexia.com/mobile/xxl_zones/83261002/setpoints",
+            body=await load_fixture("zone_response.json"),
+        )
+        await zone.set_heat_cool_temp(69.0, 78.0)
+
+    assert persist_file.exists() is True
+    persist_file.unlink()
+    assert persist_file.exists() is False
 
 
 async def test_update(aiohttp_session):
@@ -627,39 +676,49 @@ async def test_single_zone_system_off(aiohttp_session):
     assert zone.is_in_permanent_hold() is True
 
 
-async def test_automations(aiohttp_session):
+async def test_automations(mock_aioresponse: aioresponses):
     """Get methods for an active thermostat."""
-    nexia = NexiaHome(aiohttp_session)
-    text = await load_fixture("mobile_houses_123456.json")
-    devices_json = json.loads(text)
-    nexia.update_from_json(devices_json)
+    async with aiohttp.ClientSession() as aiohttp_session:
+        nexia = NexiaHome(aiohttp_session)
+        text = await load_fixture("mobile_houses_123456.json")
+        devices_json = json.loads(text)
+        nexia.update_from_json(devices_json)
 
-    automation_ids = nexia.get_automation_ids()
-    assert automation_ids == [
-        3467876,
-        3467870,
-        3452469,
-        3452472,
-        3454776,
-        3454774,
-        3486078,
-        3486091,
-    ]
+        automation_ids = nexia.get_automation_ids()
+        assert automation_ids == [
+            3467876,
+            3467870,
+            3452469,
+            3452472,
+            3454776,
+            3454774,
+            3486078,
+            3486091,
+        ]
 
-    automation_one = nexia.get_automation_by_id(3467876)
+        automation_one = nexia.get_automation_by_id(3467876)
 
-    assert automation_one.name == "Away for 12 Hours"
-    assert automation_one.description == (
-        "When IFTTT activates the automation Upstairs West Wing will "
-        "permanently hold the heat to 62.0 and cool to 83.0 AND "
-        "Downstairs East Wing will permanently hold the heat to 62.0 "
-        "and cool to 83.0 AND Downstairs West Wing will permanently "
-        "hold the heat to 62.0 and cool to 83.0 AND Activate the mode "
-        "named 'Away 12' AND Master Suite will permanently hold the "
-        "heat to 62.0 and cool to 83.0"
-    )
-    assert automation_one.enabled is True
-    assert automation_one.automation_id == 3467876
+        assert automation_one.name == "Away for 12 Hours"
+        assert automation_one.description == (
+            "When IFTTT activates the automation Upstairs West Wing will "
+            "permanently hold the heat to 62.0 and cool to 83.0 AND "
+            "Downstairs East Wing will permanently hold the heat to 62.0 "
+            "and cool to 83.0 AND Downstairs West Wing will permanently "
+            "hold the heat to 62.0 and cool to 83.0 AND Activate the mode "
+            "named 'Away 12' AND Master Suite will permanently hold the "
+            "heat to 62.0 and cool to 83.0"
+        )
+        assert automation_one.enabled is True
+        assert automation_one.automation_id == 3467876
+
+        mock_aioresponse.post(
+            "https://www.mynexia.com/mobile/automations/3467876/activate",
+            payload={
+                "success": True,
+                "error": None,
+            },
+        )
+        await automation_one.activate()
 
 
 async def test_x850_grouped(aiohttp_session):

@@ -1,0 +1,241 @@
+{
+  "success": true,
+  "error": null,
+  "result": {
+    "type": "xxl_zone",
+    "id": 85034552,
+    "name": "NativeZone",
+    "current_zone_mode": "HEAT",
+    "temperature": 69,
+    "setpoints": {
+      "heat": 69,
+      "cool": null
+    },
+    "operating_state": "",
+    "heating_setpoint": 69,
+    "cooling_setpoint": null,
+    "zone_status": "",
+    "settings": [],
+    "icon": {
+      "name": "thermostat",
+      "modifiers": ["temperature-69"]
+    },
+    "features": [
+      {
+        "name": "thermostat",
+        "scale": "f",
+        "temperature": 69,
+        "device_identifier": "XxlZone-85034552",
+        "status": "",
+        "status_icon": null,
+        "actions": {
+          "set_heat_setpoint": {
+            "href": "https://www.mynexia.com/mobile/xxl_zones/85034552/setpoints"
+          }
+        },
+        "setpoint_delta": 3,
+        "setpoint_increment": 1.0,
+        "setpoint_heat_min": 55,
+        "setpoint_heat_max": 90,
+        "setpoint_cool_min": 60,
+        "setpoint_cool_max": 99,
+        "setpoint_heat": 69,
+        "system_status": "System Idle"
+      },
+      {
+        "name": "connection",
+        "signal_strength": "unknown",
+        "is_connected": true
+      },
+      {
+        "name": "dealer_contact_info",
+        "has_dealer_identifier": true,
+        "actions": {
+          "request_current_dealer_info": {
+            "method": "GET",
+            "href": "https://www.mynexia.com/mobile/dealers/7043919191"
+          },
+          "request_dealers_by_zip": {
+            "method": "POST",
+            "href": "https://www.mynexia.com/mobile/dealers/5378307/search"
+          }
+        }
+      },
+      {
+        "name": "thermostat_mode",
+        "label": "System Mode",
+        "value": "HEAT",
+        "display_value": "Heating",
+        "options": [
+          {
+            "id": "thermostat_mode",
+            "label": "System Mode",
+            "value": "thermostat_mode",
+            "header": true
+          },
+          {
+            "value": "AUTO",
+            "label": "Auto"
+          },
+          {
+            "value": "COOL",
+            "label": "Cooling"
+          },
+          {
+            "value": "HEAT",
+            "label": "Heating"
+          },
+          {
+            "value": "OFF",
+            "label": "Off"
+          }
+        ],
+        "actions": {
+          "update_thermostat_mode": {
+            "method": "POST",
+            "href": "https://www.mynexia.com/mobile/xxl_zones/85034552/zone_mode"
+          }
+        }
+      },
+      {
+        "name": "thermostat_run_mode",
+        "label": "Run Mode",
+        "options": [
+          {
+            "id": "thermostat_run_mode",
+            "label": "Run Mode",
+            "value": "thermostat_run_mode",
+            "header": true
+          },
+          {
+            "id": "info_text",
+            "label": "Follow or override the schedule.",
+            "value": "info_text",
+            "info": true
+          },
+          {
+            "value": "permanent_hold",
+            "label": "Permanent Hold"
+          },
+          {
+            "value": "run_schedule",
+            "label": "Run Schedule"
+          }
+        ],
+        "value": "run_schedule",
+        "display_value": "Run Schedule",
+        "actions": {
+          "update_thermostat_run_mode": {
+            "method": "POST",
+            "href": "https://www.mynexia.com/mobile/xxl_zones/85034552/run_mode"
+          }
+        }
+      },
+      {
+        "name": "room_iq_sensors",
+        "sensors": [
+          {
+            "id": 17687546,
+            "name": "Center",
+            "icon": {
+              "name": "room_iq_onboard",
+              "modifiers": []
+            },
+            "type": "thermostat",
+            "serial_number": "NativeIDTUniqueID",
+            "weight": 1.0,
+            "temperature": 69,
+            "temperature_valid": true,
+            "humidity": 22,
+            "humidity_valid": true,
+            "has_online": false,
+            "has_battery": false
+          },
+          {
+            "id": 17687549,
+            "name": "Upstairs",
+            "icon": {
+              "name": "room_iq_wireless",
+              "modifiers": []
+            },
+            "type": "930",
+            "serial_number": "2410R5C53X",
+            "weight": 0.0,
+            "temperature": 70,
+            "temperature_valid": true,
+            "humidity": 25,
+            "humidity_valid": true,
+            "has_online": true,
+            "connected": true,
+            "has_battery": true,
+            "battery_level": 93,
+            "battery_low": false,
+            "battery_valid": true
+          }
+        ],
+        "should_show": true,
+        "actions": {
+          "request_current_state": {
+            "href": "https://www.mynexia.com/mobile/xxl_zones/85034552/request_current_sensor_state"
+          },
+          "update_active_sensors": {
+            "method": "POST",
+            "href": "https://www.mynexia.com/mobile/xxl_zones/85034552/update_active_sensors"
+          }
+        }
+      },
+      {
+        "name": "preset_setpoints",
+        "presets": {
+          "1": {
+            "cool": 78,
+            "heat": 70
+          },
+          "2": {
+            "cool": 85,
+            "heat": 62
+          },
+          "3": {
+            "cool": 82,
+            "heat": 62
+          }
+        }
+      },
+      {
+        "name": "schedule",
+        "enabled": true,
+        "max_period_name_length": 10,
+        "setpoint_increment": 1.0,
+        "collection_url": "https://www.mynexia.com/mobile/schedules?device_identifier=XxlZone-85034552\u0026house_id=2582941",
+        "actions": {
+          "get_active_schedule": {
+            "href": "https://www.mynexia.com/mobile/thermostat_schedules/get_active_schedule?device_identifier=XxlZone-85034552",
+            "method": "POST"
+          },
+          "set_active_schedule": {
+            "href": "https://www.mynexia.com/mobile/thermostat_schedules/set_active_schedule?device_identifier=XxlZone-85034552",
+            "method": "POST"
+          },
+          "get_default_schedule": {
+            "href": "https://www.mynexia.com/mobile/thermostat_schedules/get_default_schedule?device_identifier=XxlZone-85034552",
+            "method": "GET"
+          },
+          "enable_scheduling": {
+            "href": "https://www.mynexia.com/mobile/xxl_zones/85034552/scheduling_enabled",
+            "method": "POST",
+            "data": {
+              "value": true
+            }
+          }
+        },
+        "can_add_remove_periods": true,
+        "max_periods_per_day": 4
+      }
+    ],
+    "_links": {
+      "self": {
+        "href": "https://www.mynexia.com/mobile/xxl_zones/85034552"
+      }
+    }
+  }
+}
