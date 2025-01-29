@@ -152,7 +152,7 @@ async def test_idle_thermo_issue_33758(mock_aioresponse: aioresponses):
 
 
 async def test_idle_thermo_issue_33968_thermostat_1690380(aiohttp_session):
-    """Get methods for an cooling thermostat."""
+    """Get methods for a cooling thermostat."""
     nexia = NexiaHome(aiohttp_session)
     devices_json = json.loads(await load_fixture("mobile_house_issue_33968.json"))
     nexia.update_from_json(devices_json)
