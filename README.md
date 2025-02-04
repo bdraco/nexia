@@ -161,7 +161,7 @@ Hard-coded value indicating the minimum dehumidify set point (%) you can set, as
 
 | Attribute type | Description                           |
 | -------------- | ------------------------------------- |
-| Integer        | minimum humidity set point, always 35 |
+| Integer        | minimum humidity set point, always 10 |
 
 ### Attribute `min_temp`
 
@@ -387,7 +387,7 @@ Part of the `nexia.` services. Sets the humidify setpoint. This is a system-wide
 | Service data attribute | Optional | Description                                                                                            |
 | ---------------------- | -------- | ------------------------------------------------------------------------------------------------------ |
 | `entity_id`            | yes      | String or list of strings that point at `entity_id`'s of climate devices to control. Else targets all. |
-| `humidity`             | no       | Humidify setpoint level, from 35 to 65.                                                                |
+| `humidity`             | no       | Humidify setpoint level, from 10 to 65.                                                                |
 
 [code-coverage]: https://codecov.io/gh/bdraco/nexia
 [code-cover-shield]: https://codecov.io/gh/bdraco/nexia/branch/master/graph/badge.svg
