@@ -75,7 +75,7 @@ async def test_idle_thermo(aiohttp_session):
     assert thermostat.get_setpoint_limits() == (55, 99)
     assert thermostat.get_variable_fan_speed_limits() == (0.35, 1.0)
     assert thermostat.get_unit() == "F"
-    assert thermostat.get_humidity_setpoint_limits() == (0.35, 0.65)
+    assert thermostat.get_humidity_setpoint_limits() == (0.10, 0.65)
     assert thermostat.get_fan_mode(), "Auto"
     assert thermostat.get_fan_modes() == ["Auto", "On", "Circulate"]
     assert thermostat.get_outdoor_temperature() == 88.0
@@ -115,7 +115,7 @@ async def test_idle_thermo_issue_33758(mock_aioresponse: aioresponses):
     assert thermostat.get_setpoint_limits() == (55, 99)
     assert thermostat.get_variable_fan_speed_limits() == (0.35, 1.0)
     assert thermostat.get_unit() == "F"
-    assert thermostat.get_humidity_setpoint_limits() == (0.35, 0.65)
+    assert thermostat.get_humidity_setpoint_limits() == (0.10, 0.65)
     assert thermostat.get_fan_mode() == "Auto"
     assert thermostat.get_fan_modes() == ["Auto", "On", "Circulate"]
     assert thermostat.get_outdoor_temperature() == 55.0
@@ -175,7 +175,7 @@ async def test_idle_thermo_issue_33968_thermostat_1690380(aiohttp_session):
     assert thermostat.get_setpoint_limits() == (55, 99)
     assert thermostat.get_variable_fan_speed_limits() == (0.35, 1.0)
     assert thermostat.get_unit() == "F"
-    assert thermostat.get_humidity_setpoint_limits() == (0.35, 0.65)
+    assert thermostat.get_humidity_setpoint_limits() == (0.10, 0.65)
     assert thermostat.get_fan_mode() == "Auto"
     assert thermostat.get_fan_modes() == ["Auto", "On", "Circulate"]
     assert thermostat.get_outdoor_temperature() == 80.0
@@ -212,7 +212,7 @@ async def test_active_thermo(aiohttp_session):
     assert thermostat.get_setpoint_limits() == (55, 99)
     assert thermostat.get_variable_fan_speed_limits() == (0.35, 1.0)
     assert thermostat.get_unit() == "F"
-    assert thermostat.get_humidity_setpoint_limits() == (0.35, 0.65)
+    assert thermostat.get_humidity_setpoint_limits() == (0.10, 0.65)
     assert thermostat.get_fan_mode() == "Auto"
     assert thermostat.get_fan_modes() == ["Auto", "On", "Circulate"]
     assert thermostat.get_outdoor_temperature() == 87.0
@@ -254,7 +254,7 @@ async def test_xl624(aiohttp_session):
     assert thermostat.get_setpoint_limits() == (55, 99)
     assert thermostat.has_variable_fan_speed() is False
     assert thermostat.get_unit() == "F"
-    assert thermostat.get_humidity_setpoint_limits() == (0.35, 0.65)
+    assert thermostat.get_humidity_setpoint_limits() == (0.10, 0.65)
     assert thermostat.get_fan_mode() == "Auto"
     assert thermostat.get_fan_modes() == ["Auto", "On", "Cycler"]
     assert thermostat.get_current_compressor_speed() == 0.0
@@ -290,7 +290,7 @@ async def test_xl824_1(aiohttp_session):
     assert thermostat.get_setpoint_limits() == (55, 99)
     assert thermostat.has_variable_fan_speed() is True
     assert thermostat.get_unit() == "F"
-    assert thermostat.get_humidity_setpoint_limits() == (0.35, 0.65)
+    assert thermostat.get_humidity_setpoint_limits() == (0.10, 0.65)
     assert thermostat.get_fan_mode() == "Circulate"
     assert thermostat.get_fan_modes() == ["Auto", "On", "Circulate"]
     assert thermostat.get_current_compressor_speed() == 0.0
@@ -326,7 +326,7 @@ async def test_xl824_2(aiohttp_session):
     assert thermostat.get_setpoint_limits() == (55, 99)
     assert thermostat.has_variable_fan_speed() is True
     assert thermostat.get_unit() == "F"
-    assert thermostat.get_humidity_setpoint_limits() == (0.35, 0.65)
+    assert thermostat.get_humidity_setpoint_limits() == (0.10, 0.65)
     assert thermostat.get_fan_mode() == "Circulate"
     assert thermostat.get_fan_modes() == ["Auto", "On", "Circulate"]
     assert thermostat.get_current_compressor_speed() == 0.0
@@ -595,7 +595,7 @@ async def test_single_zone_system_off(aiohttp_session):
     assert thermostat.get_setpoint_limits() == (55, 99)
     assert thermostat.get_variable_fan_speed_limits() == (0.35, 1.0)
     assert thermostat.get_unit() == "F"
-    assert thermostat.get_humidity_setpoint_limits() == (0.35, 0.65)
+    assert thermostat.get_humidity_setpoint_limits() == (0.10, 0.65)
     assert thermostat.get_fan_mode(), "Auto"
     assert thermostat.get_fan_modes() == ["Auto", "On", "Circulate"]
     assert thermostat.get_outdoor_temperature() == 64.0
@@ -682,7 +682,7 @@ async def test_x850_grouped(aiohttp_session):
     assert thermostat.get_setpoint_limits() == (55, 99)
     assert thermostat.has_variable_fan_speed() is True
     assert thermostat.get_unit() == "F"
-    assert thermostat.get_humidity_setpoint_limits() == (0.35, 0.65)
+    assert thermostat.get_humidity_setpoint_limits() == (0.10, 0.65)
     assert thermostat.get_fan_mode() == "Circulate"
     assert thermostat.get_fan_modes() == ["Auto", "On", "Circulate"]
     assert thermostat.get_current_compressor_speed() == 1.0
@@ -735,7 +735,7 @@ async def test_issue_79891(aiohttp_session):
     assert thermostat.get_setpoint_limits() == (13.0, 37.0)
     assert thermostat.has_variable_fan_speed() is False
     assert thermostat.get_unit() == "C"
-    assert thermostat.get_humidity_setpoint_limits() == (0.35, 0.65)
+    assert thermostat.get_humidity_setpoint_limits() == (0.10, 0.65)
     assert thermostat.get_fan_mode() == "Auto"
     assert thermostat.get_fan_modes() == ["Auto", "On", "Circulate"]
     assert thermostat.get_current_compressor_speed() == 0
@@ -775,7 +775,7 @@ async def test_issue_79891(aiohttp_session):
     assert thermostat.get_setpoint_limits() == (13.0, 37.0)
     assert thermostat.has_variable_fan_speed() is False
     assert thermostat.get_unit() == "C"
-    assert thermostat.get_humidity_setpoint_limits() == (0.35, 0.65)
+    assert thermostat.get_humidity_setpoint_limits() == (0.10, 0.65)
     assert thermostat.get_fan_mode() == "Auto"
     assert thermostat.get_fan_modes() == ["Circulate", "Auto", "On"]
     assert thermostat.get_current_compressor_speed() == 0
@@ -825,7 +825,7 @@ async def test_new_xl1050(aiohttp_session):
     assert thermostat.get_setpoint_limits() == (55, 99)
     assert thermostat.has_variable_fan_speed() is True
     assert thermostat.get_unit() == "F"
-    assert thermostat.get_humidity_setpoint_limits() == (0.35, 0.65)
+    assert thermostat.get_humidity_setpoint_limits() == (0.10, 0.65)
     assert thermostat.get_fan_mode() == "Auto"
     assert thermostat.get_fan_modes() == ["Auto", "On", "Circulate"]
     assert thermostat.get_current_compressor_speed() == 0
@@ -875,7 +875,7 @@ async def test_new_xl824(aiohttp_session):
     assert thermostat.get_setpoint_limits() == (55, 99)
     assert thermostat.has_variable_fan_speed() is True
     assert thermostat.get_unit() == "F"
-    assert thermostat.get_humidity_setpoint_limits() == (0.35, 0.65)
+    assert thermostat.get_humidity_setpoint_limits() == (0.10, 0.65)
     assert thermostat.get_fan_mode() == "On"
     assert thermostat.get_fan_modes() == ["Auto", "On", "Circulate"]
     assert thermostat.get_current_compressor_speed() == 0
@@ -926,7 +926,7 @@ async def test_system_offline(aiohttp_session):
     assert thermostat.get_setpoint_limits() == (55, 99)
     assert thermostat.has_variable_fan_speed() is True
     assert thermostat.get_unit() == "F"
-    assert thermostat.get_humidity_setpoint_limits() == (0.35, 0.65)
+    assert thermostat.get_humidity_setpoint_limits() == (0.10, 0.65)
     assert thermostat.get_fan_mode() == "Auto"
     assert thermostat.get_fan_modes() == ["Auto", "On", "Circulate"]
     assert thermostat.get_current_compressor_speed() == 0.35
@@ -977,7 +977,7 @@ async def test_emergency_heat(aiohttp_session):
     assert thermostat.get_setpoint_limits() == (55, 99)
     assert thermostat.has_variable_fan_speed() is True
     assert thermostat.get_unit() == "F"
-    assert thermostat.get_humidity_setpoint_limits() == (0.35, 0.65)
+    assert thermostat.get_humidity_setpoint_limits() == (0.10, 0.65)
     assert thermostat.get_fan_mode() == "On"
     assert thermostat.get_fan_modes() == ["Auto", "On", "Circulate"]
     assert thermostat.get_current_compressor_speed() == 0
