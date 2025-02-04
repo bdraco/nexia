@@ -1006,9 +1006,9 @@ async def test_emergency_heat(aiohttp_session):
     assert zone.is_calling() is True
     assert zone.is_in_permanent_hold() is False
 
+
 async def test_humidity_and_fan_mode(aiohttp_session):
-    """
-    Tests for preventing an API timeout when updating humidity 
+    """Tests for preventing an API timeout when updating humidity
     and fan modes to the same value
     """
     nexia = NexiaHome(aiohttp_session)
