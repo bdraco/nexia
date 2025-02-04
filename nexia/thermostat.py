@@ -357,7 +357,7 @@ class NexiaThermostat:
             current_mode: str | None = fan_mode_map[current_label]
 
         # API times out if fan_mode is set to same attribute
-        if fan_mode != current_mode:
+        if fan_mode != current_mode: 
             await self._post_and_update_thermostat_json("fan_mode", {"value": fan_mode})
 
     async def set_fan_setpoint(self, fan_setpoint: float):
