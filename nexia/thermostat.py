@@ -480,12 +480,12 @@ class NexiaThermostat:
                 f"humidify_setpoint must be between ({min_humidity} - {max_humidity})",
             )
 
-        if dehumidify_supported:
+        if dehumidify_supported and dehumidify_setpoint != self.get_dehumidify_setpoint():
             await self._post_and_update_thermostat_json(
                 "dehumidify",
                 {"value": str(dehumidify_setpoint)},
             )
-        if humidify_supported:
+        if humidify_supported and humidify_setpoint != self.get_humidify_setpoint():
             await self._post_and_update_thermostat_json(
                 "humidify",
                 {"value": str(humidify_setpoint)},
