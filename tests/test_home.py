@@ -1005,3 +1005,19 @@ async def test_emergency_heat(aiohttp_session):
     assert zone.get_setpoint_status() == "Run Schedule - None"
     assert zone.is_calling() is True
     assert zone.is_in_permanent_hold() is False
+
+async def test_humidity_and_fan_mode(aiohttp_session):
+    """
+    Tests for preventing an API timeout when updating humidity 
+    and fan modes to the same value
+    """
+    nexia = NexiaHome(aiohttp_session)
+    devices_json = json.loads(await load_fixture("mobile_house_issue_33758.json"))
+    nexia.update_from_json(devices_json)
+
+    thermostat: NexiaThermostat = nexia.get_thermostat_by_id(12345678)
+
+    assert thermostat.get_humidify_setpoint() == 0.40
+    assert thermostat.get_dehumidify_setpoint() == 0.55
+    thermostat_ids = nexia.get_thermostat_ids()
+    assert thermostat_ids == [12345678]
