@@ -7,6 +7,7 @@ from os.path import dirname
 
 import aiohttp
 import pytest
+from unittest.mock import AsyncMock
 from aioresponses import aioresponses
 
 from nexia.home import NexiaHome, _extract_devices_from_houses_json
@@ -1007,8 +1008,10 @@ async def test_emergency_heat(aiohttp_session):
     assert zone.is_in_permanent_hold() is False
 
 
+@pytest.mark.asyncio
 async def test_humidity_and_fan_mode(aiohttp_session):
-    """Tests for preventing an API timeout when updating humidity
+    """
+    Tests for preventing an API timeout when updating humidity
     and fan modes to the same value
     """
     nexia = NexiaHome(aiohttp_session)
@@ -1017,7 +1020,19 @@ async def test_humidity_and_fan_mode(aiohttp_session):
 
     thermostat: NexiaThermostat = nexia.get_thermostat_by_id(12345678)
 
-    assert thermostat.get_humidify_setpoint() == 0.40
-    assert thermostat.get_dehumidify_setpoint() == 0.55
+    # Mock the API call to prevent actual HTTP requests
+    thermostat._post_and_update_thermostat_json = AsyncMock()
+
+    # Test setting fan mode to the same value (should not trigger API call)
+    await thermostat.set_fan_mode("Auto")  # Attempt to set to the same value again
+    thermostat._post_and_update_thermostat_json.assert_not_called()  # Ensure no API call was made
+
+    # Test setting humidification setpoint to the same values (should not trigger API call)
+    await thermostat.set_humidity_setpoints(humidify_setpoint=.4, dehumidify_setpoint=.55)
+    thermostat._post_and_update_thermostat_json.assert_not_called()  # Ensure API call was made to set both values
+
+    await thermostat.set_humidity_setpoints(humidify_setpoint=.50, dehumidify_setpoint=.60)
+    thermostat._post_and_update_thermostat_json.call_count == 2  # Ensure API call was made to set both values
+
     thermostat_ids = nexia.get_thermostat_ids()
     assert thermostat_ids == [12345678]

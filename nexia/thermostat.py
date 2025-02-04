@@ -350,11 +350,15 @@ class NexiaThermostat:
                 fan_mode = opt["value"]
                 break
 
-        # API times out if fan_mode is set to same attribute
-        if fan_mode == self.get_fan_mode():
-            return
+        # Create fan_mode value since get_fan_modes() returns labels
+        current_label: Any | None = self.get_fan_mode()
+        if current_label:
+            fan_mode_map: dict[str, str] = {x["label"]: x["value"] for x in options}
+            current_mode: str | None = fan_mode_map[current_label]
 
-        await self._post_and_update_thermostat_json("fan_mode", {"value": fan_mode})
+        # API times out if fan_mode is set to same attribute
+        if fan_mode != current_mode:
+            await self._post_and_update_thermostat_json("fan_mode", {"value": fan_mode})
 
     async def set_fan_setpoint(self, fan_setpoint: float):
         """Sets the fan's setpoint speed as a percent in range. You can see the
@@ -480,10 +484,7 @@ class NexiaThermostat:
                 f"humidify_setpoint must be between ({min_humidity} - {max_humidity})",
             )
 
-        if (
-            dehumidify_supported
-            and dehumidify_setpoint != self.get_dehumidify_setpoint()
-        ):
+        if dehumidify_supported and dehumidify_setpoint != self.get_dehumidify_setpoint():
             await self._post_and_update_thermostat_json(
                 "dehumidify",
                 {"value": str(dehumidify_setpoint)},
