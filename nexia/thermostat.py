@@ -350,7 +350,11 @@ class NexiaThermostat:
                 fan_mode = opt["value"]
                 break
 
-        await self._post_and_update_thermostat_json("fan_mode", {"value": fan_mode})
+        " API times out if fan_mode is set to same attribute"
+        if fan_mode == self.get_fan_mode():
+            return
+        else:
+            await self._post_and_update_thermostat_json("fan_mode", {"value": fan_mode})
 
     async def set_fan_setpoint(self, fan_setpoint: float):
         """Sets the fan's setpoint speed as a percent in range. You can see the
