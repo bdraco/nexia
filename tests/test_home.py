@@ -1161,134 +1161,136 @@ async def test_emergency_heat(aiohttp_session: aiohttp.ClientSession) -> None:
     assert zone.is_in_permanent_hold() is False
 
 
-async def test_sensor_access(mock_aioresponse: aioresponses):
+async def test_sensor_access(
+    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aioresponses
+) -> None:
     """Test sensor access methods."""
-    async with aiohttp.ClientSession() as aiohttp_session:
-        persist_file = Path("nexia_config_test.conf")
-        nexia = NexiaHome(aiohttp_session, house_id=2582941, state_file=persist_file)
-        mock_aioresponse.post(
-            "https://www.mynexia.com/mobile/accounts/sign_in",
-            payload={
-                "success": True,
-                "error": None,
-                "result": {
-                    "mobile_id": 5400000,
-                    "api_key": "10654c0be00000000000000000000000",
-                    "setup_step": "done",
-                    "locale": "en_us",
-                },
+    persist_file = Path("nexia_config_test.conf")
+    nexia = NexiaHome(aiohttp_session, house_id=2582941, state_file=persist_file)
+    mock_aioresponse.post(
+        "https://www.mynexia.com/mobile/accounts/sign_in",
+        payload={
+            "success": True,
+            "error": None,
+            "result": {
+                "mobile_id": 5400000,
+                "api_key": "10654c0be00000000000000000000000",
+                "setup_step": "done",
+                "locale": "en_us",
             },
-        )
-        await nexia.login()
-        mock_aioresponse.get(
-            "https://www.mynexia.com/mobile/houses/2582941",
-            body=await load_fixture("sensors_xl1050_house.json"),
-        )
-        assert await nexia.update() is not None
+        },
+    )
+    await nexia.login()
 
-        assert nexia.get_thermostat_ids() == [5378307]
-        thermostat: NexiaThermostat = nexia.get_thermostat_by_id(5378307)
+    mock_aioresponse.get(
+        "https://www.mynexia.com/mobile/houses/2582941",
+        body=await load_fixture("sensors_xl1050_house.json"),
+    )
+    assert await nexia.update() is not None
 
-        assert thermostat.get_zone_ids() == [85034552]
-        zone = thermostat.get_zone_by_id(85034552)
-        sensors = zone.get_sensors()
+    assert nexia.get_thermostat_ids() == [5378307]
+    thermostat: NexiaThermostat = nexia.get_thermostat_by_id(5378307)
 
-        assert len(sensors) == 2
-        sensor = sensors[0]
-        assert sensor.id == 17687546
-        assert sensor.name == "Center"
-        assert sensor.type == "thermostat"
-        assert sensor.serial_number == "NativeIDTUniqueID"
-        assert sensor.weight == 0.5
-        assert sensor.temperature == 68
-        assert sensor.temperature_valid is True
-        assert sensor.humidity == 32
-        assert sensor.humidity_valid is True
-        assert sensor.has_online is False
-        assert sensor.connected is None
-        assert sensor.has_battery is False
-        assert sensor.battery_level is None
-        assert sensor.battery_low is None
-        assert sensor.battery_valid is None
+    assert thermostat.get_zone_ids() == [85034552]
+    zone = thermostat.get_zone_by_id(85034552)
+    sensors = zone.get_sensors()
 
-        sensor = sensors[1]
-        assert sensor.id == 17687549
-        assert sensor.name == "Upstairs"
-        assert sensor.type == "930"
-        assert sensor.serial_number == "2410R5C53X"
-        assert sensor.weight == 0.5
-        assert sensor.temperature == 69
-        assert sensor.temperature_valid is True
-        assert sensor.humidity == 32
-        assert sensor.humidity_valid is True
-        assert sensor.has_online is True
-        assert sensor.connected is True
-        assert sensor.has_battery is True
-        assert sensor.battery_level == 95
-        assert sensor.battery_low is False
-        assert sensor.battery_valid is True
+    assert len(sensors) == 2
+    sensor = sensors[0]
+    assert sensor.id == 17687546
+    assert sensor.name == "Center"
+    assert sensor.type == "thermostat"
+    assert sensor.serial_number == "NativeIDTUniqueID"
+    assert sensor.weight == 0.5
+    assert sensor.temperature == 68
+    assert sensor.temperature_valid is True
+    assert sensor.humidity == 32
+    assert sensor.humidity_valid is True
+    assert sensor.has_online is False
+    assert sensor.connected is None
+    assert sensor.has_battery is False
+    assert sensor.battery_level is None
+    assert sensor.battery_low is None
+    assert sensor.battery_valid is None
 
-        # execute log response code path
-        nexia.log_response = True
+    sensor = sensors[1]
+    assert sensor.id == 17687549
+    assert sensor.name == "Upstairs"
+    assert sensor.type == "930"
+    assert sensor.serial_number == "2410R5C53X"
+    assert sensor.weight == 0.5
+    assert sensor.temperature == 69
+    assert sensor.temperature_valid is True
+    assert sensor.humidity == 32
+    assert sensor.humidity_valid is True
+    assert sensor.has_online is True
+    assert sensor.connected is True
+    assert sensor.has_battery is True
+    assert sensor.battery_level == 95
+    assert sensor.battery_low is False
+    assert sensor.battery_valid is True
 
-        # execute no completion code path
-        mock_aioresponse.post(
-            "https://www.mynexia.com/mobile/xxl_zones/85034552/request_current_sensor_state",
-            payload={
-                "success": True,
-                "error": None,
-                "result": {
-                    "polling_path": "https://www.mynexia.com/backstage/announcements/6a31e745716789b84603036489fe8d1e35ca80fa50000000"
-                },
+    # execute log response code path
+    nexia.log_response = True
+
+    # execute no completion code path
+    mock_aioresponse.post(
+        "https://www.mynexia.com/mobile/xxl_zones/85034552/request_current_sensor_state",
+        payload={
+            "success": True,
+            "error": None,
+            "result": {
+                "polling_path": "https://www.mynexia.com/backstage/announcements/6a31e745716789b84603036489fe8d1e35ca80fa50000000"
             },
-        )
-        assert await zone.load_current_sensor_state(max_polls=0) is False
+        },
+    )
+    assert await zone.load_current_sensor_state(max_polls=0) is False
 
-        # execute normal code path
-        mock_aioresponse.post(
-            "https://www.mynexia.com/mobile/xxl_zones/85034552/request_current_sensor_state",
-            payload={
-                "success": True,
-                "error": None,
-                "result": {
-                    "polling_path": "https://www.mynexia.com/backstage/announcements/6a31e745716789b84603036489fe8d1e35ca80fa5dd381e5"
-                },
+    # execute normal code path
+    mock_aioresponse.post(
+        "https://www.mynexia.com/mobile/xxl_zones/85034552/request_current_sensor_state",
+        payload={
+            "success": True,
+            "error": None,
+            "result": {
+                "polling_path": "https://www.mynexia.com/backstage/announcements/6a31e745716789b84603036489fe8d1e35ca80fa5dd381e5"
             },
-        )
-        mock_aioresponse.get(
-            "https://www.mynexia.com/backstage/announcements/6a31e745716789b84603036489fe8d1e35ca80fa5dd381e5",
-            body=b"null",
-        )
-        mock_aioresponse.get(
-            "https://www.mynexia.com/backstage/announcements/6a31e745716789b84603036489fe8d1e35ca80fa5dd381e5",
-            payload={
-                "status": "success, altered to enhance test coverage",
-                "options": {},
-            },
-        )
-        assert await zone.load_current_sensor_state(0.01) is True
+        },
+    )
+    mock_aioresponse.get(
+        "https://www.mynexia.com/backstage/announcements/6a31e745716789b84603036489fe8d1e35ca80fa5dd381e5",
+        body=b"null",
+    )
+    mock_aioresponse.get(
+        "https://www.mynexia.com/backstage/announcements/6a31e745716789b84603036489fe8d1e35ca80fa5dd381e5",
+        payload={
+            "status": "success, altered to enhance test coverage",
+            "options": {},
+        },
+    )
+    assert await zone.load_current_sensor_state(0.01) is True
 
-        mock_aioresponse.get(
-            "https://www.mynexia.com/mobile/xxl_thermostats/5378307",
-            body=await load_fixture("sensors_xl1050_thermostat.json"),
-        )
-        await thermostat.refresh_thermostat_data()
-        sensors = zone.get_sensors()
+    mock_aioresponse.get(
+        "https://www.mynexia.com/mobile/xxl_thermostats/5378307",
+        body=await load_fixture("sensors_xl1050_thermostat.json"),
+    )
+    await thermostat.refresh_thermostat_data()
+    sensors = zone.get_sensors()
 
-        assert len(sensors) == 2
-        sensor = sensors[0]
-        assert sensor.id == 17687546
-        assert sensor.name == "Center"
-        assert sensor.weight == 0.5
-        assert sensor.temperature == 69
-        assert sensor.humidity == 33
+    assert len(sensors) == 2
+    sensor = sensors[0]
+    assert sensor.id == 17687546
+    assert sensor.name == "Center"
+    assert sensor.weight == 0.5
+    assert sensor.temperature == 69
+    assert sensor.humidity == 33
 
-        sensor = sensors[1]
-        assert sensor.id == 17687549
-        assert sensor.name == "Upstairs"
-        assert sensor.weight == 0.5
-        assert sensor.temperature == 70
-        assert sensor.humidity == 33
+    sensor = sensors[1]
+    assert sensor.id == 17687549
+    assert sensor.name == "Upstairs"
+    assert sensor.weight == 0.5
+    assert sensor.temperature == 70
+    assert sensor.humidity == 33
 
     assert persist_file.exists() is True
     persist_file.unlink()
