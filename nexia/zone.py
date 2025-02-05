@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import asyncio
+import json
 import logging
 import math
 from typing import TYPE_CHECKING, Any
@@ -18,6 +20,7 @@ from .const import (
     UNIT_CELSIUS,
     ZONE_IDLE,
 )
+from .sensor import NexiaSensor
 from .util import find_dict_with_keyvalue_in_json
 
 _LOGGER = logging.getLogger(__name__)
@@ -240,6 +243,18 @@ class NexiaThermostatZone:
             return True
         return run_mode["current_value"] == HOLD_PERMANENT
 
+    def get_sensors(self) -> list[NexiaSensor]:
+        """Get the sensor detail data objects from this instance
+        :return: list of sensor detail data objects
+        """
+        try:
+            sensors_json = self._get_zone_features("room_iq_sensors")["sensors"]
+
+            return [NexiaSensor.from_json(sensor_json) for sensor_json in sensors_json]
+        except KeyError:
+            # our json has no sensors
+            return []
+
     ########################################################################
     # Zone Set Methods
 
@@ -410,6 +425,43 @@ class NexiaThermostatZone:
             raise KeyError(
                 f'Invalid mode "{mode}". Select one of the following: {OPERATION_MODES}',
             )
+
+    async def load_current_sensor_state(self, polling_delay=5.0, max_polls=8) -> bool:
+        """Load the current state of a zone's sensors into the physical thermostat.
+        :param polling_delay: seconds to wait before each polling attempt
+        :param max_polls: maximum number of times to poll for completion
+        :return: bool indicating completed
+        """
+        req_cur_state = self.API_MOBILE_ZONE_URL.format(
+            end_point="request_current_sensor_state", zone_id=self.zone_id
+        )
+
+        async with await self._nexia_home.post_url(req_cur_state, {}) as response:
+            # The polling path in the response has the form:
+            #   https://www.mynexia.com/backstage/announcements/<48-hex-digits>
+            polling_url = self._nexia_home.resolve_url(
+                (await response.json())["result"]["polling_path"]
+            )
+        attempts = max_polls
+
+        while attempts:
+            await asyncio.sleep(polling_delay)
+            async with await self._nexia_home._get_url(polling_url) as response:  # noqa: SLF001
+                payload = (await response.read()).strip()
+
+            if payload != b"null":
+                status = json.loads(payload)["status"]
+
+                if status != "success":
+                    _LOGGER.error(
+                        "Unexpected status [%s] loading current sensor state", status
+                    )
+                return True
+            attempts -= 1
+        # end while waiting for status
+
+        _LOGGER.error("Gave up waiting for current sensor state")
+        return False
 
     def round_temp(self, temperature: float) -> float:
         """Rounds the temperature to the nearest 1/2 degree for C and nearest 1
