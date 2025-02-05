@@ -18,11 +18,11 @@ class NexiaAutomation:
     Represents a nexia automation.
     """
 
-    def __init__(self, nexia_home, automation_json):
+    def __init__(self, nexia_home: NexiaHome, automation_json: dict[str, Any]) -> None:
         """Init nexia Thermostat."""
-        self._nexia_home: NexiaHome = nexia_home
+        self._nexia_home = nexia_home
         self.automation_id: int = automation_json["id"]
-        self._automation_json: dict[str, Any] = automation_json
+        self._automation_json = automation_json
 
     @property
     def API_MOBILE_AUTOMATION_URL(self) -> str:  # pylint: disable=invalid-name

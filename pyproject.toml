@@ -22,6 +22,7 @@ classifiers=[
 dependencies = [
     "aiohttp",
     "orjson",
+    "propcache"
 ]
 dynamic = ["readme"]
 
