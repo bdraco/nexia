@@ -10,7 +10,11 @@ import aiohttp
 import pytest
 from aioresponses import aioresponses
 
-from nexia.home import NexiaHome, _extract_devices_from_houses_json
+from nexia.home import (
+    LoginFailedException,
+    NexiaHome,
+    _extract_devices_from_houses_json,
+)
 from nexia.thermostat import NexiaThermostat
 
 pytestmark = pytest.mark.asyncio
@@ -45,7 +49,114 @@ async def load_fixture(filename):
     return await loop.run_in_executor(None, _load_fixture, filename)
 
 
-async def test_update(aiohttp_session):
+async def test_login(
+    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aioresponses
+) -> None:
+    """Test login sequence."""
+    persist_file = Path("nexia_config_test.conf")
+    nexia = NexiaHome(aiohttp_session, state_file=persist_file)
+
+    mock_aioresponse.post(
+        "https://www.mynexia.com/mobile/accounts/sign_in",
+        status=206,
+        body="no good",
+    )
+    with pytest.raises(
+        ValueError,
+        match="Failed to login\nno good",
+    ):
+        await nexia.login()
+
+    forgot_password_url = "https://www.mynexia.com/account/forgotten_credentials"
+    mock_aioresponse.post(
+        "https://www.mynexia.com/mobile/accounts/sign_in",
+        status=307,
+        headers={aiohttp.hdrs.LOCATION: forgot_password_url},
+    )
+    mock_aioresponse.get(
+        forgot_password_url,
+    )
+    with pytest.raises(
+        LoginFailedException,
+        match=f"Failed to login, getting redirected to {forgot_password_url}"
+        f". Try to login manually on the website.",
+    ):
+        await nexia.login()
+
+    mock_aioresponse.post(
+        "https://www.mynexia.com/mobile/accounts/sign_in",
+        payload={
+            "success": True,
+            "error": None,
+            "result": {
+                "mobile_id": 5400000,
+                "api_key": "10654c0be00000000000000000000000",
+                "setup_step": "done",
+                "locale": "en_us",
+            },
+        },
+    )
+    mock_aioresponse.post(
+        "https://www.mynexia.com/mobile/session",
+        body=await load_fixture("mobile_session.json"),
+    )
+    await nexia.login()
+
+    mock_aioresponse.get(
+        "https://www.mynexia.com/mobile/houses/2582941",
+        status=304,
+    )
+    assert await nexia.update() is None
+
+    mock_aioresponse.get(
+        "https://www.mynexia.com/mobile/houses/2582941",
+        status=208,
+        body="failing text",
+    )
+    with pytest.raises(
+        ValueError,
+        match="Unexpected http status while fetching house JSON\nfailing text",
+    ):
+        await nexia.update()
+
+    mock_aioresponse.get(
+        "https://www.mynexia.com/mobile/houses/2582941",
+    )
+    with pytest.raises(
+        ValueError,
+        match="Nothing in the JSON",
+    ):
+        await nexia.update()
+
+    mock_aioresponse.get(
+        "https://www.mynexia.com/mobile/houses/2582941",
+        body=await load_fixture("mobile_houses_123456.json"),
+    )
+    assert await nexia.update() is not None
+
+    mock_aioresponse.get(
+        "https://www.mynexia.com/mobile/phones",
+        body=await load_fixture("mobile_phones_response.json"),
+    )
+    assert await nexia.get_phone_ids() == [5488863]
+
+    assert nexia.get_thermostat_ids() == [2059661, 2059676, 2293892, 2059652]
+    thermostat = nexia.get_thermostat_by_id(2059661)
+    assert thermostat.get_zone_ids() == [83261002, 83261005, 83261008, 83261011]
+    zone = thermostat.get_zone_by_id(83261002)
+
+    mock_aioresponse.post(
+        "https://www.mynexia.com/mobile/xxl_zones/83261002/setpoints",
+        body=await load_fixture("zone_response.json"),
+    )
+    await zone.set_heat_cool_temp(69.0, 78.0)
+
+    assert persist_file.exists() is True
+    persist_file.unlink()
+    assert persist_file.exists() is False
+
+
+async def test_update(aiohttp_session: aiohttp.ClientSession) -> None:
     nexia = NexiaHome(aiohttp_session)
     devices_json = json.loads(await load_fixture("mobile_houses_123456.json"))
     nexia.update_from_json(devices_json)
@@ -58,7 +169,7 @@ async def test_update(aiohttp_session):
     nexia.update_from_json(devices_json)
 
 
-async def test_idle_thermo(aiohttp_session):
+async def test_idle_thermo(aiohttp_session: aiohttp.ClientSession) -> None:
     """Get methods for an idle thermostat."""
     nexia = NexiaHome(aiohttp_session)
     devices_json = json.loads(await load_fixture("mobile_houses_123456.json"))
@@ -97,7 +208,7 @@ async def test_idle_thermo(aiohttp_session):
     assert zone_ids == [83261002, 83261005, 83261008, 83261011]
 
 
-async def test_idle_thermo_issue_33758(mock_aioresponse: aioresponses):
+async def test_idle_thermo_issue_33758(mock_aioresponse: aioresponses) -> None:
     """Get methods for an idle thermostat."""
     aiohttp_session = aiohttp.ClientSession()
     nexia = NexiaHome(aiohttp_session)
@@ -152,8 +263,10 @@ async def test_idle_thermo_issue_33758(mock_aioresponse: aioresponses):
     await aiohttp_session.close()
 
 
-async def test_idle_thermo_issue_33968_thermostat_1690380(aiohttp_session):
-    """Get methods for an cooling thermostat."""
+async def test_idle_thermo_issue_33968_thermostat_1690380(
+    aiohttp_session: aiohttp.ClientSession,
+) -> None:
+    """Get methods for a cooling thermostat."""
     nexia = NexiaHome(aiohttp_session)
     devices_json = json.loads(await load_fixture("mobile_house_issue_33968.json"))
     nexia.update_from_json(devices_json)
@@ -307,7 +420,7 @@ async def test_xl824_1(aiohttp_session):
     assert zone_ids == [88888888]
 
 
-async def test_xl824_2(aiohttp_session):
+async def test_xl824_2(aiohttp_session: aiohttp.ClientSession) -> None:
     """Get methods for an xl824 thermostat."""
     nexia = NexiaHome(aiohttp_session)
     devices_json = json.loads(await load_fixture("mobile_house_xl624.json"))
@@ -413,7 +526,9 @@ async def test_zone_issue_33968_zone_83037340(aiohttp_session):
     assert zone.is_in_permanent_hold() is True
 
 
-async def test_zone_issue_33968_zone_83037343(aiohttp_session):
+async def test_zone_issue_33968_zone_83037343(
+    aiohttp_session: aiohttp.ClientSession,
+) -> None:
     """Tests for nexia thermostat zone that is cooling."""
     nexia = NexiaHome(aiohttp_session)
     devices_json = json.loads(await load_fixture("mobile_house_issue_33968.json"))
@@ -437,7 +552,7 @@ async def test_zone_issue_33968_zone_83037343(aiohttp_session):
     assert zone.is_in_permanent_hold() is True
 
 
-async def test_zone_issue_33758(aiohttp_session):
+async def test_zone_issue_33758(aiohttp_session: aiohttp.ClientSession) -> None:
     """Tests for nexia thermostat zone relieving air."""
     nexia = NexiaHome(aiohttp_session)
     devices_json = json.loads(await load_fixture("mobile_house_issue_33758.json"))
@@ -553,7 +668,7 @@ async def test_xl824_idle(aiohttp_session):
     assert zone.is_in_permanent_hold() is True
 
 
-async def test_single_zone(aiohttp_session):
+async def test_single_zone(aiohttp_session: aiohttp.ClientSession) -> None:
     """Test thermostat with only a single (Native) zone."""
     nexia = NexiaHome(aiohttp_session)
     devices_json = json.loads(await load_fixture("single_zone_xl1050.json"))
@@ -581,7 +696,7 @@ async def test_single_zone(aiohttp_session):
     assert len(sensors) == 0
 
 
-async def test_single_zone_system_off(aiohttp_session):
+async def test_single_zone_system_off(aiohttp_session: aiohttp.ClientSession) -> None:
     """Test thermostat with only a single (Native) zone."""
     nexia = NexiaHome(aiohttp_session)
     devices_json = json.loads(await load_fixture("single_zone_xl1050_system_off.json"))
@@ -632,7 +747,9 @@ async def test_single_zone_system_off(aiohttp_session):
     assert zone.is_in_permanent_hold() is True
 
 
-async def test_automations(aiohttp_session):
+async def test_automations(
+    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aioresponses
+) -> None:
     """Get methods for an active thermostat."""
     nexia = NexiaHome(aiohttp_session)
     text = await load_fixture("mobile_houses_123456.json")
@@ -666,8 +783,17 @@ async def test_automations(aiohttp_session):
     assert automation_one.enabled is True
     assert automation_one.automation_id == 3467876
 
+    mock_aioresponse.post(
+        "https://www.mynexia.com/mobile/automations/3467876/activate",
+        payload={
+            "success": True,
+            "error": None,
+        },
+    )
+    await automation_one.activate()
 
-async def test_x850_grouped(aiohttp_session):
+
+async def test_x850_grouped(aiohttp_session: aiohttp.ClientSession) -> None:
     """Get methods for an xl850 grouped thermostat."""
     nexia = NexiaHome(aiohttp_session)
     devices_json = json.loads(await load_fixture("grouped_xl850.json"))
@@ -716,7 +842,7 @@ async def test_x850_grouped(aiohttp_session):
     assert zone.is_in_permanent_hold() is True
 
 
-async def test_issue_79891(aiohttp_session):
+async def test_issue_79891(aiohttp_session: aiohttp.ClientSession) -> None:
     """Get methods issue 79891 thermostat.
 
     https://github.com/home-assistant/core/issues/79891
@@ -809,7 +935,7 @@ async def test_issue_79891(aiohttp_session):
     assert zone.is_in_permanent_hold() is False
 
 
-async def test_new_xl1050(aiohttp_session):
+async def test_new_xl1050(aiohttp_session: aiohttp.ClientSession) -> None:
     """Get with a new xl1050."""
     nexia = NexiaHome(aiohttp_session)
     devices_json = json.loads(await load_fixture("xl1050.json"))
@@ -882,7 +1008,7 @@ async def test_new_xl1050(aiohttp_session):
     assert sensor.has_battery is False
 
 
-async def test_new_xl824(aiohttp_session):
+async def test_new_xl824(aiohttp_session: aiohttp.ClientSession) -> None:
     """Get with a new xl824."""
     nexia = NexiaHome(aiohttp_session)
     devices_json = json.loads(await load_fixture("xl824.json"))
@@ -933,7 +1059,7 @@ async def test_new_xl824(aiohttp_session):
     assert zone.is_in_permanent_hold() is True
 
 
-async def test_system_offline(aiohttp_session):
+async def test_system_offline(aiohttp_session: aiohttp.ClientSession) -> None:
     """Get a system offline."""
     nexia = NexiaHome(aiohttp_session)
     devices_json = json.loads(await load_fixture("system_offline.json"))
@@ -984,7 +1110,7 @@ async def test_system_offline(aiohttp_session):
     assert zone.is_in_permanent_hold() is True
 
 
-async def test_emergency_heat(aiohttp_session):
+async def test_emergency_heat(aiohttp_session: aiohttp.ClientSession) -> None:
     """Test emergency heat."""
     nexia = NexiaHome(aiohttp_session)
     devices_json = json.loads(await load_fixture("eme_heat.json"))

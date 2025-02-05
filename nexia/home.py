@@ -5,8 +5,9 @@ from __future__ import annotations
 import asyncio
 import datetime
 import logging
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
+import aiohttp
 import orjson
 from yarl import URL
 
@@ -25,16 +26,13 @@ from .const import (
 from .thermostat import NexiaThermostat
 from .util import load_or_create_uuid
 
-if TYPE_CHECKING:
-    import aiohttp
-
 
 class LoginFailedException(Exception):
     """Login failed."""
 
 
 MAX_LOGIN_ATTEMPTS = 4
-TIMEOUT = 20
+TIMEOUT = aiohttp.ClientTimeout(total=20)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -65,17 +63,15 @@ class NexiaHome:
         """Connects to and provides the ability to get and set parameters of your
         Nexia connected thermostat.
 
+        :param session: ClientSession to use
         :param house_id: int - Your house_id. You can get this from logging in
-        and looking at the url once you're looking at your climate device.
-        https://www.mynexia.com/houses/<house_id>/climate
+                and looking at the url once you're looking at your climate device.
+                https://www.mynexia.com/houses/<house_id>/climate
         :param username: str - Your login email address
         :param password: str - Your login password
-        :param auto_login: bool - Default is True, Login now (True), or login
-        manually later (False)
-        :param auto_update: bool - Default is True, Update now (True), or update
-        manually later (False)
-
-        JSON update. Default is 300s.
+        :param device_name: str - Name of the device running this code
+        :param brand: str - Brand of the desired system (from nexia.const)
+        :param state_file: str | PathLike - File to use when persisting data
         """
         self.username = username
         self.password = password
@@ -181,7 +177,7 @@ class NexiaHome:
 
     async def post_url(self, request_url: str, payload: dict) -> aiohttp.ClientResponse:
         """Posts data to the session from the url and payload
-        :param url: str
+        :param request_url: str
         :param payload: dict
         :return: response.
         """
@@ -220,8 +216,9 @@ class NexiaHome:
         request_url: str,
         headers: dict[str, str] | None = None,
     ) -> aiohttp.ClientResponse:
-        """Returns the full session.get from the URL (ROOT_URL + url)
-        :param url: str
+        """Returns the full session.get from the URL and headers
+        :param request_url: str
+        :param headers: headers to include in the get request
         :return: response.
         """
         if not headers:
@@ -267,25 +264,25 @@ class NexiaHome:
 
     async def _find_house_id(self) -> None:
         """Finds the house id if none is provided."""
-        request = await self.post_url(
+        async with await self.post_url(
             self.API_MOBILE_SESSION_URL,
             {"app_version": APP_VERSION, "device_uuid": str(self._uuid)},
-        )
-        if request and request.status == 200:
-            ts_json = await request.json(
-                loads=orjson.loads,  # pylint: disable=no-member
-            )
-            if ts_json:
-                data = ts_json["result"]["_links"]["child"][0]["data"]
-                self.house_id = data["id"]
-                self._name = data["name"]
+        ) as request:
+            if request and request.status == 200:
+                ts_json = await request.json(
+                    loads=orjson.loads,  # pylint: disable=no-member
+                )
+                if ts_json:
+                    data = ts_json["result"]["_links"]["child"][0]["data"]
+                    self.house_id = data["id"]
+                    self._name = data["name"]
+                else:
+                    raise ValueError("Nothing in the JSON")
             else:
-                raise ValueError("Nothing in the JSON")
-        else:
-            await self._check_response(
-                "Failed to get house id JSON, session probably timed out",
-                request,
-            )
+                await self._check_response(
+                    "Failed to get house id JSON, session probably timed out",
+                    request,
+                )
 
     def update_from_json(self, json_dict: dict[str, Any]) -> None:
         """Update the json from the houses endpoint if fetched externally."""
@@ -307,36 +304,35 @@ class NexiaHome:
         if self._last_update_etag:
             headers["If-None-Match"] = self._last_update_etag
 
-        response = await self._get_url(
+        async with await self._get_url(
             self.API_MOBILE_HOUSES_URL.format(house_id=self.house_id),
             headers=headers,
-        )
+        ) as response:
+            if not response:
+                await self._check_response(
+                    "Failed to get house JSON, session probably timed out",
+                    response,
+                )
+                return None
+            if response.status == 304:
+                _LOGGER.debug("Update returned 304")
+                # already up to date
+                return None
+            if response.status != 200:
+                await self._check_response(
+                    "Unexpected http status while fetching house JSON",
+                    response,
+                )
+                return None
 
-        if not response:
-            await self._check_response(
-                "Failed to get house JSON, session probably timed out",
-                response,
-            )
-            return None
-        if response.status == 304:
-            _LOGGER.debug("Update returned 304")
-            # already up to date
-            return None
-        if response.status != 200:
-            await self._check_response(
-                "Unexpected http status while fetching house JSON",
-                response,
-            )
-            return None
-
-        ts_json = await response.json()
-        if ts_json:
-            self._name = ts_json["result"]["name"]
-            self.devices_json = _extract_devices_from_houses_json(ts_json)
-            self.automations_json = _extract_automations_from_houses_json(ts_json)
-            self._last_update_etag = response.headers.get("etag")
-        else:
-            raise ValueError("Nothing in the JSON")
+            ts_json = await response.json()
+            if ts_json:
+                self._name = ts_json["result"]["name"]
+                self.devices_json = _extract_devices_from_houses_json(ts_json)
+                self.automations_json = _extract_automations_from_houses_json(ts_json)
+                self._last_update_etag = response.headers.get("etag")
+            else:
+                raise ValueError("Nothing in the JSON")
         self._update_devices()
         self._update_automations()
         return ts_json
@@ -420,21 +416,22 @@ class NexiaHome:
                 "app_version": APP_VERSION,
                 "is_commercial": False,
             }
-            request = await self.post_url(self.API_MOBILE_ACCOUNTS_SIGN_IN_URL, payload)
+            async with await self.post_url(
+                self.API_MOBILE_ACCOUNTS_SIGN_IN_URL, payload
+            ) as request:
+                if request is None or request.status not in (302, 200):
+                    self.login_attempts_left -= 1
+                await self._check_response("Failed to login", request)
 
-            if request is None or request.status not in (302, 200):
-                self.login_attempts_left -= 1
-            await self._check_response("Failed to login", request)
+                if str(request.url) == self.AUTH_FORGOTTEN_PASSWORD_STRING:
+                    raise LoginFailedException(
+                        f"Failed to login, getting redirected to {request.url}"
+                        f". Try to login manually on the website.",
+                    )
 
-            if request.url == self.AUTH_FORGOTTEN_PASSWORD_STRING:
-                raise LoginFailedException(
-                    f"Failed to login, getting redirected to {request.url}"
-                    f". Try to login manually on the website.",
+                json_dict = await request.json(
+                    loads=orjson.loads,  # pylint: disable=no-member
                 )
-
-            json_dict = await request.json(
-                loads=orjson.loads,  # pylint: disable=no-member
-            )
             if json_dict.get("success") is not True:
                 error_text = json_dict.get("error", "Unknown Error")
                 raise LoginFailedException(f"Failed to login, {error_text}")
@@ -479,7 +476,7 @@ class NexiaHome:
         return [thermostat.thermostat_id for thermostat in self.thermostats]
 
     def get_automation_by_id(self, automation_id) -> NexiaAutomation:
-        """Get a automation by its nexia id."""
+        """Get an automation by its nexia id."""
         for automation in self.automations:
             if automation.automation_id == automation_id:
                 return automation
@@ -487,8 +484,8 @@ class NexiaHome:
 
     async def get_phone_ids(self) -> list[int]:
         """Get all the mobile phone ids."""
-        response = await self._get_url(self.API_MOBILE_PHONE_URL)
-        data = await response.json()
+        async with await self._get_url(self.API_MOBILE_PHONE_URL) as response:
+            data = await response.json()
         items = data["result"]["items"]
         return [phone["phone_id"] for phone in items]
 
@@ -500,14 +497,14 @@ class NexiaHome:
 
 
 def _extract_devices_from_houses_json(json_dict: dict) -> list[dict[str, Any]]:
-    """Extras the payload from the houses json endpoint data."""
+    """Extracts the payload from the houses json endpoint data."""
     return _extract_items(
         json_dict["result"]["_links"]["child"][DEVICES_ELEMENT]["data"],
     )
 
 
 def _extract_automations_from_houses_json(json_dict: dict) -> list[dict[str, Any]]:
-    """Extras the payload from the houses json endpoint data."""
+    """Extracts the payload from the houses json endpoint data."""
     return _extract_items(
         json_dict["result"]["_links"]["child"][AUTOMATIONS_ELEMENT]["data"],
     )

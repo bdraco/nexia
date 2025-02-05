@@ -1,0 +1,118 @@
+{
+  "success": true,
+  "error": null,
+  "result": {
+    "can_control_automations": true,
+    "can_manage_locks": true,
+    "can_view_videos": true,
+    "can_receive_notifications": true,
+    "is_activated_by_activation_code": 0,
+    "_links": {
+      "self": {
+        "href": "https://www.mynexia.com/mobile/session"
+      },
+      "child": [
+        {
+          "data": {
+            "id": 2582941,
+            "name": "My Home",
+            "postal_code": ""
+          },
+          "href": "https://www.mynexia.com/mobile/houses/2582941",
+          "type": "application/vnd.nexia.location+json"
+        },
+        {
+          "href": "https://www.mynexia.com/mobile/news",
+          "type": "application/vnd.nexia.collection+json",
+          "data": {
+            "items": [],
+            "_links": {
+              "self": {
+                "href": "https://www.mynexia.com/mobile/news?all_items=true"
+              }
+            },
+            "item_type": "application/vnd.nexia.news+json"
+          }
+        },
+        {
+          "href": "https://www.mynexia.com/mobile/geofences",
+          "type": "application/vnd.nexia.collection+json",
+          "data": {
+            "items": [],
+            "_links": {
+              "self": {
+                "href": "https://www.mynexia.com/mobile/geofences"
+              }
+            },
+            "item_type": "application/vnd.nexia.geofence+json"
+          }
+        },
+        {
+          "href": "https://www.mynexia.com/mobile/phones",
+          "type": "application/vnd.nexia.collection+json",
+          "data": {
+            "items": [
+              {
+                "phone_id": 5488863,
+                "name": "Lenovo2024",
+                "app_identifier": null,
+                "app_version": "6.0.0",
+                "platform": null,
+                "os_version": null,
+                "manufacturer": null,
+                "model": null,
+                "geofencing_enabled": false,
+                "is_browser": false,
+                "can_activate": true,
+                "is_activated": true,
+                "is_activated_by_activation_code": false,
+                "locale": "en_us",
+                "_links": {
+                  "self": {
+                    "href": "https://www.mynexia.com/mobile/phones/5488863"
+                  },
+                  "edit": {
+                    "href": "https://www.mynexia.com/mobile/phones/5488863/edit"
+                  }
+                }
+              }
+            ],
+            "_links": {
+              "self": {
+                "href": "https://www.mynexia.com/mobile/phones"
+              },
+              "child-schema": {
+                "href": "https://www.mynexia.com/mobile/phones/new"
+              }
+            },
+            "item_type": "application/vnd.nexia.phone+json"
+          }
+        },
+        {
+          "href": "https://www.mynexia.com/mobile/choices",
+          "type": "application/vnd.nexia.collection+json",
+          "data": {
+            "items": [],
+            "_links": {
+              "self": {
+                "href": "https://www.mynexia.com/mobile/choices"
+              }
+            },
+            "item_type": "application/vnd.nexia.choice+json"
+          }
+        }
+      ],
+      "parent": {
+        "href": "https://www.mynexia.com/mobile/accounts/2565505",
+        "type": "application/vnd.nexia.account+json"
+      },
+      "stream": {
+        "href": "wss://eventstreamer.mynexia.com/ws?authToken=cd2beadb55270311f4c20342387beaf5",
+        "type": "text/event-stream",
+        "data": {
+          "reconnect_href": "https://www.mynexia.com/mobile/event_stream_reservation"
+        }
+      }
+    }
+  }
+}

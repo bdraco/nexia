@@ -1,4 +1,4 @@
-"""Nexia Themostat."""
+"""Nexia Thermostat."""
 
 from __future__ import annotations
 
@@ -111,7 +111,7 @@ class NexiaThermostat:
         return self._get_thermostat_key_or_none("has_outdoor_temperature")
 
     def has_relative_humidity(self):
-        """Capability indication of whether the thermostat has an relative
+        """Capability indication of whether the thermostat has a relative
         humidity sensor
         :return: bool.
         """
@@ -122,7 +122,7 @@ class NexiaThermostat:
         compressor
         :return: bool.
         """
-        # This only shows up if its running on mobile
+        # This only shows up if it's running on mobile
         return True
 
     def has_emergency_heat(self):
@@ -145,13 +145,13 @@ class NexiaThermostat:
         return bool(self._get_thermostat_key_or_none("zones"))
 
     def has_dehumidify_support(self):
-        """Indiciation of whether dehumidifying support is available.
+        """Indication of whether dehumidifying support is available.
         :return: bool.
         """
         return bool(self.get_thermostat_settings_key_or_none("dehumidify"))
 
     def has_humidify_support(self):
-        """Indiciation of whether humidifying support is available.
+        """Indication of whether humidifying support is available.
         :return: bool.
         """
         return bool(self.get_thermostat_settings_key_or_none("humidify"))
@@ -199,7 +199,7 @@ class NexiaThermostat:
 
         This is a hard-set limit in this code that I believe is universal to
         all TraneXl thermostats.
-        but kept for consistency)
+        (but kept for consistency)
         :return: (float, float)
         """
         return HUMIDITY_MIN, HUMIDITY_MAX
@@ -460,7 +460,7 @@ class NexiaThermostat:
         ):
             raise ValueError(
                 f"Setpoints must be between ({min_humidity} -"
-                f" {max_humidity}) and humdiify_setpoint must"
+                f" {max_humidity}) and humidify_setpoint must"
                 f" be <= dehumidify_setpoint",
             )
         if (dehumidify_supported) and not (
@@ -541,7 +541,7 @@ class NexiaThermostat:
     ) -> Any:
         """Returns the thermostat value from deep inside the thermostat's
         JSON.
-        :param area: The area of the json to look i.e. "settings", "features", etc
+        :param area: The area of the json to look i.e. "settings", "features", etc.
         :param area_primary_key: The name of the primary key such as "name" or "key"
         :param key: str
         :return: value.
@@ -636,8 +636,8 @@ class NexiaThermostat:
             end_point=end_point,
             thermostat_id=self._thermostat_json["id"],
         )
-        response = await self._nexia_home.post_url(url, payload)
-        self.update_thermostat_json((await response.json())["result"])
+        async with await self._nexia_home.post_url(url, payload) as response:
+            self.update_thermostat_json((await response.json())["result"])
 
     def update_thermostat_json(self, thermostat_json):
         """Update with new json from the api."""

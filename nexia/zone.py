@@ -1,4 +1,4 @@
-"""Nexia Themostat Zone."""
+"""Nexia Thermostat Zone."""
 
 from __future__ import annotations
 
@@ -459,7 +459,7 @@ class NexiaThermostatZone:
         return False
 
     def round_temp(self, temperature: float) -> float:
-        """Rounds the temperature to the nearest 1/2 degree for C and neareast 1
+        """Rounds the temperature to the nearest 1/2 degree for C and nearest 1
         degree for F
         :param temperature: temperature to round
         :return: float rounded temperature.
@@ -498,7 +498,7 @@ class NexiaThermostatZone:
         return subdict
 
     def _get_zone_setting_or_none(self, key: str) -> Any:
-        """Returns the zone value from the provided key in the zones's
+        """Returns the zone value from the provided key in the zone's
         JSON.
         :param key: str
         :return: value.
@@ -536,8 +536,8 @@ class NexiaThermostatZone:
         payload: dict[str, Any],
     ) -> None:
         url = self.API_MOBILE_ZONE_URL.format(end_point=end_point, zone_id=self.zone_id)
-        response = await self._nexia_home.post_url(url, payload)
-        self.update_zone_json((await response.json())["result"])
+        async with await self._nexia_home.post_url(url, payload) as response:
+            self.update_zone_json((await response.json())["result"])
 
     def update_zone_json(self, zone_json: dict[str, Any]) -> None:
         """Update with new json from the api."""
