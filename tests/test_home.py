@@ -1020,23 +1020,28 @@ async def test_humidity_and_fan_mode(aiohttp_session):
     thermostat: NexiaThermostat = nexia.get_thermostat_by_id(12345678)
 
     # Mock the API call to prevent actual HTTP requests
-    thermostat._post_and_update_thermostat_json = AsyncMock()
+    thermostat._post_and_update_thermostat_json = AsyncMock() # noqa: SLF001
 
     # Test setting fan mode to the same value (should not trigger API call)
     await thermostat.set_fan_mode("Auto")  # Attempt to set to the same value again
-    thermostat._post_and_update_thermostat_json.assert_not_called()  # Ensure no API call was made
+    thermostat._post_and_update_thermostat_json.assert_not_called() # noqa: SLF001
+
+    # Test setting fan mode to different value
+    await thermostat.set_fan_mode("On")
+    thermostat._post_and_update_thermostat_json.assert_called() # noqa: SLF001
+    thermostat._post_and_update_thermostat_json.reset_mock() # noqa: SLF001
 
     # Test setting humidification setpoint to the same values (should not trigger API call)
     await thermostat.set_humidity_setpoints(
         humidify_setpoint=0.4, dehumidify_setpoint=0.55
     )
-    thermostat._post_and_update_thermostat_json.assert_not_called()  # Ensure API call was made to set both values
+    thermostat._post_and_update_thermostat_json.assert_not_called() # noqa: SLF001
 
     await thermostat.set_humidity_setpoints(
         humidify_setpoint=0.50, dehumidify_setpoint=0.60
     )
     assert (
-        thermostat._post_and_update_thermostat_json.call_count == 2
+        thermostat._post_and_update_thermostat_json.call_count == 2 # noqa: SLF001
     )  # Ensure API call was made to set both values
 
     thermostat_ids = nexia.get_thermostat_ids()
