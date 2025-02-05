@@ -33,11 +33,16 @@ if TYPE_CHECKING:
 class NexiaThermostatZone:
     """A nexia thermostat zone."""
 
-    def __init__(self, nexia_home, nexia_thermostat, zone_json):
+    def __init__(
+        self,
+        nexia_home: NexiaHome,
+        nexia_thermostat: NexiaThermostat,
+        zone_json: dict[str, Any],
+    ) -> None:
         """Create a nexia zone."""
-        self._nexia_home: NexiaHome = nexia_home
-        self._zone_json: dict[str, Any] = zone_json
-        self.thermostat: NexiaThermostat = nexia_thermostat
+        self._nexia_home = nexia_home
+        self._zone_json = zone_json
+        self.thermostat = nexia_thermostat
         self.zone_id: int = zone_json["id"]
 
     @property

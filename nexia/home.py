@@ -9,6 +9,7 @@ from typing import Any
 
 import aiohttp
 import orjson
+from propcache import cached_property
 from yarl import URL
 
 from .automation import NexiaAutomation
@@ -39,6 +40,12 @@ _LOGGER = logging.getLogger(__name__)
 DEVICES_ELEMENT = 0
 AUTOMATIONS_ELEMENT = 1
 MAX_REDIRECTS = 3
+
+BRAND_TO_URL = {
+    BRAND_ASAIR: ASAIR_ROOT_URL,
+    BRAND_TRANE: TRANE_ROOT_URL,
+    BRAND_NEXIA: NEXIA_ROOT_URL,
+}
 
 
 class NexiaHome:
@@ -102,13 +109,28 @@ class NexiaHome:
     def API_MOBILE_SESSION_URL(self) -> str:  # pylint: disable=invalid-name
         return f"{self.mobile_url}/session"
 
+    @cached_property
+    def mobile_session_url(self) -> URL:
+        """The mobile session url."""
+        return URL(self.API_MOBILE_SESSION_URL)
+
     @property
     def API_MOBILE_HOUSES_URL(self) -> str:  # pylint: disable=invalid-name
         return self.mobile_url + "/houses/{house_id}"
 
+    @cached_property
+    def update_url(self) -> URL:
+        """The url to update the house."""
+        return URL(self.API_MOBILE_HOUSES_URL.format(house_id=self.house_id))
+
     @property
     def API_MOBILE_ACCOUNTS_SIGN_IN_URL(self) -> str:  # pylint: disable=invalid-name
         return f"{self.mobile_url}/accounts/sign_in"
+
+    @cached_property
+    def mobile_accounts_sign_in_url(self) -> URL:
+        """The mobile accounts sign in url."""
+        return URL(self.API_MOBILE_ACCOUNTS_SIGN_IN_URL)
 
     @property
     def AUTH_FAILED_STRING(self) -> str:  # pylint: disable=invalid-name
@@ -118,14 +140,15 @@ class NexiaHome:
     def AUTH_FORGOTTEN_PASSWORD_STRING(self) -> str:  # pylint: disable=invalid-name
         return f"{self.root_url}/account/forgotten_credentials"
 
-    @property
+    @cached_property
     def root_url(self) -> str:
         """The root url for the service."""
-        if self.brand == BRAND_ASAIR:
-            return ASAIR_ROOT_URL
-        if self.brand == BRAND_TRANE:
-            return TRANE_ROOT_URL
-        return NEXIA_ROOT_URL
+        return BRAND_TO_URL.get(self.brand, NEXIA_ROOT_URL)
+
+    @cached_property
+    def root_url_object(self) -> URL:
+        """The root url for the service."""
+        return URL(self.root_url)
 
     @property
     def mobile_url(self) -> str:
@@ -175,7 +198,9 @@ class NexiaHome:
                 response.content,
             )
 
-    async def post_url(self, request_url: str, payload: dict) -> aiohttp.ClientResponse:
+    async def post_url(
+        self, request_url: URL | str, payload: dict
+    ) -> aiohttp.ClientResponse:
         """Posts data to the session from the url and payload
         :param request_url: str
         :param payload: dict
@@ -213,7 +238,7 @@ class NexiaHome:
 
     async def _get_url(
         self,
-        request_url: str,
+        request_url: URL | str,
         headers: dict[str, str] | None = None,
     ) -> aiohttp.ClientResponse:
         """Returns the full session.get from the URL and headers
@@ -265,7 +290,7 @@ class NexiaHome:
     async def _find_house_id(self) -> None:
         """Finds the house id if none is provided."""
         async with await self.post_url(
-            self.API_MOBILE_SESSION_URL,
+            self.mobile_session_url,
             {"app_version": APP_VERSION, "device_uuid": str(self._uuid)},
         ) as request:
             if request and request.status == 200:
@@ -304,10 +329,7 @@ class NexiaHome:
         if self._last_update_etag:
             headers["If-None-Match"] = self._last_update_etag
 
-        async with await self._get_url(
-            self.API_MOBILE_HOUSES_URL.format(house_id=self.house_id),
-            headers=headers,
-        ) as response:
+        async with await self._get_url(self.update_url, headers=headers) as response:
             if not response:
                 await self._check_response(
                     "Failed to get house JSON, session probably timed out",
@@ -417,7 +439,7 @@ class NexiaHome:
                 "is_commercial": False,
             }
             async with await self.post_url(
-                self.API_MOBILE_ACCOUNTS_SIGN_IN_URL, payload
+                self.mobile_accounts_sign_in_url, payload
             ) as request:
                 if request is None or request.status not in (302, 200):
                     self.login_attempts_left -= 1
@@ -482,9 +504,14 @@ class NexiaHome:
                 return automation
         raise KeyError
 
+    @cached_property
+    def mobile_phone_url(self) -> URL:
+        """The mobile phone url."""
+        return URL(self.API_MOBILE_PHONE_URL)
+
     async def get_phone_ids(self) -> list[int]:
         """Get all the mobile phone ids."""
-        async with await self._get_url(self.API_MOBILE_PHONE_URL) as response:
+        async with await self._get_url(self.mobile_phone_url) as response:
             data = await response.json()
         items = data["result"]["items"]
         return [phone["phone_id"] for phone in items]

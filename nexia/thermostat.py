@@ -22,15 +22,18 @@ class NexiaThermostat:
     Represents a nexia thermostat.
     """
 
-    def __init__(self, nexia_home, thermostat_json):
+    def __init__(self, nexia_home: NexiaHome, thermostat_json: dict[str, Any]) -> None:
         """Init nexia Thermostat."""
-        self._nexia_home: NexiaHome = nexia_home
+        self._nexia_home = nexia_home
         self.thermostat_id: int = thermostat_json["id"]
-        self._thermostat_json: dict[str, Any] = thermostat_json
-        self.zones: list[NexiaThermostatZone] = []
+        self._thermostat_json = thermostat_json
         if self.has_zones():
-            for zone in thermostat_json["zones"]:
-                self.zones.append(NexiaThermostatZone(nexia_home, self, zone))
+            self.zones = [
+                NexiaThermostatZone(nexia_home, self, zone)
+                for zone in thermostat_json["zones"]
+            ]
+        else:
+            self.zones = []
 
     @property
     def API_MOBILE_THERMOSTAT_URL(self):  # pylint: disable=invalid-name
