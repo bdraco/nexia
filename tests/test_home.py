@@ -1146,7 +1146,6 @@ async def test_humidity_and_fan_mode(
     nexia.update_from_json(devices_json)
 
     thermostat: NexiaThermostat = nexia.get_thermostat_by_id(12345678)
-
     devices = _extract_devices_from_houses_json(devices_json)
 
     mock_aioresponse.post(
@@ -1168,6 +1167,7 @@ async def test_humidity_and_fan_mode(
         ("POST", "https://www.mynexia.com/mobile/xxl_thermostats/12345678/fan_mode")
     )
 
+    # Attempting to set to different value should trigger an API call
     await thermostat.set_fan_mode("On")
     assert mock_aioresponse.requests.get(
         (
@@ -1176,6 +1176,7 @@ async def test_humidity_and_fan_mode(
         )
     )
 
+    # Attempting to set to the same value should not trigger an API call
     await thermostat.set_humidity_setpoints(
         humidify_setpoint=0.4, dehumidify_setpoint=0.55
     )
@@ -1192,6 +1193,7 @@ async def test_humidity_and_fan_mode(
         )
     )
 
+    # Attempting to set to different value should trigger an API call
     await thermostat.set_humidity_setpoints(
         humidify_setpoint=0.50, dehumidify_setpoint=0.60
     )
