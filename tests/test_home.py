@@ -4,8 +4,8 @@ import asyncio
 import json
 import os
 from os.path import dirname
-from unittest.mock import AsyncMock
 from pathlib import Path
+from unittest.mock import AsyncMock
 
 import aiohttp
 import pytest
