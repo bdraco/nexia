@@ -637,8 +637,8 @@ class NexiaThermostat:
             end_point=end_point,
             thermostat_id=self._thermostat_json["id"],
         )
-        response = await self._nexia_home.post_url(url, payload)
-        self.update_thermostat_json((await response.json())["result"])
+        async with await self._nexia_home.post_url(url, payload) as response:
+            self.update_thermostat_json((await response.json())["result"])
 
     def update_thermostat_json(self, thermostat_json):
         """Update with new json from the api."""
