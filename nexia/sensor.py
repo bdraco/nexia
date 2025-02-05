@@ -27,11 +27,11 @@ class NexiaSensor:
     battery_valid: bool | None
 
     @classmethod
-    def from_json(cls, sensor_json: Any) -> NexiaSensor:
+    def from_json(cls, sensor_json: dict[str, Any]) -> NexiaSensor:
         """Factory method for json data.
         :param sensor_json: json dict with some or all of our fields
         :return: a NexiaSensor instance
         """
         return cls(
-            *[sensor_json.get(fld.name) for fld in dataclasses.fields(NexiaSensor)]
+            *[sensor_json.get(fld.name) for fld in dataclasses.fields(NexiaSensor)]  # type: ignore[arg-type]
         )
