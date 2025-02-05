@@ -1136,7 +1136,7 @@ async def test_emergency_heat(aiohttp_session: aiohttp.ClientSession) -> None:
 
 
 @pytest.mark.asyncio
-async def test_humidity_and_fan_mode(aiohttp_session):
+async def test_humidity_and_fan_mode(aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aioresponses) -> None:
     """Tests for preventing an API timeout when updating humidity
     and fan modes to the same value
     """
@@ -1146,17 +1146,26 @@ async def test_humidity_and_fan_mode(aiohttp_session):
 
     thermostat: NexiaThermostat = nexia.get_thermostat_by_id(12345678)
 
-    # Mock the API call to prevent actual HTTP requests
-    thermostat._post_and_update_thermostat_json = AsyncMock()  # noqa: SLF001
 
     # Test setting fan mode to the same value (should not trigger API call)
     await thermostat.set_fan_mode("Auto")  # Attempt to set to the same value again
-    thermostat._post_and_update_thermostat_json.assert_not_called()  # noqa: SLF001
+    # Nothing should happen
+
+    # Mock the API call to prevent actual HTTP requests
+    mock_aioresponse.post(
+        "https://www.mynexia.com/mobile/xxl_thermostats/12345678/fan_mode",
+        payload={
+            # TODO: put a mock responses here
+        },
+    )
 
     # Test setting fan mode to different value
     await thermostat.set_fan_mode("On")
-    thermostat._post_and_update_thermostat_json.assert_called()  # noqa: SLF001
-    thermostat._post_and_update_thermostat_json.reset_mock()  # noqa: SLF001
+
+    mock_aioresponse.assert_called_with ....
+
+    #thermostat._post_and_update_thermostat_json.assert_called()  # noqa: SLF001
+    #thermostat._post_and_update_thermostat_json.reset_mock()  # noqa: SLF001
 
     # Test setting humidification setpoint to the same values (should not trigger API call)
     await thermostat.set_humidity_setpoints(
