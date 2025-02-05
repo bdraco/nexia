@@ -8,9 +8,9 @@ from pathlib import Path
 
 import aiohttp
 import pytest
-
 from aioresponses import aioresponses
 from aioresponses.compat import URL
+
 from nexia.home import (
     LoginFailedException,
     NexiaHome,
@@ -1135,8 +1135,9 @@ async def test_emergency_heat(aiohttp_session: aiohttp.ClientSession) -> None:
     assert zone.is_in_permanent_hold() is False
 
 
-async def test_humidity_and_fan_mode(aiohttp_session: aiohttp.ClientSession,
-                                     mock_aioresponse: aioresponses) -> None:
+async def test_humidity_and_fan_mode(
+    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aioresponses
+) -> None:
     """Tests for preventing an API timeout when updating humidity
     and fan modes to the same value
     """
@@ -1145,12 +1146,12 @@ async def test_humidity_and_fan_mode(aiohttp_session: aiohttp.ClientSession,
     nexia.update_from_json(devices_json)
 
     thermostat: NexiaThermostat = nexia.get_thermostat_by_id(12345678)
-    
+
     devices = _extract_devices_from_houses_json(devices_json)
 
     mock_aioresponse.post(
         "https://www.mynexia.com/mobile/xxl_thermostats/12345678/fan_mode",
-        payload={"result": devices[0]}
+        payload={"result": devices[0]},
     )
     mock_aioresponse.post(
         "https://www.mynexia.com/mobile/xxl_thermostats/12345678/humidify",
@@ -1164,33 +1165,47 @@ async def test_humidity_and_fan_mode(aiohttp_session: aiohttp.ClientSession,
     # Attempting to set to the same value should not trigger an API call
     await thermostat.set_fan_mode("Auto")
     assert not mock_aioresponse.requests.get(
-        ('POST', 'https://www.mynexia.com/mobile/xxl_thermostats/12345678/fan_mode')
+        ("POST", "https://www.mynexia.com/mobile/xxl_thermostats/12345678/fan_mode")
     )
-
 
     await thermostat.set_fan_mode("On")
     assert mock_aioresponse.requests.get(
-        ('POST', URL('https://www.mynexia.com/mobile/xxl_thermostats/12345678/fan_mode'))
+        (
+            "POST",
+            URL("https://www.mynexia.com/mobile/xxl_thermostats/12345678/fan_mode"),
+        )
     )
-    
+
     await thermostat.set_humidity_setpoints(
         humidify_setpoint=0.4, dehumidify_setpoint=0.55
     )
     assert not mock_aioresponse.requests.get(
-        ('POST', URL('https://www.mynexia.com/mobile/xxl_thermostats/12345678/humidify'))
+        (
+            "POST",
+            URL("https://www.mynexia.com/mobile/xxl_thermostats/12345678/humidify"),
+        )
     )
     assert not mock_aioresponse.requests.get(
-        ('POST', URL('https://www.mynexia.com/mobile/xxl_thermostats/12345678/dehumidify'))
+        (
+            "POST",
+            URL("https://www.mynexia.com/mobile/xxl_thermostats/12345678/dehumidify"),
+        )
     )
 
     await thermostat.set_humidity_setpoints(
         humidify_setpoint=0.50, dehumidify_setpoint=0.60
     )
     assert mock_aioresponse.requests.get(
-        ('POST', URL('https://www.mynexia.com/mobile/xxl_thermostats/12345678/humidify'))
+        (
+            "POST",
+            URL("https://www.mynexia.com/mobile/xxl_thermostats/12345678/humidify"),
+        )
     )
     assert mock_aioresponse.requests.get(
-        ('POST', URL('https://www.mynexia.com/mobile/xxl_thermostats/12345678/dehumidify'))
+        (
+            "POST",
+            URL("https://www.mynexia.com/mobile/xxl_thermostats/12345678/dehumidify"),
+        )
     )
 
     thermostat_ids = nexia.get_thermostat_ids()
