@@ -1,7 +1,9 @@
 """Nexia Thermostat Sensor."""
 
+from __future__ import annotations
+
 import dataclasses
-from typing import Optional
+from typing import Any
 
 
 @dataclasses.dataclass
@@ -18,14 +20,14 @@ class NexiaSensor:
     humidity: int
     humidity_valid: bool
     has_online: bool
-    connected: Optional[bool]
+    connected: bool | None
     has_battery: bool
-    battery_level: Optional[int]
-    battery_low: Optional[bool]
-    battery_valid: Optional[bool]
+    battery_level: int | None
+    battery_low: bool | None
+    battery_valid: bool | None
 
     @classmethod
-    def from_json(cls, sensor_json):
+    def from_json(cls, sensor_json: Any) -> NexiaSensor:
         """Factory method for json data.
         :param sensor_json: json dict with some or all of our fields
         :return: a NexiaSensor instance
