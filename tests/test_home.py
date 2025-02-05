@@ -49,7 +49,7 @@ async def load_fixture(filename):
     return await loop.run_in_executor(None, _load_fixture, filename)
 
 
-async def test_login(aiohttp_session, mock_aioresponse):
+async def test_login(aiohttp_session, mock_aioresponse: aioresponses):
     """Test login sequence."""
     persist_file = Path("nexia_config_test.conf")
     nexia = NexiaHome(aiohttp_session, state_file=persist_file)
@@ -737,7 +737,7 @@ async def test_single_zone_system_off(aiohttp_session):
     assert zone.is_in_permanent_hold() is True
 
 
-async def test_automations(aiohttp_session, mock_aioresponse):
+async def test_automations(aiohttp_session, mock_aioresponse: aioresponses):
     """Get methods for an active thermostat."""
     nexia = NexiaHome(aiohttp_session)
     text = await load_fixture("mobile_houses_123456.json")
