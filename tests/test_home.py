@@ -1032,8 +1032,12 @@ async def test_humidity_and_fan_mode(aiohttp_session):
     )
     thermostat._post_and_update_thermostat_json.assert_not_called()  # Ensure API call was made to set both values
 
-    await thermostat.set_humidity_setpoints(humidify_setpoint=.50, dehumidify_setpoint=.60)
-    assert thermostat._post_and_update_thermostat_json.call_count == 2  # Ensure API call was made to set both values
+    await thermostat.set_humidity_setpoints(
+        humidify_setpoint=0.50, dehumidify_setpoint=0.60
+    )
+    assert (
+        thermostat._post_and_update_thermostat_json.call_count == 2
+    )  # Ensure API call was made to set both values
 
     thermostat_ids = nexia.get_thermostat_ids()
     assert thermostat_ids == [12345678]
