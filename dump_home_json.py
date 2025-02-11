@@ -29,7 +29,9 @@ async def _runner(username, password, brand):
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--debug", action="store_const", const=True, help="Enable debug.")
-parser.add_argument("--pretty", action="store_const", const=True, help="Enable pretty print.")
+parser.add_argument(
+    "--pretty", action="store_const", const=True, help="Enable pretty print."
+)
 parser.add_argument("--brand", type=str, help="Brand (nexia or asair or trane).")
 parser.add_argument("--username", type=str, help="Your username/email address.")
 parser.add_argument("--password", type=str, help="Your password.")

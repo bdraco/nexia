@@ -201,8 +201,12 @@ class NexiaThermostat:
         """Returns humidify setpoint limits of the thermostat.
         :return: (float, float)
         """
-        humidify_min: float = min(self._get_thermostat_deep_key("settings", "type", "humidify")["values"])
-        humidify_max: float = max(self._get_thermostat_deep_key("settings", "type", "humidify")["values"])
+        humidify_min: float = min(
+            self._get_thermostat_deep_key("settings", "type", "humidify")["values"]
+        )
+        humidify_max: float = max(
+            self._get_thermostat_deep_key("settings", "type", "humidify")["values"]
+        )
 
         return humidify_min, humidify_max
 
@@ -210,8 +214,12 @@ class NexiaThermostat:
         """Returns dehumidify setpoint limits of the thermostat.
         :return: (float, float)
         """
-        dehumidify_min: float = min(self._get_thermostat_deep_key("settings", "type", "dehumidify")["values"])
-        dehumidify_max: float = max(self._get_thermostat_deep_key("settings", "type", "dehumidify")["values"])
+        dehumidify_min: float = min(
+            self._get_thermostat_deep_key("settings", "type", "dehumidify")["values"]
+        )
+        dehumidify_max: float = max(
+            self._get_thermostat_deep_key("settings", "type", "dehumidify")["values"]
+        )
 
         return dehumidify_min, dehumidify_max
 
@@ -220,11 +228,17 @@ class NexiaThermostat:
         :return: (float, float)
         """
         if self.has_humidify_support() and self.has_dehumidify_support():
-            return min(self.get_humidify_setpoint_limits()), max(self.get_dehumidify_setpoint_limits())
+            return min(self.get_humidify_setpoint_limits()), max(
+                self.get_dehumidify_setpoint_limits()
+            )
         if self.has_humidify_support():
-            return min(self.get_humidify_setpoint_limits()), max(self.get_humidify_setpoint_limits())
+            return min(self.get_humidify_setpoint_limits()), max(
+                self.get_humidify_setpoint_limits()
+            )
         if self.has_dehumidify_support():
-            return min(self.get_dehumidify_setpoint_limits()), max(self.get_dehumidify_setpoint_limits())
+            return min(self.get_dehumidify_setpoint_limits()), max(
+                self.get_dehumidify_setpoint_limits()
+            )
         # Fall back to hard coded limits
         return HUMIDITY_MIN, HUMIDITY_MAX
 
@@ -490,8 +504,8 @@ class NexiaThermostat:
 
         # Check inputs
         if (dehumidify_supported and humidify_supported) and not (
-            (min_humidify <= humidify_setpoint <= max_humidify) and
-            (min_dehumidify <= dehumidify_setpoint <= max_dehumidify)
+            (min_humidify <= humidify_setpoint <= max_humidify)
+            and (min_dehumidify <= dehumidify_setpoint <= max_dehumidify)
         ):
             raise ValueError(
                 f"Setpoints must be between minimum and maximum -"
