@@ -22,6 +22,18 @@ By connecting this component, you will have access to all thermostats and zones 
 
 The Nexia Thermostat supports the following key concepts.
 
+#### Sensors
+
+You can obtain sensor details in a Nexia Thermostat environment.
+The sensor data loaded during Nexia Home update are often out of date.
+So the Nexia Thermostat Zone service `load_current_sensor_state`
+is provided to load current sensor state into the physical thermostat.
+Many existing thermostat instance services will refresh this sensor data before completing.
+If no such service is desired,
+the Nexia Thermostat service `refresh_thermostat_data` is provided to refresh instance data.
+The Nexia Thermostat Zone service `get_sensors` is provided to obtain these
+sensor data in a list of sensor detail data objects of type NexiaSensor.
+
 ## Attributes
 
 The following attributes are provided by the Nexia Thermostat
@@ -272,6 +284,22 @@ The status of the zone, such as 'Cooling', or 'Heating"
 | -------------- | ----------- |
 | String         | zone status |
 
+## NexiaHome Attributes
+
+The following attribute is provided by the Nexia Home:
+`log_response`
+
+### Attribute `log_response`
+
+An instance attribute of NexiaHome that controls logging http response text.
+This can be True or False.
+It is initialized to False and you can change it to
+True when you want to collect http response text in your logs.
+
+| Attribute type | Description              |
+| -------------- | ------------------------ |
+| Boolean        | response logging control |
+
 ## Services
 
 The following `climate` services are provided by the Nexia Thermostat:
@@ -283,6 +311,16 @@ is not implemented for this thermostat.
 
 The following `nexia` climate service is provided by the Nexia Thermostat:
 `set_aircleaner_mode`
+
+The following additional service is provided by the Nexia Thermostat:
+`refresh_thermostat_data`
+
+### Service `refresh_thermostat_data`
+
+Refresh data in this thermostat instance.
+Note: Many other services refresh this data before completing,
+so you may not need to call this service to get fresh data.
+No arguments are passed to this service.
 
 ### Service `set_aux_heat`
 
@@ -388,6 +426,29 @@ Part of the `nexia.` services. Sets the humidify setpoint. This is a system-wide
 | ---------------------- | -------- | ------------------------------------------------------------------------------------------------------ |
 | `entity_id`            | yes      | String or list of strings that point at `entity_id`'s of climate devices to control. Else targets all. |
 | `humidity`             | no       | Humidify setpoint level, from 35 to 65.                                                                |
+
+## NexiaThermostatZone Services
+
+The following services are provided by the Nexia Thermostat Zone:
+`get_sensors`, `load_current_sensor_state`
+
+### Service `get_sensors`
+
+Get the sensor detail data objects from this zone instance.
+Provides a list of sensor detail data objects available in this zone.
+No arguments are passed to this service.
+
+### Service `load_current_sensor_state`
+
+Load the current state of a zone's sensors into the physical thermostat.
+Note: This service does not update data in this zone instance -
+many of the thermostat services do so.
+This service returns a bool indicating if it completed successfully.
+
+| Service data attribute | Optional | Default | Description                                    |
+| ---------------------- | -------- | ------- | ---------------------------------------------- |
+| `polling_delay`        | yes      | 5.0     | seconds to wait before each polling attempt    |
+| `max_polls`            | yes      | 8       | maximum number of times to poll for completion |
 
 [code-coverage]: https://codecov.io/gh/bdraco/nexia
 [code-cover-shield]: https://codecov.io/gh/bdraco/nexia/branch/master/graph/badge.svg

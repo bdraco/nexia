@@ -508,6 +508,16 @@ class NexiaThermostat:
         """
         await self.set_humidity_setpoints(humidify_setpoint=humidify_setpoint)
 
+    async def refresh_thermostat_data(self) -> None:
+        """Refresh data in this thermostat instance.
+        Note: Many other methods refresh this data before completing.
+        :return: None
+        """
+        self_ref = f"{self._nexia_home.mobile_url}/xxl_thermostats/{self.thermostat_id}"
+
+        async with await self._nexia_home._get_url(self_ref) as response:  # noqa: SLF001
+            self.update_thermostat_json((await response.json())["result"])
+
     ########################################################################
     # Zone Get Methods
 

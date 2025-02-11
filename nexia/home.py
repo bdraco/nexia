@@ -99,6 +99,7 @@ class NexiaHome:
         self._uuid = None
         self.session = session
         self.loop = asyncio.get_running_loop()
+        self.log_response = False
 
     @property
     def API_MOBILE_PHONE_URL(self) -> str:  # pylint: disable=invalid-name
@@ -154,6 +155,16 @@ class NexiaHome:
         """The mobile url for the service."""
         return MOBILE_URL_TEMPLATE.format(self.root_url)
 
+    def resolve_url(self, raw_path: str) -> URL:
+        """Determine the url of the specified raw path on the root host
+        :param raw_path: url path with possibly incorrect host
+        :return: url resolved on the root host
+        """
+        root_host = self.root_url_object.host
+        root_scheme = self.root_url_object.scheme
+        assert root_host is not None
+        return URL(raw_path).with_scheme(root_scheme).with_host(root_host)
+
     def _api_key_headers(self) -> dict[str, str]:
         headers = {
             "X-AppVersion": APP_VERSION,
@@ -164,6 +175,24 @@ class NexiaHome:
         if self.api_key:
             headers["X-ApiKey"] = str(self.api_key)
         return headers
+
+    async def _debug_log_resp(self, response: aiohttp.ClientResponse) -> None:
+        if self.log_response:
+            _LOGGER.debug(
+                "%s: Response from url %s: status: %s:\n%s",
+                response.method,
+                response.url,
+                response.status,
+                (await response.text()).strip(),
+            )
+        else:
+            _LOGGER.debug(
+                "%s: Response from url %s: status: %s: %s",
+                response.method,
+                response.url,
+                response.status,
+                response.content,
+            )
 
     async def post_url(
         self, request_url: URL | str, payload: dict
@@ -189,7 +218,7 @@ class NexiaHome:
             max_redirects=MAX_REDIRECTS,
         )
 
-        _LOGGER.debug("POST: Response from url %s: %s", request_url, response.content)
+        await self._debug_log_resp(response)
         if response.status == 302:
             # assuming its redirecting to login
             _LOGGER.debug(
@@ -225,11 +254,7 @@ class NexiaHome:
             headers=headers,
             max_redirects=MAX_REDIRECTS,
         )
-        _LOGGER.debug(
-            "GET: RESPONSE %s: response.status %s",
-            request_url,
-            response.status,
-        )
+        await self._debug_log_resp(response)
 
         if response.status == 302:
             _LOGGER.debug(
