@@ -155,7 +155,7 @@ class NexiaHome:
         """The mobile url for the service."""
         return MOBILE_URL_TEMPLATE.format(self.root_url)
 
-    def resolve_url(self, raw_path: str) -> str:
+    def resolve_url(self, raw_path: str) -> URL:
         """Determine the url of the specified raw path on the root host
         :param raw_path: url path with possibly incorrect host
         :return: url resolved on the root host
@@ -163,7 +163,7 @@ class NexiaHome:
         root_host = self.root_url_object.host
         root_scheme = self.root_url_object.scheme
         assert root_host is not None
-        return str(URL(raw_path).with_scheme(root_scheme).with_host(root_host))
+        return URL(raw_path).with_scheme(root_scheme).with_host(root_host)
 
     def _api_key_headers(self) -> dict[str, str]:
         headers = {
