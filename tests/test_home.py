@@ -1239,8 +1239,8 @@ async def test_humidity_and_fan_mode(
 
     thermostat_ids = nexia.get_thermostat_ids()
     assert thermostat_ids == [12345678]
-    
-    
+
+
 async def test_sensor_access(
     aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aioresponses
 ) -> None:
