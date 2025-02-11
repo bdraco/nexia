@@ -197,14 +197,35 @@ class NexiaThermostat:
         """
         return self._get_thermostat_features_key("thermostat")["scale"].upper()
 
-    def get_humidity_setpoint_limits(self):
-        """Returns the humidity setpoint limits of the thermostat.
-
-        This is a hard-set limit in this code that I believe is universal to
-        all TraneXl thermostats.
-        (but kept for consistency)
+    def get_humidify_setpoint_limits(self) -> tuple[float, float]:
+        """Returns humidify setpoint limits of the thermostat.
         :return: (float, float)
         """
+        humidify_min: float = min(self._get_thermostat_deep_key("settings", "type", "humidify")["values"])
+        humidify_max: float = max(self._get_thermostat_deep_key("settings", "type", "humidify")["values"])
+
+        return humidify_min, humidify_max
+
+    def get_dehumidify_setpoint_limits(self) -> tuple[float, float]:
+        """Returns dehumidify setpoint limits of the thermostat.
+        :return: (float, float)
+        """
+        dehumidify_min: float = min(self._get_thermostat_deep_key("settings", "type", "dehumidify")["values"])
+        dehumidify_max: float = max(self._get_thermostat_deep_key("settings", "type", "dehumidify")["values"])
+
+        return dehumidify_min, dehumidify_max
+
+    def get_humidity_setpoint_limits(self) -> tuple[float, float]:
+        """Returns the humidity setpoint limits of the thermostat
+        :return: (float, float)
+        """
+        if self.has_humidify_support() and self.has_dehumidify_support():
+            return min(self.get_humidify_setpoint_limits()), max(self.get_dehumidify_setpoint_limits())
+        if self.has_humidify_support():
+            return min(self.get_humidify_setpoint_limits()), max(self.get_humidify_setpoint_limits())
+        if self.has_dehumidify_support():
+            return min(self.get_dehumidify_setpoint_limits()), max(self.get_dehumidify_setpoint_limits())
+        # Fall back to hard coded limits
         return HUMIDITY_MIN, HUMIDITY_MAX
 
     ########################################################################
@@ -440,9 +461,10 @@ class NexiaThermostat:
             raise RuntimeError(
                 "Setting target humidity is not supported on this thermostat.",
             )
-        (min_humidity, max_humidity) = self.get_humidity_setpoint_limits()
+
         if self.has_humidify_support():
             humidify_supported = True
+            min_humidify, max_humidify = self.get_humidify_setpoint_limits()
             if humidify_setpoint is None:
                 humidify_setpoint = self.get_humidify_setpoint()
         else:
@@ -453,6 +475,7 @@ class NexiaThermostat:
 
         if self.has_dehumidify_support():
             dehumidify_supported = True
+            min_dehumidify, max_dehumidify = self.get_dehumidify_setpoint_limits()
             if dehumidify_setpoint is None:
                 dehumidify_setpoint = self.get_dehumidify_setpoint()
         else:
@@ -467,24 +490,25 @@ class NexiaThermostat:
 
         # Check inputs
         if (dehumidify_supported and humidify_supported) and not (
-            min_humidity <= humidify_setpoint <= dehumidify_setpoint <= max_humidity
+            (min_humidify <= humidify_setpoint <= max_humidify) and
+            (min_dehumidify <= dehumidify_setpoint <= max_dehumidify)
         ):
             raise ValueError(
-                f"Setpoints must be between ({min_humidity} -"
-                f" {max_humidity}) and humidify_setpoint must"
-                f" be <= dehumidify_setpoint",
+                f"Setpoints must be between minimum and maximum -"
+                f" Dehumidify: ({min_dehumidify} - {max_dehumidify}),"
+                f" Humidify: ({min_humidify} - {max_humidify})."
             )
         if (dehumidify_supported) and not (
-            min_humidity <= dehumidify_setpoint <= max_humidity
+            min_dehumidify <= dehumidify_setpoint <= max_dehumidify
         ):
             raise ValueError(
-                f"dehumidify_setpoint must be between ({min_humidity} - {max_humidity})",
+                f"dehumidify_setpoint must be between ({min_dehumidify} - {max_dehumidify})",
             )
         if (humidify_supported) and not (
-            min_humidity <= humidify_setpoint <= max_humidity
+            min_humidify <= humidify_setpoint <= max_humidify
         ):
             raise ValueError(
-                f"humidify_setpoint must be between ({min_humidity} - {max_humidity})",
+                f"humidify_setpoint must be between ({min_humidify} - {max_humidify})",
             )
 
         if (

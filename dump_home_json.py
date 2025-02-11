@@ -5,6 +5,7 @@
 import argparse
 import asyncio
 import logging
+import pprint
 import sys
 
 import aiohttp
@@ -28,6 +29,7 @@ async def _runner(username, password, brand):
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--debug", action="store_const", const=True, help="Enable debug.")
+parser.add_argument("--pretty", action="store_const", const=True, help="Enable pretty print.")
 parser.add_argument("--brand", type=str, help="Brand (nexia or asair or trane).")
 parser.add_argument("--username", type=str, help="Your username/email address.")
 parser.add_argument("--password", type=str, help="Your password.")
@@ -43,5 +45,9 @@ else:
     parser.print_help()
     sys.exit()
 
-print(nexia_home.devices_json)
-print(nexia_home.automations_json)
+if args.pretty:
+    pprint.pprint(nexia_home.devices_json)
+    pprint.pprint(nexia_home.automations_json)
+else:
+    print(nexia_home.devices_json)
+    print(nexia_home.automations_json)
