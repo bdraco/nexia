@@ -201,12 +201,10 @@ class NexiaThermostat:
         """Returns humidify setpoint limits of the thermostat.
         :return: (float, float)
         """
-        humidify_min: float = min(
-            self._get_thermostat_deep_key("settings", "type", "humidify")["values"]
-        )
-        humidify_max: float = max(
-            self._get_thermostat_deep_key("settings", "type", "humidify")["values"]
-        )
+
+        humidify_values: list = self._get_thermostat_deep_key("settings", "type", "humidify")["values"]
+        humidify_min: float = min(humidify_values)
+        humidify_max: float = max(humidify_values)
 
         return humidify_min, humidify_max
 
@@ -214,12 +212,10 @@ class NexiaThermostat:
         """Returns dehumidify setpoint limits of the thermostat.
         :return: (float, float)
         """
-        dehumidify_min: float = min(
-            self._get_thermostat_deep_key("settings", "type", "dehumidify")["values"]
-        )
-        dehumidify_max: float = max(
-            self._get_thermostat_deep_key("settings", "type", "dehumidify")["values"]
-        )
+
+        dehumidify_values: list = self._get_thermostat_deep_key("settings", "type", "dehumidify")["values"]
+        dehumidify_min: float = min(dehumidify_values)
+        dehumidify_max: float = max(dehumidify_values)
 
         return dehumidify_min, dehumidify_max
 
@@ -232,13 +228,11 @@ class NexiaThermostat:
                 self.get_dehumidify_setpoint_limits()
             )
         if self.has_humidify_support():
-            return min(self.get_humidify_setpoint_limits()), max(
-                self.get_humidify_setpoint_limits()
-            )
+            humidify_limits: tuple[float, float] = self.get_humidify_setpoint_limits()
+            return min(humidify_limits), max(humidify_limits)
         if self.has_dehumidify_support():
-            return min(self.get_dehumidify_setpoint_limits()), max(
-                self.get_dehumidify_setpoint_limits()
-            )
+            dehumidify_limits: tuple[float, float] = self.get_dehumidify_setpoint_limits()
+            return min(dehumidify_limits), max(dehumidify_limits)
         # Fall back to hard coded limits
         return HUMIDITY_MIN, HUMIDITY_MAX
 
@@ -270,7 +264,7 @@ class NexiaThermostat:
         options = self.get_thermostat_settings_key("fan_mode")["options"]
         return [opt["label"] for opt in options]
 
-    def get_fan_mode(self):
+    def get_fan_mode(self) -> str | None:
         """Returns the current fan mode. See get_fan_modes for the available options.
         :return: str.
         """
@@ -389,10 +383,12 @@ class NexiaThermostat:
                 break
 
         # Create fan_mode value since get_fan_modes() returns labels
-        current_label: Any | None = self.get_fan_mode()
+        current_mode: str | None = None
+        current_label: str | None = self.get_fan_mode()
+
         if current_label:
             fan_mode_map: dict[str, str] = {x["label"]: x["value"] for x in options}
-            current_mode: str | None = fan_mode_map[current_label]
+            current_mode = fan_mode_map[current_label]
 
         # API times out if fan_mode is set to same attribute
         if fan_mode != current_mode:
