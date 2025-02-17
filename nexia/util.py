@@ -13,8 +13,8 @@ def is_number(string: str) -> bool:
         float(string)
     except ValueError:
         return False
-    else:
-        return True
+
+    return True
 
 
 def find_dict_with_keyvalue_in_json(json_dict, key_in_subdict, value_to_find):

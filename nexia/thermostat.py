@@ -197,14 +197,49 @@ class NexiaThermostat:
         """
         return self._get_thermostat_features_key("thermostat")["scale"].upper()
 
-    def get_humidity_setpoint_limits(self):
-        """Returns the humidity setpoint limits of the thermostat.
-
-        This is a hard-set limit in this code that I believe is universal to
-        all TraneXl thermostats.
-        (but kept for consistency)
+    def get_humidify_setpoint_limits(self) -> tuple[float, float]:
+        """Returns humidify setpoint limits of the thermostat.
         :return: (float, float)
         """
+
+        humidify_values: list = self._get_thermostat_deep_key(
+            "settings", "type", "humidify"
+        )["values"]
+        humidify_min: float = min(humidify_values)
+        humidify_max: float = max(humidify_values)
+
+        return humidify_min, humidify_max
+
+    def get_dehumidify_setpoint_limits(self) -> tuple[float, float]:
+        """Returns dehumidify setpoint limits of the thermostat.
+        :return: (float, float)
+        """
+
+        dehumidify_values: list = self._get_thermostat_deep_key(
+            "settings", "type", "dehumidify"
+        )["values"]
+        dehumidify_min: float = min(dehumidify_values)
+        dehumidify_max: float = max(dehumidify_values)
+
+        return dehumidify_min, dehumidify_max
+
+    def get_humidity_setpoint_limits(self) -> tuple[float, float]:
+        """Returns the humidity setpoint limits of the thermostat
+        :return: (float, float)
+        """
+        if self.has_humidify_support() and self.has_dehumidify_support():
+            return min(self.get_humidify_setpoint_limits()), max(
+                self.get_dehumidify_setpoint_limits()
+            )
+        if self.has_humidify_support():
+            humidify_limits: tuple[float, float] = self.get_humidify_setpoint_limits()
+            return min(humidify_limits), max(humidify_limits)
+        if self.has_dehumidify_support():
+            dehumidify_limits: tuple[float, float] = (
+                self.get_dehumidify_setpoint_limits()
+            )
+            return min(dehumidify_limits), max(dehumidify_limits)
+        # Fall back to hard coded limits
         return HUMIDITY_MIN, HUMIDITY_MAX
 
     ########################################################################
@@ -235,7 +270,7 @@ class NexiaThermostat:
         options = self.get_thermostat_settings_key("fan_mode")["options"]
         return [opt["label"] for opt in options]
 
-    def get_fan_mode(self):
+    def get_fan_mode(self) -> str | None:
         """Returns the current fan mode. See get_fan_modes for the available options.
         :return: str.
         """
@@ -353,7 +388,17 @@ class NexiaThermostat:
                 fan_mode = opt["value"]
                 break
 
-        await self._post_and_update_thermostat_json("fan_mode", {"value": fan_mode})
+        # Create fan_mode value since get_fan_modes() returns labels
+        current_mode: str | None = None
+        current_label: str | None = self.get_fan_mode()
+
+        if current_label:
+            fan_mode_map: dict[str, str] = {x["label"]: x["value"] for x in options}
+            current_mode = fan_mode_map[current_label]
+
+        # API times out if fan_mode is set to same attribute
+        if fan_mode != current_mode:
+            await self._post_and_update_thermostat_json("fan_mode", {"value": fan_mode})
 
     async def set_fan_setpoint(self, fan_setpoint: float):
         """Sets the fan's setpoint speed as a percent in range. You can see the
@@ -432,9 +477,10 @@ class NexiaThermostat:
             raise RuntimeError(
                 "Setting target humidity is not supported on this thermostat.",
             )
-        (min_humidity, max_humidity) = self.get_humidity_setpoint_limits()
+
         if self.has_humidify_support():
             humidify_supported = True
+            min_humidify, max_humidify = self.get_humidify_setpoint_limits()
             if humidify_setpoint is None:
                 humidify_setpoint = self.get_humidify_setpoint()
         else:
@@ -445,6 +491,7 @@ class NexiaThermostat:
 
         if self.has_dehumidify_support():
             dehumidify_supported = True
+            min_dehumidify, max_dehumidify = self.get_dehumidify_setpoint_limits()
             if dehumidify_setpoint is None:
                 dehumidify_setpoint = self.get_dehumidify_setpoint()
         else:
@@ -459,32 +506,36 @@ class NexiaThermostat:
 
         # Check inputs
         if (dehumidify_supported and humidify_supported) and not (
-            min_humidity <= humidify_setpoint <= dehumidify_setpoint <= max_humidity
+            (min_humidify <= humidify_setpoint <= max_humidify)
+            and (min_dehumidify <= dehumidify_setpoint <= max_dehumidify)
         ):
             raise ValueError(
-                f"Setpoints must be between ({min_humidity} -"
-                f" {max_humidity}) and humidify_setpoint must"
-                f" be <= dehumidify_setpoint",
+                f"Setpoints must be between minimum and maximum -"
+                f" Dehumidify: ({min_dehumidify} - {max_dehumidify}),"
+                f" Humidify: ({min_humidify} - {max_humidify})."
             )
         if (dehumidify_supported) and not (
-            min_humidity <= dehumidify_setpoint <= max_humidity
+            min_dehumidify <= dehumidify_setpoint <= max_dehumidify
         ):
             raise ValueError(
-                f"dehumidify_setpoint must be between ({min_humidity} - {max_humidity})",
+                f"dehumidify_setpoint must be between ({min_dehumidify} - {max_dehumidify})",
             )
         if (humidify_supported) and not (
-            min_humidity <= humidify_setpoint <= max_humidity
+            min_humidify <= humidify_setpoint <= max_humidify
         ):
             raise ValueError(
-                f"humidify_setpoint must be between ({min_humidity} - {max_humidity})",
+                f"humidify_setpoint must be between ({min_humidify} - {max_humidify})",
             )
 
-        if dehumidify_supported:
+        if (
+            dehumidify_supported
+            and dehumidify_setpoint != self.get_dehumidify_setpoint()
+        ):
             await self._post_and_update_thermostat_json(
                 "dehumidify",
                 {"value": str(dehumidify_setpoint)},
             )
-        if humidify_supported:
+        if humidify_supported and humidify_setpoint != self.get_humidify_setpoint():
             await self._post_and_update_thermostat_json(
                 "humidify",
                 {"value": str(humidify_setpoint)},
