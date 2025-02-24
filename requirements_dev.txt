@@ -6,7 +6,7 @@ mypy==1.15.0
 flake8==7.1.2
 tox==4.24.1
 coverage==7.6.12
-Sphinx==8.1.3
+Sphinx==8.2.1
 twine==6.1.0
 orjson==3.10.15
 pytest-asyncio==0.25.3
