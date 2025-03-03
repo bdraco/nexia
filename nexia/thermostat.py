@@ -234,13 +234,9 @@ class NexiaThermostat:
                 self.get_dehumidify_setpoint_limits()
             )
         if self.has_humidify_support():
-            humidify_limits: tuple[float, float] = self.get_humidify_setpoint_limits()
-            return min(humidify_limits), max(humidify_limits)
+            return self.get_humidify_setpoint_limits()
         if self.has_dehumidify_support():
-            dehumidify_limits: tuple[float, float] = (
-                self.get_dehumidify_setpoint_limits()
-            )
-            return min(dehumidify_limits), max(dehumidify_limits)
+            return self.get_dehumidify_setpoint_limits()
         # Fall back to hard coded limits
         return HUMIDITY_MIN, HUMIDITY_MAX
 
