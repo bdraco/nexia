@@ -395,11 +395,11 @@ class NexiaThermostat:
 
         # Create fan_mode value since get_fan_modes() returns labels
         current_mode: str | None = None
-        current_label: str | None = self.get_fan_mode()
-
-        if current_label:
-            fan_mode_map: dict[str, str] = {x["label"]: x["value"] for x in options}
-            current_mode = fan_mode_map[current_label]
+        if current_label := self.get_fan_mode():
+            for option in options:
+                if option["label"] == current_label:
+                    current_mode = option["value"]
+                    break
 
         # API times out if fan_mode is set to same attribute
         if fan_mode != current_mode:
