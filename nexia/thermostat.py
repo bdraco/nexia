@@ -16,6 +16,13 @@ if TYPE_CHECKING:
     from .home import NexiaHome
 
 
+def clamp_to_predefined_values(target: float, values: list[float]) -> float:
+    """Clamp a target value to the nearest predefined value."""
+    if target in values:
+        return target
+    return values[min(range(len(values)), key=lambda i: abs(values[i] - target))]
+
+
 class NexiaThermostat:
     """A nexia Thermostat.
 
@@ -528,13 +535,29 @@ class NexiaThermostat:
 
         if (
             dehumidify_supported
-            and dehumidify_setpoint != self.get_dehumidify_setpoint()
+            and (
+                clamped_dehumidify_setpoint := clamp_to_predefined_values(
+                    dehumidify_setpoint,
+                    self.dehumidify_setpoints,
+                )
+            )
+            and clamped_dehumidify_setpoint != self.get_dehumidify_setpoint()
         ):
             await self._post_and_update_thermostat_json(
                 "dehumidify",
-                {"value": str(dehumidify_setpoint)},
+                {"value": str(clamped_dehumidify_setpoint)},
             )
-        if humidify_supported and humidify_setpoint != self.get_humidify_setpoint():
+
+        if (
+            humidify_supported
+            and (
+                clamped_humidify_setpoint := clamp_to_predefined_values(
+                    humidify_setpoint,
+                    self.humidify_setpoints,
+                )
+            )
+            and clamped_humidify_setpoint != self.get_humidify_setpoint()
+        ):
             await self._post_and_update_thermostat_json(
                 "humidify",
                 {"value": str(humidify_setpoint)},
