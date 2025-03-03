@@ -1405,3 +1405,4 @@ def test_clamp_to_predefined_values() -> None:
     assert clamp_to_predefined_values(90, [50, 55, 60, 65, 70, 75, 80, 85, 90]) == 90
     assert clamp_to_predefined_values(95, [50, 55, 60, 65, 70, 75, 80, 85, 90]) == 90
     assert clamp_to_predefined_values(100, [50, 55, 60, 65, 70, 75, 80, 85, 90]) == 90
+    assert clamp_to_predefined_values(100, [90, 85, 80, 75, 70]) == 90
