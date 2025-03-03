@@ -51,6 +51,6 @@ def _create_uuid(filename):
         return new_uuid
 
 
-def find_humidity_setpoint(setpoint):
+def find_humidity_setpoint(setpoint: float) -> float:
     """Find the closest humidity setpoint."""
     return round(0.05 * round(setpoint / 0.05), 2)

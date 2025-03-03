@@ -461,14 +461,15 @@ class NexiaThermostat:
         else:
             raise RuntimeError("This thermostat does not support emergency heat.")
 
-    async def set_humidity_setpoints(self, **kwargs: Any) -> None:  # noqa: C901
+    async def set_humidity_setpoints(  # noqa: C901
+        self,
+        dehumidify_setpoint: float | None = None,
+        humidify_setpoint: float | None = None,
+    ) -> None:
         """:param dehumidify_setpoint: float - The dehumidify_setpoint, 0-1, disable: None
         :param humidify_setpoint: float - The humidify setpoint, 0-1, disable: None
         :return:
         """
-        dehumidify_setpoint = kwargs.get("dehumidify_setpoint")
-        humidify_setpoint = kwargs.get("humidify_setpoint")
-
         if dehumidify_setpoint is None and humidify_setpoint is None:
             # Do nothing
             return
@@ -541,7 +542,7 @@ class NexiaThermostat:
                 {"value": str(humidify_setpoint)},
             )
 
-    async def set_dehumidify_setpoint(self, dehumidify_setpoint):
+    async def set_dehumidify_setpoint(self, dehumidify_setpoint: float) -> None:
         """Sets the overall system's dehumidify setpoint as a percent (0-1).
 
         The system must support
@@ -550,7 +551,7 @@ class NexiaThermostat:
         """
         await self.set_humidity_setpoints(dehumidify_setpoint=dehumidify_setpoint)
 
-    async def set_humidify_setpoint(self, humidify_setpoint):
+    async def set_humidify_setpoint(self, humidify_setpoint: float) -> None:
         """Sets the overall system's humidify setpoint as a percent (0-1).
 
         The system must support
