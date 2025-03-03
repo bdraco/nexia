@@ -515,13 +515,13 @@ class NexiaThermostat:
                 f" Dehumidify: ({min_dehumidify} - {max_dehumidify}),"
                 f" Humidify: ({min_humidify} - {max_humidify})."
             )
-        if (dehumidify_supported) and not (
+        if dehumidify_supported and not (
             min_dehumidify <= dehumidify_setpoint <= max_dehumidify
         ):
             raise ValueError(
                 f"dehumidify_setpoint must be between ({min_dehumidify} - {max_dehumidify})",
             )
-        if (humidify_supported) and not (
+        if humidify_supported and not (
             min_humidify <= humidify_setpoint <= max_humidify
         ):
             raise ValueError(
