@@ -16,7 +16,7 @@ from nexia.home import (
     NexiaHome,
     _extract_devices_from_houses_json,
 )
-from nexia.thermostat import NexiaThermostat
+from nexia.thermostat import NexiaThermostat, clamp_to_predefined_values
 
 pytestmark = pytest.mark.asyncio
 
@@ -1391,3 +1391,17 @@ async def test_sensor_access(
     assert persist_file.exists() is True
     persist_file.unlink()
     assert persist_file.exists() is False
+
+
+def test_clamp_to_predefined_values() -> None:
+    assert clamp_to_predefined_values(45, [50, 55, 60, 65, 70, 75, 80, 85, 90]) == 50
+    assert clamp_to_predefined_values(50, [50, 55, 60, 65, 70, 75, 80, 85, 90]) == 50
+    assert clamp_to_predefined_values(51, [50, 55, 60, 65, 70, 75, 80, 85, 90]) == 50
+    assert clamp_to_predefined_values(52, [50, 55, 60, 65, 70, 75, 80, 85, 90]) == 50
+    assert clamp_to_predefined_values(53, [50, 55, 60, 65, 70, 75, 80, 85, 90]) == 55
+    assert clamp_to_predefined_values(52.51, [50, 55, 60, 65, 70, 75, 80, 85, 90]) == 55
+    assert clamp_to_predefined_values(55, [50, 55, 60, 65, 70, 75, 80, 85, 90]) == 55
+    assert clamp_to_predefined_values(56, [50, 55, 60, 65, 70, 75, 80, 85, 90]) == 55
+    assert clamp_to_predefined_values(90, [50, 55, 60, 65, 70, 75, 80, 85, 90]) == 90
+    assert clamp_to_predefined_values(95, [50, 55, 60, 65, 70, 75, 80, 85, 90]) == 90
+    assert clamp_to_predefined_values(100, [50, 55, 60, 65, 70, 75, 80, 85, 90]) == 90
