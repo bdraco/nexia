@@ -197,14 +197,26 @@ class NexiaThermostat:
         """
         return self._get_thermostat_features_key("thermostat")["scale"].upper()
 
+    @property
+    def humidify_setpoints(self) -> list[float]:
+        """Returns the humidify setpoints of the thermostat.
+        :return: list[float].
+        """
+        return self._get_thermostat_deep_key("settings", "type", "humidify")["values"]
+
+    @property
+    def dehumidify_setpoints(self) -> list[float]:
+        """Returns the dehumidify setpoints of the thermostat.
+        :return: list[float].
+        """
+        return self._get_thermostat_deep_key("settings", "type", "dehumidify")["values"]
+
     def get_humidify_setpoint_limits(self) -> tuple[float, float]:
         """Returns humidify setpoint limits of the thermostat.
         :return: (float, float)
         """
 
-        humidify_values: list = self._get_thermostat_deep_key(
-            "settings", "type", "humidify"
-        )["values"]
+        humidify_values = self.humidify_setpoints
         humidify_min: float = min(humidify_values)
         humidify_max: float = max(humidify_values)
 
@@ -215,9 +227,7 @@ class NexiaThermostat:
         :return: (float, float)
         """
 
-        dehumidify_values: list = self._get_thermostat_deep_key(
-            "settings", "type", "dehumidify"
-        )["values"]
+        dehumidify_values = self.dehumidify_setpoints
         dehumidify_min: float = min(dehumidify_values)
         dehumidify_max: float = max(dehumidify_values)
 
