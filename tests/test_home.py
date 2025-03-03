@@ -1240,21 +1240,56 @@ async def test_humidity_and_fan_mode(
     await thermostat.set_humidity_setpoints(
         humidify_setpoint=0.15, dehumidify_setpoint=0.60
     )
-    assert mock_aioresponse.requests.get(
+    request = mock_aioresponse.requests.get(
         (
             "POST",
             URL("https://www.mynexia.com/mobile/xxl_thermostats/12345678/humidify"),
         )
     )
-    assert mock_aioresponse.requests.get(
+    assert request is not None
+    first_request = request[0]
+    assert first_request.kwargs["json"]["value"] == "0.15"
+    request = mock_aioresponse.requests.get(
         (
             "POST",
             URL("https://www.mynexia.com/mobile/xxl_thermostats/12345678/dehumidify"),
         )
     )
+    assert request is not None
+    first_request = request[0]
+    assert first_request.kwargs["json"]["value"] == "0.6"
 
-    thermostat_ids = nexia.get_thermostat_ids()
-    assert thermostat_ids == [12345678]
+    mock_aioresponse.requests.clear()
+    mock_aioresponse.post(
+        "https://www.mynexia.com/mobile/xxl_thermostats/12345678/humidify",
+        payload={"result": devices[0]},
+    )
+    mock_aioresponse.post(
+        "https://www.mynexia.com/mobile/xxl_thermostats/12345678/dehumidify",
+        payload={"result": devices[0]},
+    )
+    # Attempting to set to an out of range value should clamp to the nearest valid value
+    await thermostat.set_humidity_setpoints(
+        humidify_setpoint=0.242, dehumidify_setpoint=0.652
+    )
+    request = mock_aioresponse.requests.get(
+        (
+            "POST",
+            URL("https://www.mynexia.com/mobile/xxl_thermostats/12345678/humidify"),
+        )
+    )
+    assert request is not None
+    first_request = request[0]
+    assert first_request.kwargs["json"]["value"] == "0.25"
+    request = mock_aioresponse.requests.get(
+        (
+            "POST",
+            URL("https://www.mynexia.com/mobile/xxl_thermostats/12345678/dehumidify"),
+        )
+    )
+    assert request is not None
+    first_request = request[0]
+    assert first_request.kwargs["json"]["value"] == "0.65"
 
 
 async def test_sensor_access(
