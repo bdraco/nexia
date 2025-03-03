@@ -1195,6 +1195,9 @@ async def test_humidity_and_fan_mode(
         payload={"result": devices[0]},
     )
 
+    with pytest.raises(KeyError, match="Invalid fan mode.*"):
+        await thermostat.set_fan_mode("DOES_NOT_EXIST")
+
     # Attempting to set to the same value should not trigger an API call
     await thermostat.set_fan_mode("Auto")
     assert not mock_aioresponse.requests.get(

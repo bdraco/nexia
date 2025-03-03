@@ -388,7 +388,7 @@ class NexiaThermostat:
         """
         fan_mode_data = self.get_thermostat_settings_key("fan_mode")
         current_fan_mode_value = fan_mode_data["current_value"]
-        fan_mode_value: str | None
+        fan_mode_value: str | None = None
         for opt in fan_mode_data["options"]:
             if opt["label"] == fan_mode:
                 fan_mode_value = opt["value"]
