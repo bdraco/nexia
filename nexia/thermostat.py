@@ -215,23 +215,15 @@ class NexiaThermostat:
         """Returns humidify setpoint limits of the thermostat.
         :return: (float, float)
         """
-
         humidify_values = self.humidify_setpoints
-        humidify_min: float = min(humidify_values)
-        humidify_max: float = max(humidify_values)
-
-        return humidify_min, humidify_max
+        return min(humidify_values), max(humidify_values)
 
     def get_dehumidify_setpoint_limits(self) -> tuple[float, float]:
         """Returns dehumidify setpoint limits of the thermostat.
         :return: (float, float)
         """
-
         dehumidify_values = self.dehumidify_setpoints
-        dehumidify_min: float = min(dehumidify_values)
-        dehumidify_max: float = max(dehumidify_values)
-
-        return dehumidify_min, dehumidify_max
+        return min(dehumidify_values), max(dehumidify_values)
 
     def get_humidity_setpoint_limits(self) -> tuple[float, float]:
         """Returns the humidity setpoint limits of the thermostat
