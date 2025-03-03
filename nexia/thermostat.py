@@ -381,29 +381,27 @@ class NexiaThermostat:
     ########################################################################
     # System Universal Set Methods
 
-    async def set_fan_mode(self, fan_mode: str):
+    async def set_fan_mode(self, fan_mode: str) -> None:
         """Sets the fan mode.
         :param fan_mode: string that must be in self.get_fan_modes()
         :return: None.
         """
         fan_mode_data = self.get_thermostat_settings_key("fan_mode")
-        options = fan_mode_data["options"]
-        for opt in options:
+        current_fan_mode_value = fan_mode_data["current_value"]
+        fan_mode_value: str | None
+        for opt in fan_mode_data["options"]:
             if opt["label"] == fan_mode:
-                fan_mode = opt["value"]
+                fan_mode_value = opt["value"]
                 break
 
-        # Create fan_mode value since get_fan_modes() returns labels
-        current_mode: str | None = None
-        if current_label := self.get_fan_mode():
-            for option in options:
-                if option["label"] == current_label:
-                    current_mode = option["value"]
-                    break
+        if not fan_mode_value:
+            raise KeyError(f"Invalid fan mode {fan_mode} specified")
 
         # API times out if fan_mode is set to same attribute
-        if fan_mode != current_mode:
-            await self._post_and_update_thermostat_json("fan_mode", {"value": fan_mode})
+        if fan_mode_value != current_fan_mode_value:
+            await self._post_and_update_thermostat_json(
+                "fan_mode", {"value": fan_mode_value}
+            )
 
     async def set_fan_setpoint(self, fan_setpoint: float):
         """Sets the fan's setpoint speed as a percent in range. You can see the
@@ -682,7 +680,7 @@ class NexiaThermostat:
         except KeyError:
             return None
 
-    def get_thermostat_settings_key(self, key):
+    def get_thermostat_settings_key(self, key: str) -> dict[str, Any]:
         """Returns the thermostat value from the provided key in the thermostat's
         JSON.
         :param key: str
