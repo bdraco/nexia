@@ -376,15 +376,13 @@ class NexiaThermostat:
                 return opt["label"]
         return None
 
-    def get_outdoor_temperature(self) -> float:
+    def get_outdoor_temperature(self) -> float | None:
         """Returns the outdoor temperature.
-        :return: float - the temperature, returns nan if invalid.
+        :return: float - the temperature, returns None if invalid.
         """
         if self.has_outdoor_temperature():
             outdoor_temp = self._get_thermostat_key("outdoor_temperature")
-            if is_number(outdoor_temp):
-                return float(outdoor_temp)
-            return float("Nan")
+            return float(outdoor_temp) if is_number(outdoor_temp) else None
         raise RuntimeError("This system does not have an outdoor temperature sensor")
 
     def get_relative_humidity(self) -> float | None:
