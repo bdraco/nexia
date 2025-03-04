@@ -73,3 +73,5 @@ DAMPER_OPEN = "Damper Open"
 ZONE_IDLE = "Idle"
 
 ALL_IDS = "all"
+
+DEFAULT_UPDATE_METHOD = "POST"

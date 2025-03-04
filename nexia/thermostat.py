@@ -3,9 +3,17 @@
 from __future__ import annotations
 
 import logging
+from dataclasses import dataclass
+from enum import Enum, auto
 from typing import TYPE_CHECKING, Any
 
-from .const import AIR_CLEANER_MODES, BLOWER_OFF_STATUSES, HUMIDITY_MAX, HUMIDITY_MIN
+from .const import (
+    AIR_CLEANER_MODES,
+    BLOWER_OFF_STATUSES,
+    DEFAULT_UPDATE_METHOD,
+    HUMIDITY_MAX,
+    HUMIDITY_MIN,
+)
 from .util import find_dict_with_keyvalue_in_json, find_humidity_setpoint, is_number
 from .zone import NexiaThermostatZone
 
@@ -21,6 +29,87 @@ def clamp_to_predefined_values(target: float, values: list[float]) -> float:
     if target in values:
         return target
     return values[min(range(len(values)), key=lambda i: abs(values[i] - target))]
+
+
+class ThermostatEndpoint(Enum):
+    """Enum for Thermostat Endpoints."""
+
+    FAN_MODE = auto()
+    FAN_SPEED = auto()
+    AIR_CLEANER_MODE = auto()
+    SCHEDULING_ENABLED = auto()
+    EMERGENCY_HEAT = auto()
+    DEHUMIDIFY = auto()
+    HUMIDIFY = auto()
+
+
+@dataclass
+class ThermostatEndPointData:
+    """Dataclass for Thermostat Endpoints.
+
+    area/area_primary_key/key are used to find the endpoint in the thermostat json.
+    action is the action to take on the endpoint.
+    fallback_endpoint is the endpoint to use if the action is not found.
+    """
+
+    area: str
+    area_primary_key: str
+    key: str
+    action: str  # always looks for `self` first
+    fallback_endpoint: str
+
+
+ENDPOINT_MAP = {
+    ThermostatEndpoint.FAN_MODE: ThermostatEndPointData(
+        area="features",
+        area_primary_key="name",
+        key="thermostat_fan_mode",
+        action="update_thermostat_fan_mode",
+        fallback_endpoint="fan_mode",
+    ),
+    ThermostatEndpoint.FAN_SPEED: ThermostatEndPointData(
+        area="settings",
+        area_primary_key="type",
+        key="fan_speed",
+        action="fan_speed",
+        fallback_endpoint="fan_speed",
+    ),
+    ThermostatEndpoint.AIR_CLEANER_MODE: ThermostatEndPointData(
+        area="settings",
+        area_primary_key="type",
+        key="air_cleaner_mode",
+        action="air_cleaner_mode",
+        fallback_endpoint="air_cleaner_mode",
+    ),
+    ThermostatEndpoint.SCHEDULING_ENABLED: ThermostatEndPointData(
+        area="settings",
+        area_primary_key="type",
+        key="scheduling_enabled",
+        action="scheduling_enabled",
+        fallback_endpoint="scheduling_enabled",
+    ),
+    ThermostatEndpoint.EMERGENCY_HEAT: ThermostatEndPointData(
+        area="settings",
+        area_primary_key="type",
+        key="emergency_heat",
+        action="emergency_heat",
+        fallback_endpoint="emergency_heat",
+    ),
+    ThermostatEndpoint.DEHUMIDIFY: ThermostatEndPointData(
+        area="settings",
+        area_primary_key="type",
+        key="dehumidify",
+        action="dehumidify",
+        fallback_endpoint="dehumidify",
+    ),
+    ThermostatEndpoint.HUMIDIFY: ThermostatEndPointData(
+        area="settings",
+        area_primary_key="type",
+        key="humidify",
+        action="humidify",
+        fallback_endpoint="humidify",
+    ),
+}
 
 
 class NexiaThermostat:
@@ -43,19 +132,19 @@ class NexiaThermostat:
             self.zones = []
 
     @property
-    def API_MOBILE_THERMOSTAT_URL(self):  # pylint: disable=invalid-name
+    def API_MOBILE_THERMOSTAT_URL(self) -> str:  # pylint: disable=invalid-name
         return (
             self._nexia_home.mobile_url + "/xxl_thermostats/{thermostat_id}/{end_point}"
         )
 
     @property
-    def is_online(self):
+    def is_online(self) -> bool:
         """Returns whether the thermostat is online or not.
         :return: bool.
         """
         return self.get_system_status().upper() != "NOT CONNECTED"
 
-    def _get_thermostat_advanced_info_label(self, label):
+    def _get_thermostat_advanced_info_label(self, label: str) -> str | None:
         """Lookup advanced_info in the thermostat features and find the value of the
         requested label.
         """
@@ -70,13 +159,13 @@ class NexiaThermostat:
         except KeyError:
             return None
 
-    def get_model(self):
+    def get_model(self) -> str | None:
         """Returns the thermostat model
         :return: string.
         """
         return self._get_thermostat_advanced_info_label("Model")
 
-    def get_firmware(self):
+    def get_firmware(self) -> str | None:
         """Returns the thermostat firmware version
         :return: string.
         """
@@ -84,7 +173,7 @@ class NexiaThermostat:
             "Firmware Version",
         ) or self._get_thermostat_advanced_info_label("Main Firmware Version")
 
-    def get_dev_build_number(self):
+    def get_dev_build_number(self) -> str | None:
         """Returns the thermostat development build number.
         :return: string.
         """
@@ -92,19 +181,19 @@ class NexiaThermostat:
             "Firmware Build Number",
         ) or self._get_thermostat_advanced_info_label("Version")
 
-    def get_device_id(self):
+    def get_device_id(self) -> str | None:
         """Returns the device id
         :return: string.
         """
         return self._get_thermostat_advanced_info_label("AUID")
 
-    def get_type(self):
+    def get_type(self) -> str | None:
         """Returns the thermostat type, such as TraneXl1050
         :return: str.
         """
         return self.get_model()
 
-    def get_name(self):
+    def get_name(self) -> str:
         """Returns the name of the thermostat. This is not the zone name.
         :return: str.
         """
@@ -113,21 +202,21 @@ class NexiaThermostat:
     ########################################################################
     # Supported Features
 
-    def has_outdoor_temperature(self):
+    def has_outdoor_temperature(self) -> bool:
         """Capability indication of whether the thermostat has an outdoor
         temperature sensor
         :return: bool.
         """
         return self._get_thermostat_key_or_none("has_outdoor_temperature")
 
-    def has_relative_humidity(self):
+    def has_relative_humidity(self) -> bool:
         """Capability indication of whether the thermostat has a relative
         humidity sensor
         :return: bool.
         """
         return bool(self._get_thermostat_key_or_none("indoor_humidity"))
 
-    def has_variable_speed_compressor(self):
+    def has_variable_speed_compressor(self) -> bool:
         """Capability indication of whether the thermostat has a variable speed
         compressor
         :return: bool.
@@ -135,32 +224,32 @@ class NexiaThermostat:
         # This only shows up if it's running on mobile
         return True
 
-    def has_emergency_heat(self):
+    def has_emergency_heat(self) -> bool:
         """Capability indication of whether the thermostat has emergency/aux heat.
         :return: bool.
         """
         return bool(self.get_thermostat_settings_key_or_none("emergency_heat"))
 
-    def has_variable_fan_speed(self):
+    def has_variable_fan_speed(self) -> bool:
         """Capability indication of whether the thermostat has a variable speed
         blower
         :return: bool.
         """
         return bool(self.get_thermostat_settings_key_or_none("fan_speed"))
 
-    def has_zones(self):
+    def has_zones(self) -> bool:
         """Indication of whether zoning is enabled or not on the thermostat.
         :return: bool.
         """
         return bool(self._get_thermostat_key_or_none("zones"))
 
-    def has_dehumidify_support(self):
+    def has_dehumidify_support(self) -> bool:
         """Indication of whether dehumidifying support is available.
         :return: bool.
         """
         return bool(self.get_thermostat_settings_key_or_none("dehumidify"))
 
-    def has_humidify_support(self):
+    def has_humidify_support(self) -> bool:
         """Indication of whether humidifying support is available.
         :return: bool.
         """
@@ -169,7 +258,7 @@ class NexiaThermostat:
     ########################################################################
     # System Attributes
 
-    def get_deadband(self):
+    def get_deadband(self) -> int:
         """Returns the deadband of the thermostat. This is the minimum number of
         degrees between the heat and cool setpoints in the number of degrees in
         the temperature unit selected by the
@@ -178,7 +267,7 @@ class NexiaThermostat:
         """
         return self._get_thermostat_features_key("thermostat")["setpoint_delta"]
 
-    def get_setpoint_limits(self):
+    def get_setpoint_limits(self) -> tuple[int, int]:
         """Returns a tuple of the minimum and maximum temperature that can be set
         on any zone. This is in the temperature unit selected by the
         thermostat.
@@ -189,7 +278,7 @@ class NexiaThermostat:
             self._get_thermostat_features_key("thermostat")["setpoint_cool_max"],
         )
 
-    def get_variable_fan_speed_limits(self):
+    def get_variable_fan_speed_limits(self) -> tuple[float, float]:
         """Returns the variable fan speed setpoint limits of the thermostat.
         :return: (float, float).
         """
@@ -198,7 +287,7 @@ class NexiaThermostat:
             return (possible_values[0], possible_values[-1])
         raise AttributeError("This thermostat does not support fan speeds")
 
-    def get_unit(self):
+    def get_unit(self) -> str:
         """Returns the temperature unit used by this system, either C or F.
         :return: str.
         """
@@ -250,13 +339,13 @@ class NexiaThermostat:
     ########################################################################
     # System Universal Boolean Get Methods
 
-    def is_blower_active(self):
+    def is_blower_active(self) -> bool:
         """Returns True if the blower is active
         :return: bool.
         """
         return self.get_system_status() not in BLOWER_OFF_STATUSES
 
-    def is_emergency_heat_active(self):
+    def is_emergency_heat_active(self) -> bool:
         """Returns True if the emergency/aux heat is active
         :return: bool.
         """
@@ -267,7 +356,7 @@ class NexiaThermostat:
     ########################################################################
     # System Universal Get Methods
 
-    def get_fan_modes(self):
+    def get_fan_modes(self) -> list[str]:
         """Returns the list of fan modes the device supports.
 
         :return:
@@ -287,7 +376,7 @@ class NexiaThermostat:
                 return opt["label"]
         return None
 
-    def get_outdoor_temperature(self):
+    def get_outdoor_temperature(self) -> float:
         """Returns the outdoor temperature.
         :return: float - the temperature, returns nan if invalid.
         """
@@ -298,7 +387,7 @@ class NexiaThermostat:
             return float("Nan")
         raise RuntimeError("This system does not have an outdoor temperature sensor")
 
-    def get_relative_humidity(self):
+    def get_relative_humidity(self) -> float | None:
         """Returns the indoor relative humidity as a percent (0-1)
         :return: float.
         """
@@ -311,7 +400,7 @@ class NexiaThermostat:
 
         raise RuntimeError("This system does not have a relative humidity sensor.")
 
-    def get_current_compressor_speed(self):
+    def get_current_compressor_speed(self) -> float:
         """Returns the variable compressor speed, if supported, as a percent (0-1)
         :return: float.
         """
@@ -322,7 +411,7 @@ class NexiaThermostat:
             return 0
         return float(thermostat_compressor_speed["compressor_speed"])
 
-    def get_requested_compressor_speed(self):
+    def get_requested_compressor_speed(self) -> float:
         """Returns the variable compressor's requested speed, if supported, as a
         percent (0-1)
         :return: float.
@@ -330,7 +419,7 @@ class NexiaThermostat:
         # mobile api does not have a requested speed
         return self.get_current_compressor_speed()
 
-    def get_fan_speed_setpoint(self):
+    def get_fan_speed_setpoint(self) -> float:
         """Returns the current variable fan speed setpoint from 0-1.
         :return: float.
         """
@@ -338,7 +427,7 @@ class NexiaThermostat:
             return self.get_thermostat_settings_key("fan_speed")["current_value"]
         raise AttributeError("This system does not have variable fan speed.")
 
-    def get_dehumidify_setpoint(self):
+    def get_dehumidify_setpoint(self) -> float:
         """Returns the dehumidify setpoint from 0-1
         :return: float.
         """
@@ -347,7 +436,7 @@ class NexiaThermostat:
 
         raise AttributeError("This system does not support dehumidification")
 
-    def get_humidify_setpoint(self):
+    def get_humidify_setpoint(self) -> float:
         """Returns the dehumidify setpoint from 0-1
         :return: float.
         """
@@ -356,7 +445,7 @@ class NexiaThermostat:
 
         raise AttributeError("This system does not support humidification")
 
-    def get_system_status(self):
+    def get_system_status(self) -> str:
         """Returns the system status such as "System Idle" or "Cooling"
         :return: str.
         """
@@ -366,13 +455,13 @@ class NexiaThermostat:
             or self._get_thermostat_features_key("thermostat")["status"]
         )
 
-    def has_air_cleaner(self):
+    def has_air_cleaner(self) -> bool:
         """Returns if the system has an air cleaner.
         :return: bool.
         """
         return bool(self.get_thermostat_settings_key_or_none("air_cleaner_mode"))
 
-    def get_air_cleaner_mode(self):
+    def get_air_cleaner_mode(self) -> str:
         """Returns the system's air cleaner mode
         :return: str.
         """
@@ -400,10 +489,10 @@ class NexiaThermostat:
         # API times out if fan_mode is set to same attribute
         if fan_mode_value != current_fan_mode_value:
             await self._post_and_update_thermostat_json(
-                "fan_mode", {"value": fan_mode_value}
+                ThermostatEndpoint.FAN_MODE, {"value": fan_mode_value}
             )
 
-    async def set_fan_setpoint(self, fan_setpoint: float):
+    async def set_fan_setpoint(self, fan_setpoint: float) -> None:
         """Sets the fan's setpoint speed as a percent in range. You can see the
         limits by calling Nexia.get_variable_fan_speed_limits()
         :param fan_setpoint: float
@@ -415,7 +504,7 @@ class NexiaThermostat:
 
         if min_speed <= fan_setpoint <= max_speed:
             await self._post_and_update_thermostat_json(
-                "fan_speed",
+                ThermostatEndpoint.FAN_SPEED,
                 {"value": fan_setpoint},
             )
         else:
@@ -424,7 +513,7 @@ class NexiaThermostat:
                 f"between {min_speed} and {max_speed}.",
             )
 
-    async def set_air_cleaner(self, air_cleaner_mode: str):
+    async def set_air_cleaner(self, air_cleaner_mode: str) -> None:
         """Sets the air cleaner mode.
         :param air_cleaner_mode: string that must be in
         AIR_CLEANER_MODES
@@ -434,31 +523,31 @@ class NexiaThermostat:
         if air_cleaner_mode in AIR_CLEANER_MODES:
             if air_cleaner_mode != self.get_air_cleaner_mode():
                 await self._post_and_update_thermostat_json(
-                    "air_cleaner_mode",
+                    ThermostatEndpoint.AIR_CLEANER_MODE,
                     {"value": air_cleaner_mode},
                 )
         else:
             raise KeyError("Invalid air cleaner mode specified")
 
-    async def set_follow_schedule(self, follow_schedule):
+    async def set_follow_schedule(self, follow_schedule: bool) -> None:
         """Enables or disables scheduled operation
         :param follow_schedule: bool - True for follow schedule, False for hold
         current setpoints
         :return: None.
         """
         await self._post_and_update_thermostat_json(
-            "scheduling_enabled",
+            ThermostatEndpoint.SCHEDULING_ENABLED,
             {"value": "true" if follow_schedule else "false"},
         )
 
-    async def set_emergency_heat(self, emergency_heat_on):
+    async def set_emergency_heat(self, emergency_heat_on: bool) -> None:
         """Enables or disables emergency / auxiliary heat.
         :param emergency_heat_on: bool - True for enabled, False for Disabled
         :return: None.
         """
         if self.has_emergency_heat():
             await self._post_and_update_thermostat_json(
-                "emergency_heat",
+                ThermostatEndpoint.EMERGENCY_HEAT,
                 {"value": "true" if emergency_heat_on else "false"},
             )
         else:
@@ -542,7 +631,7 @@ class NexiaThermostat:
             and clamped_dehumidify_setpoint != self.get_dehumidify_setpoint()
         ):
             await self._post_and_update_thermostat_json(
-                "dehumidify",
+                ThermostatEndpoint.DEHUMIDIFY,
                 {"value": str(clamped_dehumidify_setpoint)},
             )
 
@@ -557,7 +646,7 @@ class NexiaThermostat:
             and clamped_humidify_setpoint != self.get_humidify_setpoint()
         ):
             await self._post_and_update_thermostat_json(
-                "humidify",
+                ThermostatEndpoint.HUMIDIFY,
                 {"value": str(humidify_setpoint)},
             )
 
@@ -605,7 +694,8 @@ class NexiaThermostat:
         for zone in self.zones:
             if zone.zone_id == zone_id:
                 return zone
-        raise KeyError
+        valid_ids = (str(id_) for id_ in self.get_zone_ids())
+        raise KeyError(f"Zone ID not found, valid IDs are: {', '.join(valid_ids)}")
 
     def _get_thermostat_deep_key(
         self,
@@ -705,11 +795,41 @@ class NexiaThermostat:
             )
         return zone
 
-    async def _post_and_update_thermostat_json(self, end_point, payload):
-        url = self.API_MOBILE_THERMOSTAT_URL.format(
-            end_point=end_point,
-            thermostat_id=self._thermostat_json["id"],
-        )
+    async def _post_and_update_thermostat_json(
+        self, end_point: ThermostatEndpoint, payload: dict[str, Any]
+    ) -> None:
+        """Post to the thermostat and update the thermostat json."""
+        if not (end_point_data := ENDPOINT_MAP.get(end_point)):
+            raise ValueError(f"Invalid endpoint {end_point}")
+
+        url: str | None = None
+        method: str = DEFAULT_UPDATE_METHOD
+        try:
+            actions: dict[str, dict[str, str]] = self._get_thermostat_deep_key(
+                end_point_data.area,
+                end_point_data.area_primary_key,
+                end_point_data.key,
+            )["actions"]
+        except KeyError:
+            pass
+        else:
+            for action in ("self", end_point_data.action):
+                if action_data := actions.get(action):
+                    url = action_data["href"]
+                    method = action_data.get("method", DEFAULT_UPDATE_METHOD)
+                    break
+
+        if url is None:
+            url = self.API_MOBILE_THERMOSTAT_URL.format(
+                end_point=end_point_data.fallback_endpoint,
+                thermostat_id=self.thermostat_id,
+            )
+
+        if method != DEFAULT_UPDATE_METHOD:
+            raise ValueError(
+                f"Unsupported method {method} for endpoint {end_point} url {url}"
+            )
+
         async with await self._nexia_home.post_url(url, payload) as response:
             self.update_thermostat_json((await response.json())["result"])
 

@@ -48,6 +48,20 @@ BRAND_TO_URL = {
 }
 
 
+def extract_children_from_devices_json(
+    devices_json: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Extracts the payload from the devices json endpoint data."""
+    children: list[dict[str, Any]] = []
+    for child in devices_json:
+        type_ = child.get("type")
+        if not type_ or "thermostat" in type_:
+            children.append(child)
+        elif type_ == "group" and "_links" in child and "child" in child["_links"]:
+            children.extend(sub_child["data"] for sub_child in child["_links"]["child"])
+    return children
+
+
 class NexiaHome:
     """Nexia Home Access Class."""
 
@@ -357,15 +371,7 @@ class NexiaHome:
 
     def _update_devices(self):
         self.last_update = datetime.datetime.now()
-        children = []
-        for child in self.devices_json:
-            type_ = child.get("type")
-            if not type_ or "thermostat" in type_:
-                children.append(child)
-            elif type_ == "group" and "_links" in child and "child" in child["_links"]:
-                for sub_child in child["_links"]["child"]:
-                    children.append(sub_child["data"])  # noqa: PERF401
-
+        children = extract_children_from_devices_json(self.devices_json)
         if self.thermostats is None:
             self.thermostats = []
             for child in children:

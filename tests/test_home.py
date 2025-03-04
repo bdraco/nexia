@@ -15,8 +15,10 @@ from nexia.home import (
     LoginFailedException,
     NexiaHome,
     _extract_devices_from_houses_json,
+    extract_children_from_devices_json,
 )
 from nexia.thermostat import NexiaThermostat, clamp_to_predefined_values
+from nexia.util import find_dict_with_keyvalue_in_json
 
 pytestmark = pytest.mark.asyncio
 
@@ -1431,7 +1433,7 @@ async def test_sensor_access(
     assert persist_file.exists() is False
 
 
-def test_clamp_to_predefined_values() -> None:
+async def test_clamp_to_predefined_values() -> None:
     assert clamp_to_predefined_values(45, [50, 55, 60, 65, 70, 75, 80, 85, 90]) == 50
     assert clamp_to_predefined_values(50, [50, 55, 60, 65, 70, 75, 80, 85, 90]) == 50
     assert clamp_to_predefined_values(51, [50, 55, 60, 65, 70, 75, 80, 85, 90]) == 50
@@ -1446,3 +1448,155 @@ def test_clamp_to_predefined_values() -> None:
     assert clamp_to_predefined_values(100, [90, 85, 80, 75, 70]) == 90
     assert clamp_to_predefined_values(0.4, [0.1, 0.2, 0.3, 0.4, 0.5]) == 0.4
     assert clamp_to_predefined_values(0.45, [0.1, 0.2, 0.3, 0.4, 0.5]) == 0.4
+
+
+async def test_set_preset(
+    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aioresponses
+) -> None:
+    """Test setting a zone preset."""
+    nexia = NexiaHome(aiohttp_session)
+    devices_json = json.loads(await load_fixture("xl1050.json"))
+    nexia.update_from_json(devices_json)
+
+    thermostat = nexia.get_thermostat_by_id(4122267)
+    zone = thermostat.get_zone_by_id(84398305)
+
+    devices = _extract_devices_from_houses_json(devices_json)
+    children = extract_children_from_devices_json(devices)
+    zone_data = find_dict_with_keyvalue_in_json(children[0]["zones"], "id", 84398305)
+
+    mock_aioresponse.post(
+        "https://www.mynexia.com/mobile/xxl_zones/84398305/preset_selected",
+        payload={"result": zone_data},
+    )
+    await zone.set_preset("Home")
+
+    requests = mock_aioresponse.requests[
+        (
+            "POST",
+            URL("https://www.mynexia.com/mobile/xxl_zones/84398305/preset_selected"),
+        )
+    ]
+    assert requests is not None
+    first_request = requests[0]
+    assert first_request.kwargs["json"]["value"] == 1
+
+    mock_aioresponse.requests.clear()
+
+    mock_aioresponse.post(
+        "https://www.mynexia.com/mobile/xxl_zones/84398305/preset_selected",
+        payload={"result": zone_data},
+    )
+    await zone.set_preset("Away")
+
+    requests = mock_aioresponse.requests[
+        (
+            "POST",
+            URL("https://www.mynexia.com/mobile/xxl_zones/84398305/preset_selected"),
+        )
+    ]
+    assert requests is not None
+    first_request = requests[0]
+    assert first_request.kwargs["json"]["value"] == 2
+
+    mock_aioresponse.requests.clear()
+
+
+async def test_set_return_to_schedule(
+    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aioresponses
+) -> None:
+    """Test returning to schedule."""
+    nexia = NexiaHome(aiohttp_session)
+    devices_json = json.loads(await load_fixture("xl1050.json"))
+    nexia.update_from_json(devices_json)
+
+    thermostat = nexia.get_thermostat_by_id(4122267)
+    zone = thermostat.get_zone_by_id(84398305)
+
+    devices = _extract_devices_from_houses_json(devices_json)
+    children = extract_children_from_devices_json(devices)
+    zone_data = find_dict_with_keyvalue_in_json(children[0]["zones"], "id", 84398305)
+
+    mock_aioresponse.post(
+        "https://www.mynexia.com/mobile/xxl_zones/84398305/return_to_schedule",
+        payload={"result": zone_data},
+    )
+    await zone.call_return_to_schedule()
+
+    requests = mock_aioresponse.requests[
+        (
+            "POST",
+            URL("https://www.mynexia.com/mobile/xxl_zones/84398305/return_to_schedule"),
+        )
+    ]
+    assert requests is not None
+    first_request = requests[0]
+    assert first_request.kwargs["json"] == {}
+
+
+async def test_set_permanent_hold(
+    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aioresponses
+) -> None:
+    """Test returning to schedule."""
+    nexia = NexiaHome(aiohttp_session)
+    devices_json = json.loads(await load_fixture("xl1050.json"))
+    nexia.update_from_json(devices_json)
+
+    thermostat = nexia.get_thermostat_by_id(4122267)
+    zone = thermostat.get_zone_by_id(84398305)
+
+    devices = _extract_devices_from_houses_json(devices_json)
+    children = extract_children_from_devices_json(devices)
+    zone_data = find_dict_with_keyvalue_in_json(children[0]["zones"], "id", 84398305)
+
+    mock_aioresponse.post(
+        "https://www.mynexia.com/mobile/xxl_zones/84398305/run_mode",
+        payload={"result": zone_data},
+    )
+    await zone.call_permanent_hold()
+
+    requests = mock_aioresponse.requests[
+        (
+            "POST",
+            URL("https://www.mynexia.com/mobile/xxl_zones/84398305/run_mode"),
+        )
+    ]
+    assert requests is not None
+    first_request = requests[0]
+    assert first_request.kwargs["json"] == {
+        "value": "permanent_hold",
+    }
+
+
+async def test_set_zone_mode(
+    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aioresponses
+) -> None:
+    """Test setting zone mode."""
+    nexia = NexiaHome(aiohttp_session)
+    devices_json = json.loads(await load_fixture("xl1050.json"))
+    nexia.update_from_json(devices_json)
+
+    thermostat = nexia.get_thermostat_by_id(4122267)
+    zone = thermostat.get_zone_by_id(84398305)
+
+    devices = _extract_devices_from_houses_json(devices_json)
+    children = extract_children_from_devices_json(devices)
+    zone_data = find_dict_with_keyvalue_in_json(children[0]["zones"], "id", 84398305)
+
+    mock_aioresponse.post(
+        "https://www.mynexia.com/mobile/xxl_zones/84398305/zone_mode",
+        payload={"result": zone_data},
+    )
+    await zone.set_mode("AUTO")
+
+    requests = mock_aioresponse.requests[
+        (
+            "POST",
+            URL("https://www.mynexia.com/mobile/xxl_zones/84398305/zone_mode"),
+        )
+    ]
+    assert requests is not None
+    first_request = requests[0]
+    assert first_request.kwargs["json"] == {
+        "value": "AUTO",
+    }

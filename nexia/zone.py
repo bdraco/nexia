@@ -6,10 +6,13 @@ import asyncio
 import json
 import logging
 import math
-from typing import TYPE_CHECKING, Any
+from dataclasses import dataclass
+from enum import Enum, auto
+from typing import TYPE_CHECKING, Any, Literal
 
 from .const import (
     DAMPER_CLOSED,
+    DEFAULT_UPDATE_METHOD,
     HOLD_PERMANENT,
     OPERATION_MODE_COOL,
     OPERATION_MODE_HEAT,
@@ -28,6 +31,65 @@ _LOGGER = logging.getLogger(__name__)
 if TYPE_CHECKING:
     from .home import NexiaHome
     from .thermostat import NexiaThermostat
+
+
+class ZoneEndpoint(Enum):
+    """Enum for Thermostat Endpoints."""
+
+    RETURN_TO_SCHEDULE = auto()
+    RUN_MODE = auto()
+    SETPOINTS = auto()
+    PRESET_SELECTED = auto()
+    ZONE_MODE = auto()
+
+
+@dataclass
+class ZoneEndPointData:
+    """Dataclass for Thermostat Endpoints.
+
+    feature is the area of the json to look for the key
+    action is the action to take in the json
+    fallback_endpoint is the endpoint to use if the feature is not found
+    """
+
+    type: Literal["setting", "feature"]
+    key: str
+    action: str
+    fallback_endpoint: str
+
+
+ENDPOINT_MAP = {
+    ZoneEndpoint.RETURN_TO_SCHEDULE: ZoneEndPointData(
+        type="setting",
+        key="schedule",
+        action="schedule",
+        fallback_endpoint="return_to_schedule",
+    ),
+    ZoneEndpoint.RUN_MODE: ZoneEndPointData(
+        type="feature",
+        key="thermostat_fan_mode",
+        action="update_thermostat_run_mode",
+        fallback_endpoint="run_mode",
+    ),
+    ZoneEndpoint.SETPOINTS: ZoneEndPointData(
+        type="feature",
+        key="thermostat",
+        action="set_setpoints",
+        fallback_endpoint="setpoints",
+    ),
+    ZoneEndpoint.PRESET_SELECTED: ZoneEndPointData(
+        type="setting",
+        key="thermostat_mode",
+        action="type",
+        fallback_endpoint="preset_selected",
+    ),
+    ZoneEndpoint.ZONE_MODE: ZoneEndPointData(
+        type="feature",
+        key="thermostat_mode",
+        action="update_thermostat_mode",
+        fallback_endpoint="zone_mode",
+    ),
+}
 
 
 class NexiaThermostatZone:
@@ -263,7 +325,7 @@ class NexiaThermostatZone:
         :return: None.
         """
         # Set the thermostat
-        await self._post_and_update_zone_json("return_to_schedule", {})
+        await self._post_and_update_zone_json(ZoneEndpoint.RETURN_TO_SCHEDULE, {})
 
     async def call_permanent_hold(
         self,
@@ -369,7 +431,9 @@ class NexiaThermostatZone:
         """
         run_mode = self._get_zone_run_mode()
         if run_mode and run_mode["current_value"] != HOLD_PERMANENT:
-            await self._post_and_update_zone_json("run_mode", {"value": HOLD_PERMANENT})
+            await self._post_and_update_zone_json(
+                ZoneEndpoint.RUN_MODE, {"value": HOLD_PERMANENT}
+            )
 
     async def _set_hold_and_setpoints(
         self,
@@ -394,7 +458,7 @@ class NexiaThermostatZone:
             or heat_temperature != zone_heating_setpoint
         ):
             await self._post_and_update_zone_json(
-                "setpoints",
+                ZoneEndpoint.SETPOINTS,
                 {"heat": heat_temperature, "cool": cool_temperature},
             )
 
@@ -411,7 +475,9 @@ class NexiaThermostatZone:
                 if option["label"] == preset:
                     value = option["value"]
                     break
-            await self._post_and_update_zone_json("preset_selected", {"value": value})
+            await self._post_and_update_zone_json(
+                ZoneEndpoint.PRESET_SELECTED, {"value": value}
+            )
 
     async def set_mode(self, mode: str) -> None:
         """Sets the mode of the zone.
@@ -420,7 +486,9 @@ class NexiaThermostatZone:
         """
         # Validate the data
         if mode in OPERATION_MODES:
-            await self._post_and_update_zone_json("zone_mode", {"value": mode})
+            await self._post_and_update_zone_json(
+                ZoneEndpoint.ZONE_MODE, {"value": mode}
+            )
         else:
             raise KeyError(
                 f'Invalid mode "{mode}". Select one of the following: {OPERATION_MODES}',
@@ -537,10 +605,39 @@ class NexiaThermostatZone:
 
     async def _post_and_update_zone_json(
         self,
-        end_point: str,
+        end_point: ZoneEndpoint,
         payload: dict[str, Any],
     ) -> None:
-        url = self.API_MOBILE_ZONE_URL.format(end_point=end_point, zone_id=self.zone_id)
+        if not (end_point_data := ENDPOINT_MAP.get(end_point)):
+            raise ValueError(f"Invalid endpoint {end_point}")
+
+        url: str | None = None
+        method: str = DEFAULT_UPDATE_METHOD
+        actions: dict[str, dict[str, str]]
+        try:
+            if end_point_data.type == "setting":
+                actions = self._get_zone_setting(end_point_data.key)["actions"]
+            else:
+                actions = self._get_zone_features(end_point_data.key)["actions"]
+        except KeyError:
+            pass
+        else:
+            for action in ("self", end_point_data.action):
+                if action_data := actions.get(action):
+                    url = action_data["href"]
+                    method = action_data.get("method", DEFAULT_UPDATE_METHOD)
+                    break
+
+        if url is None:
+            url = self.API_MOBILE_ZONE_URL.format(
+                end_point=end_point_data.fallback_endpoint, zone_id=self.zone_id
+            )
+
+        if method != DEFAULT_UPDATE_METHOD:
+            raise ValueError(
+                f"Unsupported method {method} for endpoint {end_point} url {url}"
+            )
+
         async with await self._nexia_home.post_url(url, payload) as response:
             self.update_zone_json((await response.json())["result"])
 

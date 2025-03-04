@@ -213,7 +213,7 @@
                     "actions": {
                       "update_thermostat_fan_mode": {
                         "method": "POST",
-                        "href": "https://www.mynexia.com/mobile/xxl_thermostats/1234567/fan_mode"
+                        "href": "https://www.mynexia.com/mobile/xxl_thermostats/12345678/fan_mode"
                       }
                     },
                     "options": [
