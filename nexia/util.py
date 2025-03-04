@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import uuid
 from json import JSONDecodeError
+from typing import Any
 
 
 def is_number(string: str) -> bool:
@@ -17,7 +18,9 @@ def is_number(string: str) -> bool:
     return True
 
 
-def find_dict_with_keyvalue_in_json(json_dict, key_in_subdict, value_to_find):
+def find_dict_with_keyvalue_in_json(
+    json_dict: list[dict[str, Any]], key_in_subdict: str, value_to_find: Any
+) -> Any:
     """Searches a json_dict for the key key_in_subdict that matches value_to_find
     :param json_dict: dict
     :param key_in_subdict: str - the name of the key in the subdict to find
@@ -28,7 +31,7 @@ def find_dict_with_keyvalue_in_json(json_dict, key_in_subdict, value_to_find):
         if data_group.get(key_in_subdict) == value_to_find:
             return data_group
 
-    raise KeyError
+    raise KeyError(f"`{key_in_subdict}` with value `{value_to_find}` not found in data")
 
 
 def load_or_create_uuid(filename: str) -> uuid.UUID | None:

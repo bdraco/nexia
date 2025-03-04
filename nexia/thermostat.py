@@ -694,7 +694,8 @@ class NexiaThermostat:
         for zone in self.zones:
             if zone.zone_id == zone_id:
                 return zone
-        raise KeyError
+        valid_ids = (str(id_) for id_ in self.get_zone_ids())
+        raise KeyError(f"Zone ID not found, valid IDs are: {', '.join(valid_ids)}")
 
     def _get_thermostat_deep_key(
         self,
