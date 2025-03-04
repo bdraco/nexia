@@ -58,8 +58,7 @@ def extract_children_from_devices_json(
         if not type_ or "thermostat" in type_:
             children.append(child)
         elif type_ == "group" and "_links" in child and "child" in child["_links"]:
-            for sub_child in child["_links"]["child"]:
-                children.append(sub_child["data"])  # noqa: PERF401
+            children.extend(sub_child["data"] for sub_child in child["_links"]["child"])
     return children
 
 
