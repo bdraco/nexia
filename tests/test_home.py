@@ -1566,3 +1566,37 @@ async def test_set_permanent_hold(
     assert first_request.kwargs["json"] == {
         "value": "permanent_hold",
     }
+
+
+async def test_set_zone_mode(
+    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aioresponses
+) -> None:
+    """Test setting zone mode."""
+    nexia = NexiaHome(aiohttp_session)
+    devices_json = json.loads(await load_fixture("xl1050.json"))
+    nexia.update_from_json(devices_json)
+
+    thermostat = nexia.get_thermostat_by_id(4122267)
+    zone = thermostat.get_zone_by_id(84398305)
+
+    devices = _extract_devices_from_houses_json(devices_json)
+    children = extract_children_from_devices_json(devices)
+    zone_data = find_dict_with_keyvalue_in_json(children[0]["zones"], "id", 84398305)
+
+    mock_aioresponse.post(
+        "https://www.mynexia.com/mobile/xxl_zones/84398305/zone_mode",
+        payload={"result": zone_data},
+    )
+    await zone.set_mode("AUTO")
+
+    requests = mock_aioresponse.requests[
+        (
+            "POST",
+            URL("https://www.mynexia.com/mobile/xxl_zones/84398305/zone_mode"),
+        )
+    ]
+    assert requests is not None
+    first_request = requests[0]
+    assert first_request.kwargs["json"] == {
+        "value": "AUTO",
+    }
