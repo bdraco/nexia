@@ -491,7 +491,9 @@ class NexiaHome:
         for thermostat in self.thermostats:
             if thermostat.thermostat_id == thermostat_id:
                 return thermostat
-        raise KeyError
+        raise KeyError(
+            f"Thermostat not found: valid values are: {self.get_thermostat_ids()}"
+        )
 
     def get_thermostat_ids(self) -> list[int]:
         """Returns the number of thermostats available to Nexia
