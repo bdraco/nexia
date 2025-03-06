@@ -626,7 +626,7 @@ class NexiaThermostatZone:
                 data := self._get_zone_setting(end_point_data.key)
                 if end_point_data.type == "setting"
                 else self._get_zone_features(end_point_data.key)
-            ):
+            ) and "actions" in data:
                 actions = data["actions"]
         except KeyError:
             pass
