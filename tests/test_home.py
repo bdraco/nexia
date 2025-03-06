@@ -1588,6 +1588,68 @@ async def test_set_return_to_schedule_xl824(
     assert first_request.kwargs["json"] == {"value": "run_schedule"}
 
 
+async def test_set_return_to_schedule_single_zone_xl1050(
+    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aioresponses
+) -> None:
+    """Test returning to schedule with xl1050 single zone."""
+    nexia = NexiaHome(aiohttp_session)
+    devices_json = json.loads(await load_fixture("single_zone_xl1050.json"))
+    nexia.update_from_json(devices_json)
+
+    thermostat = nexia.get_thermostat_by_id(345678)
+    zone = thermostat.get_zone_by_id(234567)
+
+    devices = _extract_devices_from_houses_json(devices_json)
+    children = extract_children_from_devices_json(devices)
+    zone_data = find_dict_with_keyvalue_in_json(children[0]["zones"], "id", 234567)
+
+    mock_aioresponse.post(
+        "https://www.mynexia.com/mobile/xxl_zones/234567/return_to_schedule",
+        payload={"result": zone_data},
+    )
+    await zone.call_return_to_schedule()
+    requests = mock_aioresponse.requests[
+        (
+            "POST",
+            URL("https://www.mynexia.com/mobile/xxl_zones/234567/return_to_schedule"),
+        )
+    ]
+    assert requests is not None
+    first_request = requests[0]
+    assert first_request.kwargs["json"] == {}
+
+
+async def test_set_return_to_schedule_single_zone_xl624(
+    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aioresponses
+) -> None:
+    """Test returning to schedule with xl624."""
+    nexia = NexiaHome(aiohttp_session)
+    devices_json = json.loads(await load_fixture("mobile_house_xl624.json"))
+    nexia.update_from_json(devices_json)
+
+    thermostat = nexia.get_thermostat_by_id(2222222)
+    zone = thermostat.get_zone_by_id(88888888)
+
+    devices = _extract_devices_from_houses_json(devices_json)
+    children = extract_children_from_devices_json(devices)
+    zone_data = find_dict_with_keyvalue_in_json(children[1]["zones"], "id", 88888888)
+
+    mock_aioresponse.post(
+        "https://www.mynexia.com/mobile/xxl_zones/88888888/return_to_schedule",
+        payload={"result": zone_data},
+    )
+    await zone.call_return_to_schedule()
+    requests = mock_aioresponse.requests[
+        (
+            "POST",
+            URL("https://www.mynexia.com/mobile/xxl_zones/88888888/return_to_schedule"),
+        )
+    ]
+    assert requests is not None
+    first_request = requests[0]
+    assert first_request.kwargs["json"] == {}
+
+
 async def test_set_permanent_hold(
     aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aioresponses
 ) -> None:
