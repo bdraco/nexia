@@ -53,7 +53,7 @@ class ZoneEndPointData:
     """
 
     type: Literal["setting", "feature"]
-    key: str | None
+    key: str
     action: str
     fallback_endpoint: str | None
 
@@ -620,30 +620,25 @@ class NexiaThermostatZone:
     def _find_url_and_method_for_endpoint(
         self, end_point_data: ZoneEndPointData
     ) -> tuple[str, str] | None:
-        url: str | None = None
-        method: str = DEFAULT_UPDATE_METHOD
         actions: dict[str, dict[str, str]] | None = None
-        if end_point_data.key:
-            try:
-                if (
-                    data := self._get_zone_setting(end_point_data.key)
-                    if end_point_data.type == "setting"
-                    else self._get_zone_features(end_point_data.key)
-                ):
-                    actions = data["actions"]
-            except KeyError:
-                pass
-            else:
-                if actions:
-                    for action in ("self", end_point_data.action):
-                        if action_data := actions.get(action):
-                            url = action_data["href"]
-                            method = action_data.get("method", DEFAULT_UPDATE_METHOD)
-                            break
+        try:
+            if (
+                data := self._get_zone_setting(end_point_data.key)
+                if end_point_data.type == "setting"
+                else self._get_zone_features(end_point_data.key)
+            ):
+                actions = data["actions"]
+        except KeyError:
+            pass
 
-        if url is None:
-            return None
-        return url, method
+        if actions:
+            for action in ("self", end_point_data.action):
+                if action_data := actions.get(action):
+                    return action_data["href"], action_data.get(
+                        "method", DEFAULT_UPDATE_METHOD
+                    )
+
+        return None
 
     async def _post_and_update_zone_json(
         self,
