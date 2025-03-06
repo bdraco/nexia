@@ -53,17 +53,17 @@ class ZoneEndPointData:
     """
 
     type: Literal["setting", "feature"]
-    key: str
+    key: str | None
     action: str
-    fallback_endpoint: str
+    fallback_endpoint: str | None
 
 
 ENDPOINT_MAP = {
     ZoneEndpoint.RETURN_TO_SCHEDULE: ZoneEndPointData(
         type="setting",
-        key="schedule",
-        action="schedule",
-        fallback_endpoint="return_to_schedule",
+        key="run_mode",
+        action="run_mode",
+        fallback_endpoint=None,
     ),
     ZoneEndpoint.RUN_MODE: ZoneEndPointData(
         type="feature",
@@ -325,7 +325,21 @@ class NexiaThermostatZone:
         :return: None.
         """
         # Set the thermostat
-        await self._post_and_update_zone_json(ZoneEndpoint.RETURN_TO_SCHEDULE, {})
+        endpoint = ZoneEndpoint.RETURN_TO_SCHEDULE
+        endpoint_data = ENDPOINT_MAP[endpoint]
+        if url_method := self._find_url_and_method_for_endpoint(endpoint_data):
+            url, method = url_method
+            await self._update_zone_json_with_method(
+                endpoint, url, {"value": "run_schedule"}, method
+            )
+            return
+
+        url = self.API_MOBILE_ZONE_URL.format(
+            end_point="return_to_schedule", zone_id=self.zone_id
+        )
+        await self._update_zone_json_with_method(
+            endpoint, url, {}, DEFAULT_UPDATE_METHOD
+        )
 
     async def call_permanent_hold(
         self,
@@ -603,6 +617,34 @@ class NexiaThermostatZone:
 
         raise KeyError(f'Zone key "{key}" invalid.')
 
+    def _find_url_and_method_for_endpoint(
+        self, end_point_data: ZoneEndPointData
+    ) -> tuple[str, str] | None:
+        url: str | None = None
+        method: str = DEFAULT_UPDATE_METHOD
+        actions: dict[str, dict[str, str]] | None = None
+        if end_point_data.key:
+            try:
+                if (
+                    data := self._get_zone_setting(end_point_data.key)
+                    if end_point_data.type == "setting"
+                    else self._get_zone_features(end_point_data.key)
+                ):
+                    actions = data["actions"]
+            except KeyError:
+                pass
+            else:
+                if actions:
+                    for action in ("self", end_point_data.action):
+                        if action_data := actions.get(action):
+                            url = action_data["href"]
+                            method = action_data.get("method", DEFAULT_UPDATE_METHOD)
+                            break
+
+        if url is None:
+            return None
+        return url, method
+
     async def _post_and_update_zone_json(
         self,
         end_point: ZoneEndpoint,
@@ -610,34 +652,28 @@ class NexiaThermostatZone:
     ) -> None:
         if not (end_point_data := ENDPOINT_MAP.get(end_point)):
             raise ValueError(f"Invalid endpoint {end_point}")
-
         url: str | None = None
         method: str = DEFAULT_UPDATE_METHOD
-        actions: dict[str, dict[str, str]]
-        try:
-            if end_point_data.type == "setting":
-                actions = self._get_zone_setting(end_point_data.key)["actions"]
-            else:
-                actions = self._get_zone_features(end_point_data.key)["actions"]
-        except KeyError:
-            pass
-        else:
-            for action in ("self", end_point_data.action):
-                if action_data := actions.get(action):
-                    url = action_data["href"]
-                    method = action_data.get("method", DEFAULT_UPDATE_METHOD)
-                    break
-
+        url_method = self._find_url_and_method_for_endpoint(end_point_data)
+        if url_method is not None:
+            url, method = url_method
         if url is None:
+            if end_point_data.fallback_endpoint is None:
+                raise ValueError(
+                    f"Could not find url for endpoint {end_point} and no fallback"
+                )
             url = self.API_MOBILE_ZONE_URL.format(
                 end_point=end_point_data.fallback_endpoint, zone_id=self.zone_id
             )
+        await self._update_zone_json_with_method(end_point, url, payload, method)
 
+    async def _update_zone_json_with_method(
+        self, end_point: ZoneEndpoint, url: str, payload: dict[str, Any], method: str
+    ) -> None:
         if method != DEFAULT_UPDATE_METHOD:
             raise ValueError(
                 f"Unsupported method {method} for endpoint {end_point} url {url}"
             )
-
         async with await self._nexia_home.post_url(url, payload) as response:
             self.update_zone_json((await response.json())["result"])
 
