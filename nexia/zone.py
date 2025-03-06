@@ -319,12 +319,14 @@ class NexiaThermostatZone:
         :return: None.
         """
         # Set the thermostat
-        run_mode = self._get_zone_run_mode()
-        if run_mode and run_mode["current_value"] != HOLD_RESUME_SCHEDULE:
+        if run_mode := self._get_zone_run_mode():
+            if run_mode["current_value"] == HOLD_RESUME_SCHEDULE:
+                return
             await self._post_and_update_zone_json(
                 ZoneEndpoint.RUN_MODE, {"value": HOLD_RESUME_SCHEDULE}
             )
             return
+        # Legacy endpoint
         await self._update_zone_json_with_method(
             "return_to_schedule",
             self.API_MOBILE_ZONE_URL.format(
