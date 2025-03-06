@@ -14,6 +14,7 @@ from .const import (
     DAMPER_CLOSED,
     DEFAULT_UPDATE_METHOD,
     HOLD_PERMANENT,
+    HOLD_RESUME_SCHEDULE,
     OPERATION_MODE_COOL,
     OPERATION_MODE_HEAT,
     OPERATION_MODE_OFF,
@@ -36,7 +37,6 @@ if TYPE_CHECKING:
 class ZoneEndpoint(Enum):
     """Enum for Thermostat Endpoints."""
 
-    RETURN_TO_SCHEDULE = auto()
     RUN_MODE = auto()
     SETPOINTS = auto()
     PRESET_SELECTED = auto()
@@ -55,16 +55,10 @@ class ZoneEndPointData:
     type: Literal["setting", "feature"]
     key: str
     action: str
-    fallback_endpoint: str | None
+    fallback_endpoint: str
 
 
 ENDPOINT_MAP = {
-    ZoneEndpoint.RETURN_TO_SCHEDULE: ZoneEndPointData(
-        type="setting",
-        key="run_mode",
-        action="run_mode",
-        fallback_endpoint=None,
-    ),
     ZoneEndpoint.RUN_MODE: ZoneEndPointData(
         type="feature",
         key="thermostat_fan_mode",
@@ -325,20 +319,19 @@ class NexiaThermostatZone:
         :return: None.
         """
         # Set the thermostat
-        endpoint = ZoneEndpoint.RETURN_TO_SCHEDULE
-        endpoint_data = ENDPOINT_MAP[endpoint]
-        if url_method := self._find_url_and_method_for_endpoint(endpoint_data):
-            url, method = url_method
-            await self._update_zone_json_with_method(
-                endpoint, url, {"value": "run_schedule"}, method
+        run_mode = self._get_zone_run_mode()
+        if run_mode and run_mode["current_value"] != HOLD_RESUME_SCHEDULE:
+            await self._post_and_update_zone_json(
+                ZoneEndpoint.RUN_MODE, {"value": HOLD_RESUME_SCHEDULE}
             )
             return
-
-        url = self.API_MOBILE_ZONE_URL.format(
-            end_point="return_to_schedule", zone_id=self.zone_id
-        )
         await self._update_zone_json_with_method(
-            endpoint, url, {}, DEFAULT_UPDATE_METHOD
+            "return_to_schedule",
+            self.API_MOBILE_ZONE_URL.format(
+                end_point="return_to_schedule", zone_id=self.zone_id
+            ),
+            {},
+            DEFAULT_UPDATE_METHOD,
         )
 
     async def call_permanent_hold(
@@ -663,7 +656,11 @@ class NexiaThermostatZone:
         await self._update_zone_json_with_method(end_point, url, payload, method)
 
     async def _update_zone_json_with_method(
-        self, end_point: ZoneEndpoint, url: str, payload: dict[str, Any], method: str
+        self,
+        end_point: ZoneEndpoint | str,
+        url: str,
+        payload: dict[str, Any],
+        method: str,
     ) -> None:
         if method != DEFAULT_UPDATE_METHOD:
             raise ValueError(
