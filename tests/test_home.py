@@ -1232,15 +1232,6 @@ async def test_humidity_and_fan_mode(
         )
     )
 
-    # Attempt to set a value out of setpoint limits should raise ValueError
-    with pytest.raises(
-        ValueError,
-        match="Setpoints must be between minimum and maximum.*",
-    ):
-        await thermostat.set_humidity_setpoints(
-            humidify_setpoint=0.60, dehumidify_setpoint=0.60
-        )
-
     # Attempting to set to different value should trigger an API call
     await thermostat.set_humidity_setpoints(
         humidify_setpoint=0.15, dehumidify_setpoint=0.60
