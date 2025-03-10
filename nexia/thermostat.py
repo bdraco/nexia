@@ -595,28 +595,28 @@ class NexiaThermostat:
         dehumidify_setpoint = find_humidity_setpoint(dehumidify_setpoint)
         humidify_setpoint = find_humidity_setpoint(humidify_setpoint)
 
-        # Check inputs
-        if (dehumidify_supported and humidify_supported) and not (
-            (min_humidify <= humidify_setpoint <= max_humidify)
-            and (min_dehumidify <= dehumidify_setpoint <= max_dehumidify)
-        ):
-            raise ValueError(
-                f"Setpoints must be between minimum and maximum -"
-                f" Dehumidify: ({min_dehumidify} - {max_dehumidify}),"
-                f" Humidify: ({min_humidify} - {max_humidify})."
-            )
-        if dehumidify_supported and not (
-            min_dehumidify <= dehumidify_setpoint <= max_dehumidify
-        ):
-            raise ValueError(
-                f"dehumidify_setpoint must be between ({min_dehumidify} - {max_dehumidify})",
-            )
-        if humidify_supported and not (
-            min_humidify <= humidify_setpoint <= max_humidify
-        ):
-            raise ValueError(
-                f"humidify_setpoint must be between ({min_humidify} - {max_humidify})",
-            )
+        # # Check inputs
+        # if (dehumidify_supported and humidify_supported) and not (
+        #     (min_humidify <= humidify_setpoint <= max_humidify)
+        #     and (min_dehumidify <= dehumidify_setpoint <= max_dehumidify)
+        # ):
+        #     raise ValueError(
+        #         f"Setpoints must be between minimum and maximum -"
+        #         f" Dehumidify: ({min_dehumidify} - {max_dehumidify}),"
+        #         f" Humidify: ({min_humidify} - {max_humidify})."
+        #     )
+        # if dehumidify_supported and not (
+        #     min_dehumidify <= dehumidify_setpoint <= max_dehumidify
+        # ):
+        #     raise ValueError(
+        #         f"dehumidify_setpoint must be between ({min_dehumidify} - {max_dehumidify})",
+        #     )
+        # if humidify_supported and not (
+        #     min_humidify <= humidify_setpoint <= max_humidify
+        # ):
+        #     raise ValueError(
+        #         f"humidify_setpoint must be between ({min_humidify} - {max_humidify})",
+        #     )
 
         if (
             dehumidify_supported
