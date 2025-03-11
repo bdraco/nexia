@@ -486,7 +486,7 @@ class NexiaHome:
             return datetime.datetime.isoformat(datetime.datetime.min)
         return datetime.datetime.isoformat(self.last_update)
 
-    def get_thermostat_by_id(self, thermostat_id: int) -> NexiaThermostat:
+    def get_thermostat_by_id(self, thermostat_id: int | str) -> NexiaThermostat:
         """Get a thermostat by its nexia id."""
         for thermostat in self.thermostats:
             if thermostat.thermostat_id == thermostat_id:
@@ -495,7 +495,7 @@ class NexiaHome:
             f"Thermostat not found: valid values are: {self.get_thermostat_ids()}"
         )
 
-    def get_thermostat_ids(self) -> list[int]:
+    def get_thermostat_ids(self) -> list[int | str]:
         """Returns the number of thermostats available to Nexia
         :return:
         """
