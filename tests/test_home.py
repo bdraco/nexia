@@ -1745,3 +1745,34 @@ async def test_set_perm_hold_ux360(
     assert requests is not None
     first_request = requests[0]
     assert first_request.kwargs["json"] == {"value": "hold"}
+
+
+async def test_set_fan_mode_ux360(
+    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aioresponses
+) -> None:
+    """Test fan mode on a ux360."""
+    nexia = NexiaHome(aiohttp_session)
+    devices_json = json.loads(await load_fixture("ux360.json"))
+    nexia.update_from_json(devices_json)
+
+    thermostat = nexia.get_thermostat_by_id("123456")
+
+    devices = _extract_devices_from_houses_json(devices_json)
+
+    mock_aioresponse.post(
+        "https://www.mynexia.com/mobile/diagnostics/thermostats/123456/fan_mode",
+        payload={"result": devices[0]},
+    )
+    await thermostat.set_fan_mode("Circulate")
+
+    requests = mock_aioresponse.requests[
+        (
+            "POST",
+            URL(
+                "https://www.mynexia.com/mobile/diagnostics/thermostats/123456/fan_mode"
+            ),
+        )
+    ]
+    assert requests is not None
+    first_request = requests[0]
+    assert first_request.kwargs["json"] == {"value": "circulate"}
