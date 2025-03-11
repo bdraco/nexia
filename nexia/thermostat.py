@@ -121,7 +121,7 @@ class NexiaThermostat:
     def __init__(self, nexia_home: NexiaHome, thermostat_json: dict[str, Any]) -> None:
         """Init nexia Thermostat."""
         self._nexia_home = nexia_home
-        self.thermostat_id: int = thermostat_json["id"]
+        self.thermostat_id: int | str = thermostat_json["id"]
         self._thermostat_json = thermostat_json
         if self.has_zones():
             self.zones = [
@@ -656,7 +656,7 @@ class NexiaThermostat:
     ########################################################################
     # Zone Get Methods
 
-    def get_zone_ids(self):
+    def get_zone_ids(self) -> list[int]:
         """Returns a list of available zone IDs with a starting index of 0.
         :return: list(int).
         """
@@ -664,7 +664,7 @@ class NexiaThermostat:
         # create a new list of IDs.
         return [zone.zone_id for zone in self.zones]
 
-    def get_zone_by_id(self, zone_id):
+    def get_zone_by_id(self, zone_id: int) -> NexiaThermostatZone:
         """Get a zone by its nexia id."""
         for zone in self.zones:
             if zone.zone_id == zone_id:

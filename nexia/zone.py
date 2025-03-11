@@ -33,6 +33,21 @@ if TYPE_CHECKING:
     from .home import NexiaHome
     from .thermostat import NexiaThermostat
 
+RUN_MODE_KEYS = (
+    "run_mode",
+    "thermostat_run_mode",  # ux360
+)
+HOLD_VALUES = (
+    HOLD_PERMANENT,
+    "hold",  # ux360
+)
+HOLD_VALUES_SET = set(HOLD_VALUES)
+RESUME_SCHEDULE_VALUES = (
+    HOLD_RESUME_SCHEDULE,
+    "schedule",  # ux360
+)
+RESUME_VALUES_SET = set(RESUME_SCHEDULE_VALUES)
+
 
 class ZoneEndpoint(Enum):
     """Enum for Thermostat Endpoints."""
@@ -61,7 +76,7 @@ class ZoneEndPointData:
 ENDPOINT_MAP = {
     ZoneEndpoint.RUN_MODE: ZoneEndPointData(
         type="feature",
-        key="thermostat_fan_mode",
+        key="thermostat_run_mode",
         action="update_thermostat_run_mode",
         fallback_endpoint="run_mode",
     ),
@@ -187,12 +202,15 @@ class NexiaThermostatZone:
         """
         return self._get_zone_key("zone_status") or ZONE_IDLE
 
-    def _get_zone_run_mode(self) -> dict[str, Any]:
+    def _get_zone_run_mode(self) -> dict[str, Any] | None:
         """Returns the run mode ("permanent_hold", "run_schedule")
         :return: str.
         """
         # Will be None is scheduling is disabled
-        return self._get_zone_setting_or_none("run_mode")
+        for key in RUN_MODE_KEYS:
+            if run_mode := self._get_zone_setting_or_none(key):
+                return run_mode
+        return None
 
     def get_setpoint_status(self) -> str:
         """Returns the setpoint status, like "Following Schedule - Home", or
@@ -211,7 +229,7 @@ class NexiaThermostatZone:
             run_mode_current_value,
         )["label"]
 
-        if run_mode_current_value == HOLD_PERMANENT:
+        if run_mode_current_value in HOLD_VALUES_SET:
             return run_mode_label
 
         preset_label = self.get_preset()
@@ -289,15 +307,34 @@ class NexiaThermostatZone:
             )
         # The heat and cool setpoints appear to be valid.
 
+    def _get_run_mode_option_values(self) -> set[str] | None:
+        if not (data := self._get_zone_run_mode()) or "options" not in data:
+            return None
+        options = data["options"]
+        return {option["value"] for option in options}
+
+    def _get_perm_hold_value(self) -> str:
+        if not (values := self._get_run_mode_option_values()) or not (
+            intersection_values := values & HOLD_VALUES_SET
+        ):
+            return HOLD_VALUES[0]
+        return intersection_values.pop()
+
+    def _get_resume_schedule_value(self) -> str:
+        if not (values := self._get_run_mode_option_values()) or not (
+            intersection_values := values & RESUME_VALUES_SET
+        ):
+            return RESUME_SCHEDULE_VALUES[0]
+        return intersection_values.pop()
+
     def is_in_permanent_hold(self) -> bool:
         """Returns True if the zone is in a permanent hold.
         :return: bool.
         """
-        run_mode = self._get_zone_run_mode()
-        if not run_mode:
+        if not (run_mode := self._get_zone_run_mode()):
             # Scheduling is disabled
             return True
-        return run_mode["current_value"] == HOLD_PERMANENT
+        return run_mode["current_value"] in HOLD_VALUES_SET
 
     def get_sensors(self) -> list[NexiaSensor]:
         """Get the sensor detail data objects from this instance
@@ -320,10 +357,10 @@ class NexiaThermostatZone:
         """
         # Set the thermostat
         if run_mode := self._get_zone_run_mode():
-            if run_mode["current_value"] == HOLD_RESUME_SCHEDULE:
+            if run_mode["current_value"] in RESUME_VALUES_SET:
                 return
             await self._post_and_update_zone_json(
-                ZoneEndpoint.RUN_MODE, {"value": HOLD_RESUME_SCHEDULE}
+                ZoneEndpoint.RUN_MODE, {"value": self._get_resume_schedule_value()}
             )
             return
         # Legacy endpoint
@@ -439,9 +476,9 @@ class NexiaThermostatZone:
         This does not set the temperature, it just sets the hold.
         """
         run_mode = self._get_zone_run_mode()
-        if run_mode and run_mode["current_value"] != HOLD_PERMANENT:
+        if run_mode and run_mode["current_value"] not in HOLD_VALUES_SET:
             await self._post_and_update_zone_json(
-                ZoneEndpoint.RUN_MODE, {"value": HOLD_PERMANENT}
+                ZoneEndpoint.RUN_MODE, {"value": self._get_perm_hold_value()}
             )
 
     async def _set_hold_and_setpoints(
