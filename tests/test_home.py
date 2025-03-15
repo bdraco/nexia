@@ -1776,3 +1776,42 @@ async def test_set_fan_mode_ux360(
     assert requests is not None
     first_request = requests[0]
     assert first_request.kwargs["json"] == {"value": "circulate"}
+
+
+async def test_ux360_current_state(
+    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aioresponses
+) -> None:
+    """Test getting the state of a ux360."""
+    nexia = NexiaHome(aiohttp_session)
+    devices_json = json.loads(await load_fixture("ux360.json"))
+    nexia.update_from_json(devices_json)
+
+    thermostat = nexia.get_thermostat_by_id("123456")
+    zone = thermostat.get_zone_by_id(1)
+
+    assert not thermostat.has_air_cleaner()
+    assert not thermostat.has_variable_fan_speed()
+    assert not thermostat.has_dehumidify_support()
+    assert not thermostat.has_humidify_support()
+    assert (
+        not thermostat.has_emergency_heat()
+    )  # TODO: Emergency heat is implemented as a thermostat mode
+    assert thermostat.is_blower_active()
+    assert thermostat.is_online
+    assert zone.is_calling()
+    assert not zone.is_in_permanent_hold()
+    assert zone.get_current_mode() == "HEAT"
+    assert zone.get_requested_mode() == "HEAT"
+    assert zone.get_presets() == [
+        "Off",
+        "Auto",
+        "Cool",
+        "Heat",
+        "EM Heat",
+    ]  # TODO: this looks wrong
+    assert zone.get_preset() == "Heat"  # TODO: this looks wrong
+    assert zone.get_status() == "heating"
+    assert zone.get_setpoint_status() == "Run Schedule - Heat"  # TODO: this looks wrong
+    assert zone.get_cooling_setpoint() == 73
+    assert zone.get_heating_setpoint() == 70
+    assert zone.get_name() == "Zone 1"
