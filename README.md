@@ -22,7 +22,7 @@ By connecting this component, you will have access to all thermostats and zones 
 
 The Nexia Thermostat supports the following key concepts.
 
-#### Sensors
+#### RoomIQ Sensors
 
 You can obtain sensor details in a Nexia Thermostat environment.
 The sensor data loaded during Nexia Home update are often out of date.
@@ -33,6 +33,8 @@ If no such service is desired,
 the Nexia Thermostat service `refresh_thermostat_data` is provided to refresh instance data.
 The Nexia Thermostat Zone service `get_sensors` is provided to obtain these
 sensor data in a list of sensor detail data objects of type NexiaSensor.
+You can specify which RoomIQ sensors to include in the zone average via
+the Nexia Thermostat Zone service `select_room_iq_sensors`.
 
 ## Attributes
 
@@ -430,13 +432,27 @@ Part of the `nexia.` services. Sets the humidify setpoint. This is a system-wide
 ## NexiaThermostatZone Services
 
 The following services are provided by the Nexia Thermostat Zone:
-`get_sensors`, `load_current_sensor_state`
+`get_sensors`, `select_room_iq_sensors`, `load_current_sensor_state`
 
 ### Service `get_sensors`
 
 Get the sensor detail data objects from this zone instance.
 Provides a list of sensor detail data objects available in this zone.
 No arguments are passed to this service.
+
+### Service `select_room_iq_sensors`
+
+Specify which RoomIQ sensors to include in the zone average.
+RoomIQ sensors not given to this service are not included.
+You specify which sensors to include by supplying a collection of RoomIQ sensor identifiers.
+Valid identifiers come from the sensor detail data objects returned from `get_sensors`.
+This service returns a bool indicating if it completed successfully.
+
+| Service data attribute | Optional | Default | Description                                                      |
+| ---------------------- | -------- | ------- | ---------------------------------------------------------------- |
+| `active_sensor_ids`    | no       |         | collection of RoomIQ sensor identifiers to form the zone average |
+| `polling_delay`        | yes      | 5.0     | seconds to wait before each polling attempt                      |
+| `max_polls`            | yes      | 8       | maximum number of times to poll for completion                   |
 
 ### Service `load_current_sensor_state`
 
