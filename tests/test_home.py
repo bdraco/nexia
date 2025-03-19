@@ -699,6 +699,11 @@ async def test_single_zone(aiohttp_session: aiohttp.ClientSession) -> None:
     # No sensors
     sensors = zone.get_sensors()
     assert len(sensors) == 0
+    with pytest.raises(
+        AttributeError,
+        match="RoomIQ sensors not supported in zone Thermostat 1 NativeZone",
+    ):
+        await zone.select_room_iq_sensors([76543210])
 
 
 async def test_single_zone_system_off(aiohttp_session: aiohttp.ClientSession) -> None:
@@ -1418,6 +1423,42 @@ async def test_sensor_access(
     assert sensor.weight == 0.5
     assert sensor.temperature == 70
     assert sensor.humidity == 33
+
+    with pytest.raises(
+        ValueError,
+        match=r"At least one sensor is required when selecting RoomIQ sensors, but got `\[\]`",
+    ):
+        await zone.select_room_iq_sensors([])
+
+    with pytest.raises(
+        ValueError,
+        match="RoomIQ sensor with id 76543210 not present",
+    ):
+        await zone.select_room_iq_sensors([76543210])
+
+    # execute normal code path
+    mock_aioresponse.post(
+        "https://www.mynexia.com/mobile/xxl_zones/85034552/update_active_sensors",
+        payload={
+            "success": True,
+            "error": None,
+            "result": {
+                "polling_path": "https://www.mynexia.com/backstage/announcements/98765432106789b84603036489fe8d1e35ca80fa5dd381e5"
+            },
+        },
+    )
+    mock_aioresponse.get(
+        "https://www.mynexia.com/backstage/announcements/98765432106789b84603036489fe8d1e35ca80fa5dd381e5",
+        body=b"null",
+    )
+    mock_aioresponse.get(
+        "https://www.mynexia.com/backstage/announcements/98765432106789b84603036489fe8d1e35ca80fa5dd381e5",
+        payload={
+            "status": "success, altered to enhance test coverage",
+            "options": {},
+        },
+    )
+    assert await zone.select_room_iq_sensors((17687546, 17687549), 0.01) is True
 
     assert persist_file.exists() is True
     persist_file.unlink()
