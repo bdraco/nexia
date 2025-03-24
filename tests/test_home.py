@@ -2,6 +2,7 @@
 
 import asyncio
 import json
+import logging
 import os
 from os.path import dirname
 from pathlib import Path
@@ -1299,6 +1300,7 @@ async def test_sensor_access(
     """Test sensor access methods."""
     persist_file = Path("nexia_config_test.conf")
     nexia = NexiaHome(aiohttp_session, house_id=2582941, state_file=persist_file)
+    logging.getLogger("nexia").setLevel(logging.DEBUG)
     mock_aioresponse.post(
         "https://www.mynexia.com/mobile/accounts/sign_in",
         payload={
@@ -1362,8 +1364,8 @@ async def test_sensor_access(
     assert sensor.battery_low is False
     assert sensor.battery_valid is True
 
-    # execute log response code path
-    nexia.log_response = True
+    # execute no log response code path
+    nexia.log_response = False
 
     # execute no completion code path
     mock_aioresponse.post(

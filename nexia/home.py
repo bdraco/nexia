@@ -113,7 +113,7 @@ class NexiaHome:
         self._uuid = None
         self.session = session
         self.loop = asyncio.get_running_loop()
-        self.log_response = False
+        self.log_response = True
 
     @property
     def API_MOBILE_PHONE_URL(self) -> str:  # pylint: disable=invalid-name
@@ -191,22 +191,23 @@ class NexiaHome:
         return headers
 
     async def _debug_log_resp(self, response: aiohttp.ClientResponse) -> None:
-        if self.log_response:
-            _LOGGER.debug(
-                "%s: Response from url %s: status: %s:\n%s",
-                response.method,
-                response.url,
-                response.status,
-                (await response.text()).strip(),
-            )
-        else:
-            _LOGGER.debug(
-                "%s: Response from url %s: status: %s: %s",
-                response.method,
-                response.url,
-                response.status,
-                response.content,
-            )
+        if _LOGGER.isEnabledFor(logging.DEBUG):
+            if self.log_response:
+                _LOGGER.debug(
+                    "%s: Response from url %s: status: %s:\n%s",
+                    response.method,
+                    response.url,
+                    response.status,
+                    (await response.text()).strip(),
+                )
+            else:
+                _LOGGER.debug(
+                    "%s: Response from url %s: status: %s: %s",
+                    response.method,
+                    response.url,
+                    response.status,
+                    response.content,
+                )
 
     async def post_url(
         self, request_url: URL | str, payload: dict
