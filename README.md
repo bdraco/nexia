@@ -295,12 +295,12 @@ The following attribute is provided by the Nexia Home:
 
 An instance attribute of NexiaHome that controls logging http response text.
 This can be True or False.
-It is initialized to False and you can change it to
-True when you want to collect http response text in your logs.
+It is initialized to True and you can change it to False
+when you want to stop collecting http response text in your logs.
 
-| Attribute type | Description              |
-| -------------- | ------------------------ |
-| Boolean        | response logging control |
+| Attribute type | Default | Description              |
+| -------------- | ------- | ------------------------ |
+| Boolean        | True    | response logging control |
 
 ## Services
 
