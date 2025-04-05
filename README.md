@@ -33,6 +33,8 @@ If no such service is desired,
 the Nexia Thermostat service `refresh_thermostat_data` is provided to refresh instance data.
 The Nexia Thermostat Zone service `get_sensors` is provided to obtain these
 sensor data in a list of sensor detail data objects of type NexiaSensor.
+To get a specific sensor detail data object,
+the Nexia Thermostat Zone service `get_sensor_by_id` is provided.
 You can specify which RoomIQ sensors to include in the zone average via
 the Nexia Thermostat Zone service `select_room_iq_sensors`.
 
@@ -432,13 +434,23 @@ Part of the `nexia.` services. Sets the humidify setpoint. This is a system-wide
 ## NexiaThermostatZone Services
 
 The following services are provided by the Nexia Thermostat Zone:
-`get_sensors`, `select_room_iq_sensors`, `load_current_sensor_state`
+`get_sensors`, `get_sensor_by_id`, `select_room_iq_sensors`, `load_current_sensor_state`
 
 ### Service `get_sensors`
 
 Get the sensor detail data objects from this zone instance.
 Provides a list of sensor detail data objects available in this zone.
 No arguments are passed to this service.
+
+### Service `get_sensor_by_id`
+
+Get a RoomIQ sensor detail data object by its sensor identifier.
+Valid identifiers come from the sensor detail data objects returned from `get_sensors`.
+Provides a specific sensor detail data object from this zone instance.
+
+| Service data attribute | Optional | Description                        |
+| ---------------------- | -------- | ---------------------------------- |
+| `sensor_id`            | no       | identifier of RoomIQ sensor to get |
 
 ### Service `select_room_iq_sensors`
 

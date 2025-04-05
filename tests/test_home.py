@@ -706,6 +706,12 @@ async def test_single_zone(aiohttp_session: aiohttp.ClientSession) -> None:
     ):
         await zone.select_room_iq_sensors([76543210])
 
+    with pytest.raises(
+        AttributeError,
+        match="RoomIQ sensors not supported in zone Thermostat 1 NativeZone",
+    ):
+        zone.get_sensor_by_id(87654321)
+
 
 async def test_single_zone_system_off(aiohttp_session: aiohttp.ClientSession) -> None:
     """Test thermostat with only a single (Native) zone."""
@@ -1348,6 +1354,29 @@ async def test_sensor_access(
     assert sensor.battery_valid is None
 
     sensor = sensors[1]
+    assert sensor.id == 17687549
+    assert sensor.name == "Upstairs"
+    assert sensor.type == "930"
+    assert sensor.serial_number == "2410R5C53X"
+    assert sensor.weight == 0.5
+    assert sensor.temperature == 69
+    assert sensor.temperature_valid is True
+    assert sensor.humidity == 32
+    assert sensor.humidity_valid is True
+    assert sensor.has_online is True
+    assert sensor.connected is True
+    assert sensor.has_battery is True
+    assert sensor.battery_level == 95
+    assert sensor.battery_low is False
+    assert sensor.battery_valid is True
+
+    with pytest.raises(
+        KeyError,
+        match=r"Sensor ID \(87654321\) not found, valid IDs: 17687546, 17687549",
+    ):
+        zone.get_sensor_by_id(87654321)
+
+    sensor = zone.get_sensor_by_id(17687549)
     assert sensor.id == 17687549
     assert sensor.name == "Upstairs"
     assert sensor.type == "930"
