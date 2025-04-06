@@ -339,8 +339,13 @@ class NexiaThermostatZone:
         return run_mode["current_value"] in HOLD_VALUES_SET
 
     def _get_room_iq_sensors_json(self) -> list[dict[str, Any]]:
-        """Get our list of RoomIQ sensor json dictionaries, or raise KeyError."""
-        return self._get_zone_features("room_iq_sensors")["sensors"]
+        """Get our list of RoomIQ sensor json dictionaries, or raise AttributeError."""
+        try:
+            return self._get_zone_features("room_iq_sensors")["sensors"]
+        except KeyError as e:
+            raise AttributeError(
+                f"RoomIQ sensors not supported in zone {self.get_name()}"
+            ) from e
 
     def get_sensors(self) -> list[NexiaSensor]:
         """Get the sensor detail data objects from this instance
@@ -350,9 +355,24 @@ class NexiaThermostatZone:
             sensors_json = self._get_room_iq_sensors_json()
 
             return [NexiaSensor.from_json(sensor_json) for sensor_json in sensors_json]
-        except KeyError:
+        except AttributeError:
             # our json has no sensors
             return []
+
+    def get_sensor_by_id(self, sensor_id: int) -> NexiaSensor:
+        """Get a RoomIQ sensor detail data object by its sensor id.
+        :param sensor_id: identifier of RoomIQ sensor to get
+        :return: sensor detail data object
+        """
+        sensors_json = self._get_room_iq_sensors_json()
+        try:
+            sensor_json = find_dict_with_keyvalue_in_json(sensors_json, "id", sensor_id)
+            return NexiaSensor.from_json(sensor_json)
+        except KeyError:
+            valid_ids = (str(sensor_json["id"]) for sensor_json in sensors_json)
+            raise KeyError(
+                f"Sensor ID ({sensor_id}) not found, valid IDs: {', '.join(valid_ids)}"
+            ) from None
 
     ########################################################################
     # Zone Set Methods
@@ -561,12 +581,7 @@ class NexiaThermostatZone:
                 f" RoomIQ sensors, but got `{active_sensor_ids!r}`"
             )
         active_sensor_id_set = set(active_sensor_ids)
-        try:
-            request_json = copy.deepcopy(self._get_room_iq_sensors_json())
-        except KeyError as e:
-            raise AttributeError(
-                f"RoomIQ sensors not supported in zone {self.get_name()}"
-            ) from e
+        request_json = copy.deepcopy(self._get_room_iq_sensors_json())
 
         known_sensor_ids = [sensor["id"] for sensor in request_json]
         for sensor_id in active_sensor_id_set:
