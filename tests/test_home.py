@@ -6,6 +6,7 @@ import logging
 import os
 from os.path import dirname
 from pathlib import Path
+from unittest.mock import AsyncMock
 
 import aiohttp
 import pytest
@@ -19,7 +20,7 @@ from nexia.home import (
     extract_children_from_devices_json,
 )
 from nexia.thermostat import NexiaThermostat, clamp_to_predefined_values
-from nexia.util import find_dict_with_keyvalue_in_json
+from nexia.util import SingleShot, find_dict_with_keyvalue_in_json
 
 pytestmark = pytest.mark.asyncio
 
@@ -1848,3 +1849,34 @@ async def test_set_fan_mode_ux360(
     assert requests is not None
     first_request = requests[0]
     assert first_request.kwargs["json"] == {"value": "circulate"}
+
+
+async def test_resettable_single_shot() -> None:
+    """Test class SingleShot."""
+    loop = asyncio.get_running_loop()
+    delayed_call = AsyncMock()
+    single_shot = SingleShot(loop, 0.01, delayed_call)
+
+    # Fire once.
+    single_shot.reset_delayed_action_trigger()
+    assert delayed_call.call_count == 0
+    assert single_shot.action_pending() is True
+
+    # Fire again while pending.
+    single_shot.reset_delayed_action_trigger()
+    assert delayed_call.call_count == 0
+    assert single_shot.action_pending() is True
+
+    # Wait some time to run.
+    await asyncio.sleep(0.02)
+    assert delayed_call.call_count == 1
+    assert single_shot.action_pending() is False
+
+    # Fire again, then exercise shutdown path.
+    single_shot.reset_delayed_action_trigger()
+    assert delayed_call.call_count == 1
+    assert single_shot.action_pending() is True
+    single_shot.async_shutdown()
+    single_shot.reset_delayed_action_trigger()
+    assert delayed_call.call_count == 1
+    assert single_shot.action_pending() is False

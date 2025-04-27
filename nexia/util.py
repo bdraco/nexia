@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 import uuid
+from collections.abc import Callable, Coroutine
 from json import JSONDecodeError
 from typing import Any
 
@@ -57,3 +59,68 @@ def _create_uuid(filename):
 def find_humidity_setpoint(setpoint: float) -> float:
     """Find the closest humidity setpoint."""
     return round(0.05 * round(setpoint / 0.05), 2)
+
+
+class SingleShot:
+    """Provide a single shot timer that can be reset.
+
+    Fire a while following the *last* call to `reset_delayed_action_trigger`.
+    Caller should use `async_shutdown` to clean up when no longer needed.
+    """
+
+    def __init__(
+        self,
+        loop: asyncio.AbstractEventLoop,
+        delay_seconds: float,
+        delayed_coro: Callable[[], Coroutine[Any, Any, None]],
+    ) -> None:
+        """Initialize this single shot timer.
+
+        :param loop: running event loop
+        :param delay_seconds: seconds to delay before scheduling call
+        :param delayed_coro: coroutine to call after delay
+        """
+        self._loop = loop
+        self._delay = delay_seconds
+        self._delayed_coro = delayed_coro
+        self._cancel_delayed_action: asyncio.TimerHandle | None = None
+        self._execute_lock = asyncio.Lock()
+        self._shutting_down = False
+
+    async def _delayed_action(self) -> None:
+        """Perform the action now that the delay has completed."""
+        self._cancel_delayed_action = None
+
+        async with self._execute_lock:
+            # Abort if rescheduled while waiting for the lock or shutting down.
+            if self._cancel_delayed_action or self._shutting_down:
+                return
+
+            # Perform the primary action for this timer.
+            await self._delayed_coro()
+
+    def reset_delayed_action_trigger(self) -> None:
+        """Set or reset the delayed action trigger.
+
+        Perform the action a while after this call.
+        """
+        if self._shutting_down:
+            return
+        if self._cancel_delayed_action:
+            self._cancel_delayed_action.cancel()
+
+        self._cancel_delayed_action = self._loop.call_later(
+            self._delay, lambda: self._loop.create_task(self._delayed_action())
+        )
+
+    def action_pending(self) -> bool:
+        """Return if a delayed action is pending."""
+        return self._cancel_delayed_action is not None
+
+    def async_shutdown(self) -> None:
+        """Clean up."""
+        self._shutting_down = True
+        if self._cancel_delayed_action:
+            self._cancel_delayed_action.cancel()
+            self._cancel_delayed_action = None
+        self._delayed_coro = None  # type: ignore[assignment]
