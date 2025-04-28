@@ -359,6 +359,18 @@ class NexiaThermostatZone:
             # our json has no sensors
             return []
 
+    def get_active_sensor_ids(self) -> set[int]:
+        """Get the set of RoomIQ sensor ids included in the zone average.
+
+        :return: set of active RoomIQ sensor ids.
+        """
+        try:
+            sensors_json = self._get_room_iq_sensors_json()
+
+            return {sensor["id"] for sensor in sensors_json if sensor["weight"] > 0.0}
+        except AttributeError:
+            return set()
+
     def get_sensor_by_id(self, sensor_id: int) -> NexiaSensor:
         """Get a RoomIQ sensor detail data object by its sensor id.
         :param sensor_id: identifier of RoomIQ sensor to get
