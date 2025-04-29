@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-__version__ = "2.7.0"
+__version__ = "2.8.0"
 
 BRAND_NEXIA = "nexia"
 BRAND_ASAIR = "asair"
