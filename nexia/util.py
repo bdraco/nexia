@@ -84,12 +84,14 @@ class SingleShot:
         self._delay = delay_seconds
         self._delayed_coro = delayed_coro
         self._cancel_delayed_action: asyncio.TimerHandle | None = None
+        self._delayed_exec: Coroutine[Any, Any, None] | None = None
         self._execute_lock = asyncio.Lock()
         self._shutting_down = False
 
     async def _delayed_action(self) -> None:
         """Perform the action now that the delay has completed."""
         self._cancel_delayed_action = None
+        self._delayed_exec = None
 
         async with self._execute_lock:
             # Abort if rescheduled while waiting for the lock or shutting down.
@@ -108,9 +110,11 @@ class SingleShot:
             return
         if self._cancel_delayed_action:
             self._cancel_delayed_action.cancel()
+        if self._delayed_exec is None:
+            self._delayed_exec = self._delayed_action()
 
         self._cancel_delayed_action = self._loop.call_later(
-            self._delay, lambda: self._loop.create_task(self._delayed_action())
+            self._delay, self._loop.create_task, self._delayed_exec
         )
 
     def action_pending(self) -> bool:
@@ -123,4 +127,6 @@ class SingleShot:
         if self._cancel_delayed_action:
             self._cancel_delayed_action.cancel()
             self._cancel_delayed_action = None
+        if self._delayed_exec:
+            self._delayed_exec.close()
         self._delayed_coro = None  # type: ignore[assignment]
