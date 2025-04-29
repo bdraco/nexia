@@ -37,6 +37,8 @@ To get a specific sensor detail data object,
 the Nexia Thermostat Zone service `get_sensor_by_id` is provided.
 You can specify which RoomIQ sensors to include in the zone average via
 the Nexia Thermostat Zone service `select_room_iq_sensors`.
+You can see which RoomIQ sensors are included in the zone average via
+the Nexia Thermostat Zone service `get_active_sensor_ids`.
 
 ## Attributes
 
@@ -434,12 +436,19 @@ Part of the `nexia.` services. Sets the humidify setpoint. This is a system-wide
 ## NexiaThermostatZone Services
 
 The following services are provided by the Nexia Thermostat Zone:
-`get_sensors`, `get_sensor_by_id`, `select_room_iq_sensors`, `load_current_sensor_state`
+`get_sensors`, `get_active_sensor_ids`, `get_sensor_by_id`,
+`select_room_iq_sensors`, `load_current_sensor_state`
 
 ### Service `get_sensors`
 
 Get the sensor detail data objects from this zone instance.
 Provides a list of sensor detail data objects available in this zone.
+No arguments are passed to this service.
+
+### Service `get_active_sensor_ids`
+
+Get the set of RoomIQ sensor ids included in the zone average.
+Provides a set of active RoomIQ sensor ids.
 No arguments are passed to this service.
 
 ### Service `get_sensor_by_id`

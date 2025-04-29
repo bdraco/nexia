@@ -700,6 +700,7 @@ async def test_single_zone(aiohttp_session: aiohttp.ClientSession) -> None:
     # No sensors
     sensors = zone.get_sensors()
     assert len(sensors) == 0
+    assert len(zone.get_active_sensor_ids()) == 0
     with pytest.raises(
         AttributeError,
         match="RoomIQ sensors not supported in zone Thermostat 1 NativeZone",
@@ -1369,6 +1370,8 @@ async def test_sensor_access(
     assert sensor.battery_level == 95
     assert sensor.battery_low is False
     assert sensor.battery_valid is True
+
+    assert zone.get_active_sensor_ids() == {17687546, 17687549}
 
     with pytest.raises(
         KeyError,
