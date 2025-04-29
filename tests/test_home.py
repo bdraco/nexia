@@ -6,7 +6,7 @@ import logging
 import os
 from os.path import dirname
 from pathlib import Path
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import aiohttp
 import pytest
@@ -21,6 +21,7 @@ from nexia.home import (
 )
 from nexia.thermostat import NexiaThermostat, clamp_to_predefined_values
 from nexia.util import SingleShot, find_dict_with_keyvalue_in_json
+from nexia.zone import NexiaThermostatZone
 
 pytestmark = pytest.mark.asyncio
 
@@ -1884,3 +1885,68 @@ async def test_resettable_single_shot() -> None:
     single_shot.reset_delayed_action_trigger()
     assert delayed_call.call_count == 1
     assert single_shot.action_pending() is False
+
+
+@patch.object(NexiaThermostatZone, "select_room_iq_sensors")
+async def test_sensor_multi_select(aiohttp_session: aiohttp.ClientSession) -> None:
+    """Test class NexiaRoomIQSensorMultiSelect."""
+    nexia = NexiaHome(aiohttp_session)
+    devices_json = json.loads(await load_fixture("sensors_xl1050_house.json"))
+    nexia.update_from_json(devices_json)
+
+    assert nexia.get_thermostat_ids() == [5378307]
+    thermostat = nexia.get_thermostat_by_id(5378307)
+
+    assert thermostat.get_zone_ids() == [85034552]
+    zone = thermostat.get_zone_by_id(85034552)
+    loop = asyncio.get_running_loop()
+    async_request_refetch = AsyncMock()
+    signal_updated = MagicMock()
+    zone.multi_select_sensor_init(loop, async_request_refetch, signal_updated, 0.01)
+
+    # Sensors start out included.
+    assert zone.multi_selected_sensor_ids == {17687546, 17687549}
+    assert zone.multi_sensor_request_pending() is False
+
+    # Exclude one sensor.
+    zone.trigger_multi_remove_sensor(17687546)
+    assert zone.multi_selected_sensor_ids == {17687549}
+    assert zone.multi_sensor_request_pending() is True
+
+    # Exclude the other, an invalid combination.
+    zone.trigger_multi_remove_sensor(17687549)
+    assert len(zone.multi_selected_sensor_ids) == 0
+    assert signal_updated.call_count == 0
+    assert zone.multi_sensor_request_pending() is True
+
+    # Wait some time to run no selected sensor case.
+    await asyncio.sleep(0.02)
+    assert zone.multi_selected_sensor_ids == {17687546, 17687549}
+    assert signal_updated.call_count == 1
+    assert zone.multi_sensor_request_pending() is False
+
+    # Exclude a sensor.
+    zone.trigger_multi_remove_sensor(17687549)
+    assert zone.multi_selected_sensor_ids == {17687546}
+    assert signal_updated.call_count == 1
+    assert zone.multi_sensor_request_pending() is True
+
+    # Wait some time to run normal selected sensor case.
+    assert async_request_refetch.call_count == 0
+    await asyncio.sleep(0.02)
+    assert zone.multi_selected_sensor_ids == {17687546}
+    assert async_request_refetch.call_count == 1
+    assert signal_updated.call_count == 2
+    assert zone.multi_sensor_request_pending() is False
+
+    # Include one again, then exercise shutdown path.
+    zone.trigger_multi_add_sensor(17687549)
+    assert zone.multi_selected_sensor_ids == {17687546, 17687549}
+    assert signal_updated.call_count == 2
+    assert zone.multi_sensor_request_pending() is True
+    await nexia.async_shutdown()
+    assert signal_updated.call_count == 3
+    assert zone.multi_sensor_request_pending() is False
+    await asyncio.sleep(0.02)
+    assert async_request_refetch.call_count == 1
+    assert signal_updated.call_count == 3

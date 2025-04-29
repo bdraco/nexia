@@ -7,7 +7,7 @@ import copy
 import json
 import logging
 import math
-from collections.abc import Iterable
+from collections.abc import Callable, Coroutine, Iterable
 from dataclasses import dataclass
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Any, Literal
@@ -27,7 +27,7 @@ from .const import (
     ZONE_IDLE,
 )
 from .sensor import NexiaSensor
-from .util import find_dict_with_keyvalue_in_json
+from .util import SingleShot, find_dict_with_keyvalue_in_json
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -669,6 +669,72 @@ class NexiaThermostatZone:
         _LOGGER.error("Gave up waiting while %s", target)
         return False
 
+    def multi_select_sensor_init(
+        self,
+        loop: asyncio.AbstractEventLoop,
+        async_request_refetch: Callable[[], Coroutine[Any, Any, None]],
+        signal_updated: Callable[[], None],
+        after_last_change_seconds=4.0,
+    ) -> None:
+        """Initialize our multi-select control variables to track which RoomIQ sensors
+        are to be selected for this zone and make the selection after inactivity.
+
+        This helps coordinate separate manual actions taken to select active sensors.
+        :param loop: running event loop
+        :param async_request_refetch: coroutine to request a refetch of zone status
+        :param signal_updated: function to signal that our state has changed
+        :param after_last_change_seconds: seconds to delay before selecting sensors
+        """
+        self.multi_selected_sensor_ids = self.get_active_sensor_ids()
+        self._multi_loop = loop
+        self._multi_async_request_refetch = async_request_refetch
+        self._multi_signal_updated = signal_updated
+        self._multi_sensor_request_time: float | None = None
+        self._multi_sensor_single_shot = SingleShot(
+            loop, after_last_change_seconds, self._multi_select_sensors
+        )
+
+    def trigger_multi_add_sensor(self, sensor_id: int) -> None:
+        """Trigger selecting the specified sensor for this zone."""
+        self._multi_sensor_request_time = self._multi_loop.time()
+        self.multi_selected_sensor_ids.add(sensor_id)
+        self._multi_sensor_single_shot.reset_delayed_action_trigger()
+
+    def trigger_multi_remove_sensor(self, sensor_id: int) -> None:
+        """Trigger removing the specified sensor from this zone selection."""
+        self._multi_sensor_request_time = self._multi_loop.time()
+        self.multi_selected_sensor_ids.discard(sensor_id)
+        self._multi_sensor_single_shot.reset_delayed_action_trigger()
+
+    async def _multi_select_sensors(self) -> None:
+        """Select the RoomIQ sensors now that the delay has completed.
+
+        Fires a while following the *last* change made in this zone's multi controls.
+        """
+        active_sensors = self.get_active_sensor_ids()
+        selected_sensors = self.multi_selected_sensor_ids
+
+        # At least one sensor must be selected and the request should differ.
+        if not selected_sensors or selected_sensors == active_sensors:
+            self.multi_selected_sensor_ids = active_sensors
+            self._multi_sensor_request_time = None
+            self._multi_signal_updated()
+            return
+
+        select_time = self._multi_sensor_request_time
+        try:
+            await self.select_room_iq_sensors(selected_sensors)
+        finally:
+            if self._multi_sensor_request_time == select_time:
+                # No new requests have triggered.
+                self._multi_sensor_request_time = None
+            await self._multi_async_request_refetch()
+            self._multi_signal_updated()
+
+    def multi_sensor_request_pending(self) -> bool:
+        """Return if a requested multi-select sensor change is pending."""
+        return self._multi_sensor_request_time is not None
+
     def round_temp(self, temperature: float) -> float:
         """Rounds the temperature to the nearest 1/2 degree for C and nearest 1
         degree for F
@@ -818,4 +884,7 @@ class NexiaThermostatZone:
         Consider calling NexiaHome.async_shutdown() instead unless
         you only want to stop this NexiaThermostatZone instance.
         """
-        # future PR will go here
+        if hasattr(self, "_multi_sensor_single_shot"):
+            self._multi_sensor_single_shot.async_shutdown()
+            self._multi_sensor_request_time = None
+            self._multi_signal_updated()
