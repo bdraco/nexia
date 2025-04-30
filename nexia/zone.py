@@ -811,3 +811,11 @@ class NexiaThermostatZone:
             self.zone_id,
         )
         self._zone_json.update(zone_json)
+
+    async def async_shutdown(self) -> None:
+        """Clean up before stopping.
+
+        Consider calling NexiaHome.async_shutdown() instead unless
+        you only want to stop this NexiaThermostatZone instance.
+        """
+        # future PR will go here
