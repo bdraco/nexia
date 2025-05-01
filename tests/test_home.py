@@ -1899,10 +1899,9 @@ async def test_sensor_multi_select(aiohttp_session: aiohttp.ClientSession) -> No
 
     assert thermostat.get_zone_ids() == [85034552]
     zone = thermostat.get_zone_by_id(85034552)
-    loop = asyncio.get_running_loop()
     async_request_refetch = AsyncMock()
     signal_updated = MagicMock()
-    zone.multi_select_sensor_init(loop, async_request_refetch, signal_updated, 0.01)
+    zone.multi_select_sensor_init(async_request_refetch, signal_updated, 0.01)
 
     # Sensors start out included.
     assert zone.multi_selected_sensor_ids == {17687546, 17687549}

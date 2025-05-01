@@ -501,7 +501,6 @@ This helps coordinate separate manual actions taken to select active sensors.
 
 | Service data attribute    | Optional | Default | Description                                   |
 | ------------------------- | -------- | ------- | --------------------------------------------- |
-| loop                      | no       |         | running event loop                            |
 | async_request_refetch     | no       |         | coroutine to request a refetch of zone status |
 | signal_updated            | no       |         | function to signal that our state has changed |
 | after_last_change_seconds | yes      | 4.0     | seconds to delay before selecting sensors     |

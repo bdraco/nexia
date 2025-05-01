@@ -671,7 +671,6 @@ class NexiaThermostatZone:
 
     def multi_select_sensor_init(
         self,
-        loop: asyncio.AbstractEventLoop,
         async_request_refetch: Callable[[], Coroutine[Any, Any, None]],
         signal_updated: Callable[[], None],
         after_last_change_seconds=4.0,
@@ -680,18 +679,17 @@ class NexiaThermostatZone:
         are to be selected for this zone and make the selection after inactivity.
 
         This helps coordinate separate manual actions taken to select active sensors.
-        :param loop: running event loop
         :param async_request_refetch: coroutine to request a refetch of zone status
         :param signal_updated: function to signal that our state has changed
         :param after_last_change_seconds: seconds to delay before selecting sensors
         """
         self.multi_selected_sensor_ids = self.get_active_sensor_ids()
-        self._multi_loop = loop
         self._multi_async_request_refetch = async_request_refetch
         self._multi_signal_updated = signal_updated
+        self._multi_loop = asyncio.get_running_loop()
         self._multi_sensor_request_time: float | None = None
         self._multi_sensor_single_shot = SingleShot(
-            loop, after_last_change_seconds, self._multi_select_sensors
+            self._multi_loop, after_last_change_seconds, self._multi_select_sensors
         )
 
     def trigger_multi_add_sensor(self, sensor_id: int) -> None:
