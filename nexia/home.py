@@ -527,12 +527,6 @@ class NexiaHome:
         """
         return [automation.automation_id for automation in self.automations]
 
-    async def async_shutdown(self) -> None:
-        """Clean up before stopping."""
-        if self.thermostats:
-            for thermostat in self.thermostats:
-                await thermostat.async_shutdown()
-
 
 def _extract_devices_from_houses_json(json_dict: dict) -> list[dict[str, Any]]:
     """Extracts the payload from the houses json endpoint data."""

@@ -157,7 +157,6 @@ async def test_login(
         body=await load_fixture("zone_response.json"),
     )
     await zone.set_heat_cool_temp(69.0, 78.0)
-    await nexia.async_shutdown()
 
     assert persist_file.exists() is True
     persist_file.unlink()
