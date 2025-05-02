@@ -19,7 +19,7 @@ from nexia.home import (
     _extract_devices_from_houses_json,
     extract_children_from_devices_json,
 )
-from nexia.sensor_multiselect import NexiaRoomIQSensorMultiselect
+from nexia.roomiq import NexiaRoomIQHarmonizer
 from nexia.thermostat import NexiaThermostat, clamp_to_predefined_values
 from nexia.util import SingleShot, find_dict_with_keyvalue_in_json
 from nexia.zone import NexiaThermostatZone
@@ -1890,7 +1890,7 @@ async def test_resettable_single_shot() -> None:
 
 @patch.object(NexiaThermostatZone, "select_room_iq_sensors")
 async def test_sensor_multi_select(aiohttp_session: aiohttp.ClientSession) -> None:
-    """Test class NexiaRoomIQSensorMultiSelect."""
+    """Test class NexiaRoomIQHarmonizer."""
     nexia = NexiaHome(aiohttp_session)
     devices_json = json.loads(await load_fixture("sensors_xl1050_house.json"))
     nexia.update_from_json(devices_json)
@@ -1902,53 +1902,51 @@ async def test_sensor_multi_select(aiohttp_session: aiohttp.ClientSession) -> No
     zone = thermostat.get_zone_by_id(85034552)
     async_request_refetch = AsyncMock()
     signal_updated = MagicMock()
-    multi = NexiaRoomIQSensorMultiselect(
-        zone, async_request_refetch, signal_updated, 0.01
-    )
+    harm = NexiaRoomIQHarmonizer(zone, async_request_refetch, signal_updated, 0.01)
 
     # Sensors start out included.
-    assert multi.selected_sensor_ids == {17687546, 17687549}
-    assert multi.request_pending() is False
+    assert harm.selected_sensor_ids == {17687546, 17687549}
+    assert harm.request_pending() is False
 
     # Exclude one sensor.
-    multi.trigger_remove_sensor(17687546)
-    assert multi.selected_sensor_ids == {17687549}
-    assert multi.request_pending() is True
+    harm.trigger_remove_sensor(17687546)
+    assert harm.selected_sensor_ids == {17687549}
+    assert harm.request_pending() is True
 
     # Exclude the other, an invalid combination.
-    multi.trigger_remove_sensor(17687549)
-    assert len(multi.selected_sensor_ids) == 0
+    harm.trigger_remove_sensor(17687549)
+    assert len(harm.selected_sensor_ids) == 0
     assert signal_updated.call_count == 0
-    assert multi.request_pending() is True
+    assert harm.request_pending() is True
 
     # Wait some time to run no selected sensor case.
     await asyncio.sleep(0.02)
-    assert multi.selected_sensor_ids == {17687546, 17687549}
+    assert harm.selected_sensor_ids == {17687546, 17687549}
     assert signal_updated.call_count == 1
-    assert multi.request_pending() is False
+    assert harm.request_pending() is False
 
     # Exclude a sensor.
-    multi.trigger_remove_sensor(17687549)
-    assert multi.selected_sensor_ids == {17687546}
+    harm.trigger_remove_sensor(17687549)
+    assert harm.selected_sensor_ids == {17687546}
     assert signal_updated.call_count == 1
-    assert multi.request_pending() is True
+    assert harm.request_pending() is True
 
     # Wait some time to run normal selected sensor case.
     assert async_request_refetch.call_count == 0
     await asyncio.sleep(0.02)
-    assert multi.selected_sensor_ids == {17687546}
+    assert harm.selected_sensor_ids == {17687546}
     assert async_request_refetch.call_count == 1
     assert signal_updated.call_count == 2
-    assert multi.request_pending() is False
+    assert harm.request_pending() is False
 
     # Include one again, then exercise shutdown path.
-    multi.trigger_add_sensor(17687549)
-    assert multi.selected_sensor_ids == {17687546, 17687549}
+    harm.trigger_add_sensor(17687549)
+    assert harm.selected_sensor_ids == {17687546, 17687549}
     assert signal_updated.call_count == 2
-    assert multi.request_pending() is True
-    await multi.async_shutdown()
+    assert harm.request_pending() is True
+    await harm.async_shutdown()
     assert signal_updated.call_count == 3
-    assert multi.request_pending() is False
+    assert harm.request_pending() is False
     await asyncio.sleep(0.02)
     assert async_request_refetch.call_count == 1
     assert signal_updated.call_count == 3

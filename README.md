@@ -41,7 +41,7 @@ the Nexia Thermostat Zone service `select_room_iq_sensors`.
 You can see which RoomIQ sensors are included in the zone average via
 the Nexia Thermostat Zone service `get_active_sensor_ids`.
 To help coordinate separate manual actions taken to select active sensors
-you can use the Nexia RoomIQ Sensor Multiselect services `trigger_add_sensor`,
+you can use the Nexia RoomIQ Harmonizer services `trigger_add_sensor`,
 `trigger_remove_sensor`, `request_pending`, `async_shutdown`.
 
 ## Attributes
@@ -491,15 +491,15 @@ This service returns a bool indicating if it completed successfully.
 | `polling_delay`        | yes      | 5.0     | seconds to wait before each polling attempt    |
 | `max_polls`            | yes      | 8       | maximum number of times to poll for completion |
 
-## NexiaRoomIQSensorMultiselect Services
+## NexiaRoomIQHarmonizer Services
 
-The Nexia RoomIQ Sensor Multiselect controller tracks which RoomIQ sensors
+The Nexia RoomIQ Harmonizer controller tracks which RoomIQ sensors
 are to be selected for a zone and makes the selection after inactivity.
 This helps coordinate separate manual actions taken to select active sensors.
-The following services are provided by the Nexia RoomIQ Sensor Multiselect:
+The following services are provided by the Nexia RoomIQ Harmonizer:
 `trigger_add_sensor`, `trigger_remove_sensor`, `request_pending`, `async_shutdown`
 
-To construct a `NexiaRoomIQSensorMultiselect` object, the following parameters apply.
+To construct a `NexiaRoomIQHarmonizer` object, the following parameters apply.
 
 | Service data attribute    | Optional | Default | Description                                   |
 | ------------------------- | -------- | ------- | --------------------------------------------- |
@@ -526,7 +526,7 @@ Trigger removing the specified sensor from the zone selection.
 
 ### Service `request_pending`
 
-Return if a requested multiselect sensor change is pending.
+Return if a triggered sensor selection is pending.
 No arguments are passed to this service.
 
 ### Service `async_shutdown`

@@ -1,4 +1,4 @@
-"""Nexia RoomIQ Sensor Multiselect."""
+"""Nexia RoomIQ utility class."""
 
 import asyncio
 from collections.abc import Callable, Coroutine
@@ -8,8 +8,8 @@ from .util import SingleShot
 from .zone import NexiaThermostatZone
 
 
-class NexiaRoomIQSensorMultiselect:
-    """Multiselect controller to track which RoomIQ sensors are to be
+class NexiaRoomIQHarmonizer:
+    """Controller to track which RoomIQ sensors are to be
     selected for a zone and make the selection after inactivity.
 
     This helps coordinate separate manual actions taken to select active sensors.
@@ -54,7 +54,7 @@ class NexiaRoomIQSensorMultiselect:
     async def _select_sensors(self) -> None:
         """Select the RoomIQ sensors now that the delay has completed.
 
-        Fires a while following the *last* change made in the zone's multi controls.
+        Fires a while following the *last* trigger in the zone's sensor selections.
         """
         active_sensors = self._zone.get_active_sensor_ids()
 
@@ -76,7 +76,7 @@ class NexiaRoomIQSensorMultiselect:
             self._signal_updated()
 
     def request_pending(self) -> bool:
-        """Return if a requested multiselect sensor change is pending."""
+        """Return if a triggered sensor selection is pending."""
         return self._request_time is not None
 
     async def async_shutdown(self) -> None:
