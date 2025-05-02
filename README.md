@@ -35,10 +35,14 @@ The Nexia Thermostat Zone service `get_sensors` is provided to obtain these
 sensor data in a list of sensor detail data objects of type NexiaSensor.
 To get a specific sensor detail data object,
 the Nexia Thermostat Zone service `get_sensor_by_id` is provided.
+
 You can specify which RoomIQ sensors to include in the zone average via
 the Nexia Thermostat Zone service `select_room_iq_sensors`.
 You can see which RoomIQ sensors are included in the zone average via
 the Nexia Thermostat Zone service `get_active_sensor_ids`.
+To help coordinate separate manual actions taken to select active sensors
+you can use the Nexia RoomIQ Harmonizer services `trigger_add_sensor`,
+`trigger_remove_sensor`, `request_pending`, `async_shutdown`.
 
 ## Attributes
 
@@ -486,6 +490,49 @@ This service returns a bool indicating if it completed successfully.
 | ---------------------- | -------- | ------- | ---------------------------------------------- |
 | `polling_delay`        | yes      | 5.0     | seconds to wait before each polling attempt    |
 | `max_polls`            | yes      | 8       | maximum number of times to poll for completion |
+
+## NexiaRoomIQHarmonizer Services
+
+The Nexia RoomIQ Harmonizer controller tracks which RoomIQ sensors
+are to be selected for a zone and makes the selection after inactivity.
+This helps coordinate separate manual actions taken to select active sensors.
+The following services are provided by the Nexia RoomIQ Harmonizer:
+`trigger_add_sensor`, `trigger_remove_sensor`, `request_pending`, `async_shutdown`
+
+To construct a `NexiaRoomIQHarmonizer` object, the following parameters apply.
+
+| Service data attribute    | Optional | Default | Description                                   |
+| ------------------------- | -------- | ------- | --------------------------------------------- |
+| zone                      | no       |         | zone to control                               |
+| async_request_refetch     | no       |         | coroutine to request a refetch of zone status |
+| signal_updated            | no       |         | function to signal that our state has changed |
+| after_last_change_seconds | yes      | 4.0     | seconds to delay before selecting sensors     |
+
+### Service `trigger_add_sensor`
+
+Trigger selecting the specified sensor for the zone.
+
+| Service data attribute | Optional | Default | Description                                             |
+| ---------------------- | -------- | ------- | ------------------------------------------------------- |
+| `sensor_id`            | no       |         | identifier of the sensor to add to the zone's selection |
+
+### Service `trigger_remove_sensor`
+
+Trigger removing the specified sensor from the zone selection.
+
+| Service data attribute | Optional | Default | Description                                                  |
+| ---------------------- | -------- | ------- | ------------------------------------------------------------ |
+| `sensor_id`            | no       |         | identifier of the sensor to remove from the zone's selection |
+
+### Service `request_pending`
+
+Return if a triggered sensor selection is pending.
+No arguments are passed to this service.
+
+### Service `async_shutdown`
+
+Clean up before stopping.
+No arguments are passed to this service.
 
 [code-coverage]: https://codecov.io/gh/bdraco/nexia
 [code-cover-shield]: https://codecov.io/gh/bdraco/nexia/branch/master/graph/badge.svg
