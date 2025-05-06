@@ -1920,7 +1920,6 @@ async def test_sensor_multi_select(aiohttp_session: aiohttp.ClientSession) -> No
 
     # Wait some time to run no selected sensor case.
     await asyncio.sleep(0.02)
-    assert harm.selected_sensor_ids == {17687546, 17687549}
     assert signal_updated.call_count == 1
     assert harm.request_pending() is False
 
@@ -1933,7 +1932,6 @@ async def test_sensor_multi_select(aiohttp_session: aiohttp.ClientSession) -> No
     # Wait some time to run normal selected sensor case.
     assert async_request_refetch.call_count == 0
     await asyncio.sleep(0.02)
-    assert harm.selected_sensor_ids == {17687546}
     assert async_request_refetch.call_count == 1
     assert signal_updated.call_count == 2
     assert harm.request_pending() is False

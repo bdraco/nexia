@@ -41,15 +41,21 @@ class NexiaRoomIQHarmonizer:
 
     def trigger_add_sensor(self, sensor_id: int) -> None:
         """Trigger selecting the specified sensor for the zone."""
-        self._request_time = self._loop.time()
+        self._start_trigger()
         self.selected_sensor_ids.add(sensor_id)
         self._single_shot.reset_delayed_action_trigger()
 
     def trigger_remove_sensor(self, sensor_id: int) -> None:
         """Trigger removing the specified sensor from the zone selection."""
-        self._request_time = self._loop.time()
+        self._start_trigger()
         self.selected_sensor_ids.discard(sensor_id)
         self._single_shot.reset_delayed_action_trigger()
+
+    def _start_trigger(self):
+        """Start a trigger sequence. If none yet pending, update sensor selection."""
+        if self._request_time is None:
+            self.selected_sensor_ids = self._zone.get_active_sensor_ids()
+        self._request_time = self._loop.time()
 
     async def _select_sensors(self) -> None:
         """Select the RoomIQ sensors now that the delay has completed.
@@ -60,7 +66,6 @@ class NexiaRoomIQHarmonizer:
 
         # At least one sensor must be selected and the request should differ.
         if not self.selected_sensor_ids or self.selected_sensor_ids == active_sensors:
-            self.selected_sensor_ids = active_sensors
             self._request_time = None
             self._signal_updated()
             return
