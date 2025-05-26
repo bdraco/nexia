@@ -5,7 +5,6 @@
 import argparse
 import asyncio
 import logging
-import pprint
 import sys
 import json
 
