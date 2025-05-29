@@ -1915,6 +1915,30 @@ async def test_ux360_current_state(
     assert zone2.get_temperature() == 72
 
 
+async def test_ux360_multiple_thermostats_detected(
+    aiohttp_session: aiohttp.ClientSession,
+) -> None:
+    """Test that multiple UX360 thermostats are detected."""
+    nexia = NexiaHome(aiohttp_session)
+    devices_json = json.loads(await load_fixture("ux360_real.json"))
+    nexia.update_from_json(devices_json)
+
+    # Check that both thermostats are detected
+    thermostat_ids = nexia.get_thermostat_ids()
+    assert len(thermostat_ids) == 2
+    assert "XXXXXX1" in thermostat_ids
+    assert "XXXXXX2" in thermostat_ids
+
+    # Verify we can get both thermostats
+    thermostat1 = nexia.get_thermostat_by_id("XXXXXX1")
+    assert thermostat1 is not None
+    assert thermostat1.get_name() == "Most of House"
+
+    thermostat2 = nexia.get_thermostat_by_id("XXXXXX2")
+    assert thermostat2 is not None
+    assert thermostat2.get_name() == "Primary Suite"
+
+
 async def test_ux360_set_setpoints_with_put(
     aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aioresponses
 ) -> None:
