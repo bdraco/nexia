@@ -5,7 +5,7 @@ watchdog==6.0.0
 mypy==1.15.0
 flake8==7.2.0
 tox==4.25.0
-coverage==7.8.0
+coverage==7.8.2
 Sphinx==8.2.3
 twine==6.1.0
 orjson==3.10.18
