@@ -247,6 +247,44 @@ class NexiaHome:
         response.raise_for_status()
         return response
 
+    async def put_url(
+        self, request_url: URL | str, payload: dict
+    ) -> aiohttp.ClientResponse:
+        """Puts data to the session from the url and payload
+        :param request_url: str
+        :param payload: dict
+        :return: response.
+        """
+        headers = self._api_key_headers()
+        _LOGGER.debug(
+            "PUT: Calling url %s with headers: %s and payload: %s",
+            request_url,
+            headers,
+            payload,
+        )
+
+        response: aiohttp.ClientResponse = await self.session.put(
+            request_url,
+            json=payload,
+            timeout=TIMEOUT,
+            headers=headers,
+            max_redirects=MAX_REDIRECTS,
+        )
+
+        await self._debug_log_resp(response)
+        if response.status == 302:
+            # assuming its redirecting to login
+            _LOGGER.debug(
+                "PUT Response returned code 302, re-attempting login and resending request.",
+            )
+            await self.login()
+            return await self.put_url(request_url, payload)
+
+        # no need to sleep anymore as we consume the response and update the thermostat's JSON
+
+        response.raise_for_status()
+        return response
+
     async def _get_url(
         self,
         request_url: URL | str,
