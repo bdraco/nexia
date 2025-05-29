@@ -800,13 +800,16 @@ class NexiaThermostat:
                 thermostat_id=self.thermostat_id,
             )
 
-        if method != DEFAULT_UPDATE_METHOD:
+        if method == "POST":
+            async with await self._nexia_home.post_url(url, payload) as response:
+                self.update_thermostat_json((await response.json())["result"])
+        elif method == "PUT":
+            async with await self._nexia_home.put_url(url, payload) as response:
+                self.update_thermostat_json((await response.json())["result"])
+        else:
             raise ValueError(
                 f"Unsupported method {method} for endpoint {end_point} url {url}"
             )
-
-        async with await self._nexia_home.post_url(url, payload) as response:
-            self.update_thermostat_json((await response.json())["result"])
 
     def update_thermostat_json(self, thermostat_json):
         """Update with new json from the api."""

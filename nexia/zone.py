@@ -793,12 +793,16 @@ class NexiaThermostatZone:
         payload: dict[str, Any],
         method: str,
     ) -> None:
-        if method != DEFAULT_UPDATE_METHOD:
+        if method == "POST":
+            async with await self._nexia_home.post_url(url, payload) as response:
+                self.update_zone_json((await response.json())["result"])
+        elif method == "PUT":
+            async with await self._nexia_home.put_url(url, payload) as response:
+                self.update_zone_json((await response.json())["result"])
+        else:
             raise ValueError(
                 f"Unsupported method {method} for endpoint {end_point} url {url}"
             )
-        async with await self._nexia_home.post_url(url, payload) as response:
-            self.update_zone_json((await response.json())["result"])
 
     def update_zone_json(self, zone_json: dict[str, Any]) -> None:
         """Update with new json from the api."""

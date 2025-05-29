@@ -1856,6 +1856,127 @@ async def test_set_fan_mode_ux360(
     assert first_request.kwargs["json"] == {"value": "circulate"}
 
 
+async def test_ux360_current_state(
+    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aioresponses
+) -> None:
+    """Test getting the state of a ux360."""
+    nexia = NexiaHome(aiohttp_session)
+    devices_json = json.loads(await load_fixture("ux360_real.json"))
+    nexia.update_from_json(devices_json)
+
+    # Test first thermostat
+    thermostat = nexia.get_thermostat_by_id("XXXXXX1")
+    assert thermostat.get_model() == "TSYS2C60A2VVUGA"
+    assert thermostat.get_firmware() == "09.01.00.250409"
+    assert thermostat.get_device_id() == "XXXXXX1"
+    assert thermostat.get_type() == "TSYS2C60A2VVUGA"
+    assert thermostat.get_name() == "Most of House"
+    assert thermostat.get_deadband() == 3
+    assert thermostat.get_setpoint_limits() == (55, 99)
+    assert (
+        thermostat.has_variable_fan_speed() is False
+    )  # UX360 does not have variable fan speed
+    assert thermostat.get_unit() == "F"
+    assert thermostat.get_fan_mode() == "Circulate"
+    assert thermostat.get_fan_modes() == ["Circulate", "Auto", "On"]
+    assert (
+        thermostat.get_current_compressor_speed() == 0.3
+    )  # But it does have variable compressor speed
+    assert thermostat.has_dehumidify_support() is False
+    assert thermostat.has_humidify_support() is False
+    assert thermostat.has_emergency_heat() is False
+    assert thermostat.get_system_status() == "Cooling"
+    assert thermostat.has_air_cleaner() is False
+    assert thermostat.is_blower_active() is True
+    assert thermostat.is_online is True
+    assert thermostat.get_relative_humidity() == 0.50
+    assert thermostat.get_outdoor_temperature() == 87
+
+    zone = thermostat.get_zone_by_id(1)
+    assert zone.get_name() == "Zone 1"
+    assert zone.get_temperature() == 71
+    assert zone.get_cooling_setpoint() == 71
+    assert zone.get_heating_setpoint() == 66
+    assert zone.get_current_mode() == "AUTO"
+    assert zone.get_requested_mode() == "AUTO"
+    assert zone.get_status() == "cooling"
+    assert zone.get_setpoint_status() == "Run Schedule - Auto"
+    assert zone.is_calling() is True
+    assert zone.is_in_permanent_hold() is False
+
+    # Test second thermostat
+    thermostat2 = nexia.get_thermostat_by_id("XXXXXX2")
+    assert thermostat2.get_name() == "Primary Suite"
+    assert thermostat2.get_relative_humidity() == 0.47
+    assert thermostat2.get_outdoor_temperature() == 88
+    assert thermostat2.get_current_compressor_speed() == 0.99
+
+    zone2 = thermostat2.get_zone_by_id(1)
+    assert zone2.get_temperature() == 72
+
+
+async def test_ux360_multiple_thermostats_detected(
+    aiohttp_session: aiohttp.ClientSession,
+) -> None:
+    """Test that multiple UX360 thermostats are detected."""
+    nexia = NexiaHome(aiohttp_session)
+    devices_json = json.loads(await load_fixture("ux360_real.json"))
+    nexia.update_from_json(devices_json)
+
+    # Check that both thermostats are detected
+    thermostat_ids = nexia.get_thermostat_ids()
+    assert len(thermostat_ids) == 2
+    assert "XXXXXX1" in thermostat_ids
+    assert "XXXXXX2" in thermostat_ids
+
+    # Verify we can get both thermostats
+    thermostat1 = nexia.get_thermostat_by_id("XXXXXX1")
+    assert thermostat1 is not None
+    assert thermostat1.get_name() == "Most of House"
+
+    thermostat2 = nexia.get_thermostat_by_id("XXXXXX2")
+    assert thermostat2 is not None
+    assert thermostat2.get_name() == "Primary Suite"
+
+
+async def test_ux360_set_setpoints_with_put(
+    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aioresponses
+) -> None:
+    """Test setting setpoints on UX360 which uses PUT method."""
+    nexia = NexiaHome(aiohttp_session)
+    devices_json = json.loads(await load_fixture("ux360_real.json"))
+    nexia.update_from_json(devices_json)
+
+    thermostat = nexia.get_thermostat_by_id("XXXXXX1")
+    zone = thermostat.get_zone_by_id(1)
+
+    # Mock the PUT request for setting setpoints
+    mock_aioresponse.put(
+        "https://www.mynexia.com/mobile/diagnostics/thermostats/XXXXXX1/setpoints/1",
+        payload={
+            "result": devices_json["result"]["_links"]["child"][0]["data"]["items"][0]
+        },
+    )
+
+    # Set new temperature setpoints
+    await zone.set_heat_cool_temp(heat_temperature=68, cool_temperature=72)
+
+    # Verify the PUT request was made
+    request = mock_aioresponse.requests.get(
+        (
+            "PUT",
+            URL(
+                "https://www.mynexia.com/mobile/diagnostics/thermostats/XXXXXX1/setpoints/1"
+            ),
+        )
+    )
+    assert request is not None
+    # Check the payload
+    first_request = request[0]
+    assert first_request.kwargs["json"]["heat"] == 68
+    assert first_request.kwargs["json"]["cool"] == 72
+
+
 async def test_resettable_single_shot() -> None:
     """Test class SingleShot."""
     loop = asyncio.get_running_loop()

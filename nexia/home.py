@@ -53,12 +53,25 @@ def extract_children_from_devices_json(
 ) -> list[dict[str, Any]]:
     """Extracts the payload from the devices json endpoint data."""
     children: list[dict[str, Any]] = []
+    _LOGGER.debug("Extracting children from %d device entries", len(devices_json))
     for child in devices_json:
         type_ = child.get("type")
+        _LOGGER.debug(
+            "Processing device: id=%s, name=%s, type=%s",
+            child.get("id", "Unknown"),
+            child.get("name", "Unknown"),
+            type_,
+        )
         if not type_ or "thermostat" in type_:
             children.append(child)
+            _LOGGER.debug("Added device as thermostat")
         elif type_ == "group" and "_links" in child and "child" in child["_links"]:
-            children.extend(sub_child["data"] for sub_child in child["_links"]["child"])
+            group_children = [
+                sub_child["data"] for sub_child in child["_links"]["child"]
+            ]
+            _LOGGER.debug("Found group with %d children", len(group_children))
+            children.extend(group_children)
+    _LOGGER.debug("Extracted total of %d children devices", len(children))
     return children
 
 
@@ -247,6 +260,44 @@ class NexiaHome:
         response.raise_for_status()
         return response
 
+    async def put_url(
+        self, request_url: URL | str, payload: dict
+    ) -> aiohttp.ClientResponse:
+        """Puts data to the session from the url and payload
+        :param request_url: str
+        :param payload: dict
+        :return: response.
+        """
+        headers = self._api_key_headers()
+        _LOGGER.debug(
+            "PUT: Calling url %s with headers: %s and payload: %s",
+            request_url,
+            headers,
+            payload,
+        )
+
+        response: aiohttp.ClientResponse = await self.session.put(
+            request_url,
+            json=payload,
+            timeout=TIMEOUT,
+            headers=headers,
+            max_redirects=MAX_REDIRECTS,
+        )
+
+        await self._debug_log_resp(response)
+        if response.status == 302:
+            # assuming its redirecting to login
+            _LOGGER.debug(
+                "PUT Response returned code 302, re-attempting login and resending request.",
+            )
+            await self.login()
+            return await self.put_url(request_url, payload)
+
+        # no need to sleep anymore as we consume the response and update the thermostat's JSON
+
+        response.raise_for_status()
+        return response
+
     async def _get_url(
         self,
         request_url: URL | str,
@@ -373,13 +424,26 @@ class NexiaHome:
     def _update_devices(self):
         self.last_update = datetime.datetime.now()
         children = extract_children_from_devices_json(self.devices_json)
+        _LOGGER.debug("Found %d potential thermostat devices", len(children))
         if self.thermostats is None:
             self.thermostats = []
             for child in children:
                 nexia_thermostat = NexiaThermostat(self, child)
-                if not nexia_thermostat.get_zone_ids():
+                zone_ids = nexia_thermostat.get_zone_ids()
+                if not zone_ids:
                     # No zones (likely an xl624 which is not supported at this time)
+                    _LOGGER.warning(
+                        "Skipping thermostat %s (%s) - no zones found",
+                        child.get("id", "Unknown"),
+                        child.get("name", "Unknown"),
+                    )
                     continue
+                _LOGGER.debug(
+                    "Adding thermostat %s (%s) with %d zones",
+                    nexia_thermostat.thermostat_id,
+                    nexia_thermostat.get_name(),
+                    len(zone_ids),
+                )
                 self.thermostats.append(nexia_thermostat)
 
         thermostat_updates_by_id = {
@@ -530,16 +594,37 @@ class NexiaHome:
 
 def _extract_devices_from_houses_json(json_dict: dict) -> list[dict[str, Any]]:
     """Extracts the payload from the houses json endpoint data."""
-    return _extract_items(
-        json_dict["result"]["_links"]["child"][DEVICES_ELEMENT]["data"],
+    children = json_dict["result"]["_links"]["child"]
+
+    # Try to find the devices element by looking for the one with thermostat data
+    for i, child in enumerate(children):
+        if "href" in child and "/devices" in child["href"]:
+            _LOGGER.debug("Found devices at index %d", i)
+            return _extract_items(child["data"])
+
+    # Fallback to the original index-based approach
+    _LOGGER.warning(
+        "Could not find devices by href, falling back to index %d", DEVICES_ELEMENT
     )
+    return _extract_items(children[DEVICES_ELEMENT]["data"])
 
 
 def _extract_automations_from_houses_json(json_dict: dict) -> list[dict[str, Any]]:
     """Extracts the payload from the houses json endpoint data."""
-    return _extract_items(
-        json_dict["result"]["_links"]["child"][AUTOMATIONS_ELEMENT]["data"],
+    children = json_dict["result"]["_links"]["child"]
+
+    # Try to find the automations element by looking for the one with automation data
+    for i, child in enumerate(children):
+        if "href" in child and "/automations" in child["href"]:
+            _LOGGER.debug("Found automations at index %d", i)
+            return _extract_items(child["data"])
+
+    # Fallback to the original index-based approach
+    _LOGGER.warning(
+        "Could not find automations by href, falling back to index %d",
+        AUTOMATIONS_ELEMENT,
     )
+    return _extract_items(children[AUTOMATIONS_ELEMENT]["data"])
 
 
 def _extract_items(json_dict: dict) -> list[dict[str, Any]]:
