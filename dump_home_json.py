@@ -4,8 +4,8 @@
 
 import argparse
 import asyncio
+import json
 import logging
-import pprint
 import sys
 
 import aiohttp
@@ -48,8 +48,21 @@ else:
     sys.exit()
 
 if args.pretty:
-    pprint.pprint(nexia_home.devices_json)
-    pprint.pprint(nexia_home.automations_json)
+    print(
+        json.dumps(
+            {
+                "devices": nexia_home.devices_json,
+                "automations": nexia_home.automations_json,
+            },
+            indent=2,
+        )
+    )
 else:
-    print(nexia_home.devices_json)
-    print(nexia_home.automations_json)
+    print(
+        json.dumps(
+            {
+                "devices": nexia_home.devices_json,
+                "automations": nexia_home.automations_json,
+            }
+        )
+    )

@@ -2,9 +2,11 @@
 
 import asyncio
 import json
+import logging
 import os
 from os.path import dirname
 from pathlib import Path
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import aiohttp
 import pytest
@@ -17,8 +19,10 @@ from nexia.home import (
     _extract_devices_from_houses_json,
     extract_children_from_devices_json,
 )
+from nexia.roomiq import NexiaRoomIQHarmonizer
 from nexia.thermostat import NexiaThermostat, clamp_to_predefined_values
-from nexia.util import find_dict_with_keyvalue_in_json
+from nexia.util import SingleShot, find_dict_with_keyvalue_in_json
+from nexia.zone import NexiaThermostatZone
 
 pytestmark = pytest.mark.asyncio
 
@@ -699,6 +703,18 @@ async def test_single_zone(aiohttp_session: aiohttp.ClientSession) -> None:
     # No sensors
     sensors = zone.get_sensors()
     assert len(sensors) == 0
+    assert len(zone.get_active_sensor_ids()) == 0
+    with pytest.raises(
+        AttributeError,
+        match="RoomIQ sensors not supported in zone Thermostat 1 NativeZone",
+    ):
+        await zone.select_room_iq_sensors([76543210])
+
+    with pytest.raises(
+        AttributeError,
+        match="RoomIQ sensors not supported in zone Thermostat 1 NativeZone",
+    ):
+        zone.get_sensor_by_id(87654321)
 
 
 async def test_single_zone_system_off(aiohttp_session: aiohttp.ClientSession) -> None:
@@ -1294,6 +1310,7 @@ async def test_sensor_access(
     """Test sensor access methods."""
     persist_file = Path("nexia_config_test.conf")
     nexia = NexiaHome(aiohttp_session, house_id=2582941, state_file=persist_file)
+    logging.getLogger("nexia").setLevel(logging.DEBUG)
     mock_aioresponse.post(
         "https://www.mynexia.com/mobile/accounts/sign_in",
         payload={
@@ -1357,8 +1374,33 @@ async def test_sensor_access(
     assert sensor.battery_low is False
     assert sensor.battery_valid is True
 
-    # execute log response code path
-    nexia.log_response = True
+    assert zone.get_active_sensor_ids() == {17687546, 17687549}
+
+    with pytest.raises(
+        KeyError,
+        match=r"Sensor ID \(87654321\) not found, valid IDs: 17687546, 17687549",
+    ):
+        zone.get_sensor_by_id(87654321)
+
+    sensor = zone.get_sensor_by_id(17687549)
+    assert sensor.id == 17687549
+    assert sensor.name == "Upstairs"
+    assert sensor.type == "930"
+    assert sensor.serial_number == "2410R5C53X"
+    assert sensor.weight == 0.5
+    assert sensor.temperature == 69
+    assert sensor.temperature_valid is True
+    assert sensor.humidity == 32
+    assert sensor.humidity_valid is True
+    assert sensor.has_online is True
+    assert sensor.connected is True
+    assert sensor.has_battery is True
+    assert sensor.battery_level == 95
+    assert sensor.battery_low is False
+    assert sensor.battery_valid is True
+
+    # execute no log response code path
+    nexia.log_response = False
 
     # execute no completion code path
     mock_aioresponse.post(
@@ -1418,6 +1460,42 @@ async def test_sensor_access(
     assert sensor.weight == 0.5
     assert sensor.temperature == 70
     assert sensor.humidity == 33
+
+    with pytest.raises(
+        ValueError,
+        match=r"At least one sensor is required when selecting RoomIQ sensors, but got `\[\]`",
+    ):
+        await zone.select_room_iq_sensors([])
+
+    with pytest.raises(
+        ValueError,
+        match="RoomIQ sensor with id 76543210 not present",
+    ):
+        await zone.select_room_iq_sensors([76543210])
+
+    # execute normal code path
+    mock_aioresponse.post(
+        "https://www.mynexia.com/mobile/xxl_zones/85034552/update_active_sensors",
+        payload={
+            "success": True,
+            "error": None,
+            "result": {
+                "polling_path": "https://www.mynexia.com/backstage/announcements/98765432106789b84603036489fe8d1e35ca80fa5dd381e5"
+            },
+        },
+    )
+    mock_aioresponse.get(
+        "https://www.mynexia.com/backstage/announcements/98765432106789b84603036489fe8d1e35ca80fa5dd381e5",
+        body=b"null",
+    )
+    mock_aioresponse.get(
+        "https://www.mynexia.com/backstage/announcements/98765432106789b84603036489fe8d1e35ca80fa5dd381e5",
+        payload={
+            "status": "success, altered to enhance test coverage",
+            "options": {},
+        },
+    )
+    assert await zone.select_room_iq_sensors((17687546, 17687549), 0.01) is True
 
     assert persist_file.exists() is True
     persist_file.unlink()
@@ -1815,3 +1893,96 @@ async def test_ux360_current_state(
     assert zone.get_cooling_setpoint() == 73
     assert zone.get_heating_setpoint() == 70
     assert zone.get_name() == "Zone 1"
+    
+    
+async def test_resettable_single_shot() -> None:
+    """Test class SingleShot."""
+    loop = asyncio.get_running_loop()
+    delayed_call = AsyncMock()
+    single_shot = SingleShot(loop, 0.01, delayed_call)
+
+    # Fire once.
+    single_shot.reset_delayed_action_trigger()
+    assert delayed_call.call_count == 0
+    assert single_shot.action_pending() is True
+
+    # Fire again while pending.
+    single_shot.reset_delayed_action_trigger()
+    assert delayed_call.call_count == 0
+    assert single_shot.action_pending() is True
+
+    # Wait some time to run.
+    await asyncio.sleep(0.02)
+    assert delayed_call.call_count == 1
+    assert single_shot.action_pending() is False
+
+    # Fire again, then exercise shutdown path.
+    single_shot.reset_delayed_action_trigger()
+    assert delayed_call.call_count == 1
+    assert single_shot.action_pending() is True
+    single_shot.async_shutdown()
+    single_shot.reset_delayed_action_trigger()
+    assert delayed_call.call_count == 1
+    assert single_shot.action_pending() is False
+
+
+@patch.object(NexiaThermostatZone, "select_room_iq_sensors")
+async def test_sensor_multi_select(aiohttp_session: aiohttp.ClientSession) -> None:
+    """Test class NexiaRoomIQHarmonizer."""
+    nexia = NexiaHome(aiohttp_session)
+    devices_json = json.loads(await load_fixture("sensors_xl1050_house.json"))
+    nexia.update_from_json(devices_json)
+
+    assert nexia.get_thermostat_ids() == [5378307]
+    thermostat = nexia.get_thermostat_by_id(5378307)
+
+    assert thermostat.get_zone_ids() == [85034552]
+    zone = thermostat.get_zone_by_id(85034552)
+    async_request_refetch = AsyncMock()
+    signal_updated = MagicMock()
+    harm = NexiaRoomIQHarmonizer(zone, async_request_refetch, signal_updated, 0.01)
+
+    # Sensors start out included.
+    assert harm.selected_sensor_ids == {17687546, 17687549}
+    assert harm.request_pending() is False
+
+    # Exclude one sensor.
+    harm.trigger_remove_sensor(17687546)
+    assert harm.selected_sensor_ids == {17687549}
+    assert harm.request_pending() is True
+
+    # Exclude the other, an invalid combination.
+    harm.trigger_remove_sensor(17687549)
+    assert len(harm.selected_sensor_ids) == 0
+    assert signal_updated.call_count == 0
+    assert harm.request_pending() is True
+
+    # Wait some time to run no selected sensor case.
+    await asyncio.sleep(0.02)
+    assert signal_updated.call_count == 1
+    assert harm.request_pending() is False
+
+    # Exclude a sensor.
+    harm.trigger_remove_sensor(17687549)
+    assert harm.selected_sensor_ids == {17687546}
+    assert signal_updated.call_count == 1
+    assert harm.request_pending() is True
+
+    # Wait some time to run normal selected sensor case.
+    assert async_request_refetch.call_count == 0
+    await asyncio.sleep(0.02)
+    assert async_request_refetch.call_count == 1
+    assert signal_updated.call_count == 2
+    assert harm.request_pending() is False
+
+    # Include one again, then exercise shutdown path.
+    harm.trigger_add_sensor(17687549)
+    assert harm.selected_sensor_ids == {17687546, 17687549}
+    assert signal_updated.call_count == 2
+    assert harm.request_pending() is True
+    await harm.async_shutdown()
+    assert signal_updated.call_count == 3
+    assert harm.request_pending() is False
+    await asyncio.sleep(0.02)
+    assert async_request_refetch.call_count == 1
+    assert signal_updated.call_count == 3

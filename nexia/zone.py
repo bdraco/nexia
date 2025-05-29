@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import asyncio
+import copy
 import json
 import logging
 import math
+from collections.abc import Iterable
 from dataclasses import dataclass
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Any, Literal
@@ -336,17 +338,53 @@ class NexiaThermostatZone:
             return True
         return run_mode["current_value"] in HOLD_VALUES_SET
 
+    def _get_room_iq_sensors_json(self) -> list[dict[str, Any]]:
+        """Get our list of RoomIQ sensor json dictionaries, or raise AttributeError."""
+        try:
+            return self._get_zone_features("room_iq_sensors")["sensors"]
+        except KeyError as e:
+            raise AttributeError(
+                f"RoomIQ sensors not supported in zone {self.get_name()}"
+            ) from e
+
     def get_sensors(self) -> list[NexiaSensor]:
         """Get the sensor detail data objects from this instance
         :return: list of sensor detail data objects
         """
         try:
-            sensors_json = self._get_zone_features("room_iq_sensors")["sensors"]
+            sensors_json = self._get_room_iq_sensors_json()
 
             return [NexiaSensor.from_json(sensor_json) for sensor_json in sensors_json]
-        except KeyError:
+        except AttributeError:
             # our json has no sensors
             return []
+
+    def get_active_sensor_ids(self) -> set[int]:
+        """Get the set of RoomIQ sensor ids included in the zone average.
+
+        :return: set of active RoomIQ sensor ids.
+        """
+        try:
+            sensors_json = self._get_room_iq_sensors_json()
+
+            return {sensor["id"] for sensor in sensors_json if sensor["weight"] > 0.0}
+        except AttributeError:
+            return set()
+
+    def get_sensor_by_id(self, sensor_id: int) -> NexiaSensor:
+        """Get a RoomIQ sensor detail data object by its sensor id.
+        :param sensor_id: identifier of RoomIQ sensor to get
+        :return: sensor detail data object
+        """
+        sensors_json = self._get_room_iq_sensors_json()
+        try:
+            sensor_json = find_dict_with_keyvalue_in_json(sensors_json, "id", sensor_id)
+            return NexiaSensor.from_json(sensor_json)
+        except KeyError:
+            valid_ids = (str(sensor_json["id"]) for sensor_json in sensors_json)
+            raise KeyError(
+                f"Sensor ID ({sensor_id}) not found, valid IDs: {', '.join(valid_ids)}"
+            ) from None
 
     ########################################################################
     # Zone Set Methods
@@ -540,6 +578,43 @@ class NexiaThermostatZone:
                 f'Invalid mode "{mode}". Select one of the following: {OPERATION_MODES}',
             )
 
+    async def select_room_iq_sensors(
+        self, active_sensor_ids: Iterable[int], polling_delay=5.0, max_polls=8
+    ) -> bool:
+        """Select which RoomIQ sensors are included in the zone average.
+        :param active_sensor_ids: collection of RoomIQ sensor identifiers to form the zone average
+        :param polling_delay: seconds to wait before each polling attempt
+        :param max_polls: maximum number of times to poll for completion
+        :return: bool indicating completed
+        """
+        if not active_sensor_ids:
+            raise ValueError(
+                f"At least one sensor is required when selecting"
+                f" RoomIQ sensors, but got `{active_sensor_ids!r}`"
+            )
+        active_sensor_id_set = set(active_sensor_ids)
+        request_json = copy.deepcopy(self._get_room_iq_sensors_json())
+
+        known_sensor_ids = [sensor["id"] for sensor in request_json]
+        for sensor_id in active_sensor_id_set:
+            if sensor_id not in known_sensor_ids:
+                raise ValueError(f"RoomIQ sensor with id {sensor_id} not present")
+
+        weight = 1 / len(active_sensor_id_set)
+        for sensor in request_json:
+            sensor["weight"] = weight if sensor["id"] in active_sensor_id_set else 0.0
+
+        update_active_sensors = self.API_MOBILE_ZONE_URL.format(
+            end_point="update_active_sensors", zone_id=self.zone_id
+        )
+        return await self._post_and_await_async_completion(
+            update_active_sensors,
+            {"updated_sensors": request_json},
+            "selecting active sensors",
+            polling_delay,
+            max_polls,
+        )
+
     async def load_current_sensor_state(self, polling_delay=5.0, max_polls=8) -> bool:
         """Load the current state of a zone's sensors into the physical thermostat.
         :param polling_delay: seconds to wait before each polling attempt
@@ -549,8 +624,27 @@ class NexiaThermostatZone:
         req_cur_state = self.API_MOBILE_ZONE_URL.format(
             end_point="request_current_sensor_state", zone_id=self.zone_id
         )
+        return await self._post_and_await_async_completion(
+            req_cur_state, {}, "loading current sensor state", polling_delay, max_polls
+        )
 
-        async with await self._nexia_home.post_url(req_cur_state, {}) as response:
+    async def _post_and_await_async_completion(
+        self,
+        request_url: str,
+        json_data: dict,
+        target: str,
+        polling_delay: float,
+        max_polls: int,
+    ) -> bool:
+        """Post a request that returns an asynchronous url to poll for completion.
+        :param request_url: url for service being requested
+        :param json_data: json data to be the request payload
+        :param target: description of what is being accomplished
+        :param polling_delay: seconds to wait before each polling attempt
+        :param max_polls: maximum number of times to poll for completion
+        :return: bool indicating completed
+        """
+        async with await self._nexia_home.post_url(request_url, json_data) as response:
             # The polling path in the response has the form:
             #   https://www.mynexia.com/backstage/announcements/<48-hex-digits>
             polling_url = self._nexia_home.resolve_url(
@@ -567,14 +661,12 @@ class NexiaThermostatZone:
                 status = json.loads(payload)["status"]
 
                 if status != "success":
-                    _LOGGER.error(
-                        "Unexpected status [%s] loading current sensor state", status
-                    )
+                    _LOGGER.error("Unexpected status [%s] %s", status, target)
                 return True
             attempts -= 1
         # end while waiting for status
 
-        _LOGGER.error("Gave up waiting for current sensor state")
+        _LOGGER.error("Gave up waiting while %s", target)
         return False
 
     def round_temp(self, temperature: float) -> float:
