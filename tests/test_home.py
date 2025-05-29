@@ -1893,8 +1893,8 @@ async def test_ux360_current_state(
     assert zone.get_cooling_setpoint() == 73
     assert zone.get_heating_setpoint() == 70
     assert zone.get_name() == "Zone 1"
-    
-    
+
+
 async def test_resettable_single_shot() -> None:
     """Test class SingleShot."""
     loop = asyncio.get_running_loop()
