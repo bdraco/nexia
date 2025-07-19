@@ -28,6 +28,9 @@ You can obtain sensor details in a Nexia Thermostat environment.
 The sensor data loaded during Nexia Home update are often out of date.
 So the Nexia Thermostat Zone service `load_current_sensor_state`
 is provided to load current sensor state into the physical thermostat.
+If you want Nexia Home update to also load current sensor state,
+you can register a monitor via the Nexia Thermostat Zone service `add_room_iq_monitor`.
+
 Many existing thermostat instance services will refresh this sensor data before completing.
 If no such service is desired,
 the Nexia Thermostat service `refresh_thermostat_data` is provided to refresh instance data.
@@ -44,7 +47,33 @@ To help coordinate separate manual actions taken to select active sensors
 you can use the Nexia RoomIQ Harmonizer services `trigger_add_sensor`,
 `trigger_remove_sensor`, `request_pending`, `async_shutdown`.
 
-## Attributes
+## NexiaHome Attributes
+
+The following attribute is provided by the Nexia Home:
+`log_response`
+
+### Attribute `log_response`
+
+An instance attribute of NexiaHome that controls logging http response text.
+This can be True or False.
+It is initialized to True and you can change it to False
+when you want to stop collecting http response text in your logs.
+
+| Attribute type | Default | Description              |
+| -------------- | ------- | ------------------------ |
+| Boolean        | True    | response logging control |
+
+## NexiaHome Services
+
+The following service is provided by the Nexia Home:
+`any_room_iq_monitors`
+
+### Service `any_room_iq_monitors`
+
+Return True when any RoomIQ sensor monitors are present.
+No arguments are passed to this service.
+
+## Thermostat Attributes
 
 The following attributes are provided by the Nexia Thermostat
 `aux_heat`, `away_mode`, `current_humidity`, `current_temperature`,
@@ -294,23 +323,7 @@ The status of the zone, such as 'Cooling', or 'Heating"
 | -------------- | ----------- |
 | String         | zone status |
 
-## NexiaHome Attributes
-
-The following attribute is provided by the Nexia Home:
-`log_response`
-
-### Attribute `log_response`
-
-An instance attribute of NexiaHome that controls logging http response text.
-This can be True or False.
-It is initialized to True and you can change it to False
-when you want to stop collecting http response text in your logs.
-
-| Attribute type | Default | Description              |
-| -------------- | ------- | ------------------------ |
-| Boolean        | True    | response logging control |
-
-## Services
+## Thermostat Services
 
 The following `climate` services are provided by the Nexia Thermostat:
 `set_aux_heat`, `set_away_mode`, `set_fan_mode`, `set_hold_mode`, `set_humidity`,
@@ -441,7 +454,8 @@ Part of the `nexia.` services. Sets the humidify setpoint. This is a system-wide
 
 The following services are provided by the Nexia Thermostat Zone:
 `get_sensors`, `get_active_sensor_ids`, `get_sensor_by_id`,
-`select_room_iq_sensors`, `load_current_sensor_state`
+`select_room_iq_sensors`, `load_current_sensor_state`,
+`add_room_iq_monitor`, `remove_room_iq_monitor`, `has_room_iq_monitor`
 
 ### Service `get_sensors`
 
@@ -490,6 +504,31 @@ This service returns a bool indicating if it completed successfully.
 | ---------------------- | -------- | ------- | ---------------------------------------------- |
 | `polling_delay`        | yes      | 5.0     | seconds to wait before each polling attempt    |
 | `max_polls`            | yes      | 8       | maximum number of times to poll for completion |
+
+### Service `add_room_iq_monitor`
+
+Add a RoomIQ sensor monitor to this zone's collection.
+A RoomIQ sensor monitor lets the Nexia library know there is a party
+interested in seeing current states of this zone's RoomIQ sensors.
+If no monitors are added, updates don't load current RoomIQ sensor states.
+
+| Service data attribute | Optional | Default | Description                                           |
+| ---------------------- | -------- | ------- | ----------------------------------------------------- |
+| `monitor_id`           | no       |         | string for the interested party (unique in this zone) |
+
+### Service `remove_room_iq_monitor`
+
+Remove a RoomIQ sensor monitor from this zone's collection.
+This tells the Nexia library the specified party is no longer
+interested in seeing current states of this zone's RoomIQ sensors.
+
+| Service data attribute | Optional | Default | Description                                          |
+| ---------------------- | -------- | ------- | ---------------------------------------------------- |
+| `monitor_id`           | no       |         | same string that was supplied to add_room_iq_monitor |
+
+### Service `has_room_iq_monitor`
+
+Return True when this zone has any RoomIQ sensor monitors.
 
 ## NexiaRoomIQHarmonizer Services
 

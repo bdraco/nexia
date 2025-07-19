@@ -402,6 +402,21 @@ class NexiaHome:
         await asyncio.sleep(UPDATE_DELAY_SECONDS)
         await self.update()
 
+    def any_room_iq_monitors(self) -> bool:
+        """Return True when any RoomIQ sensor monitors are present."""
+        return bool(self.thermostats) and any(
+            any(zone.has_room_iq_monitor() for zone in therm.zones)
+            for therm in self.thermostats
+        )
+
+    async def _load_current_room_iq_states(self) -> None:
+        """Load the current state of all monitored zones' RoomIQ sensors in parallel."""
+        async with asyncio.TaskGroup() as tg:
+            for therm in self.thermostats:
+                for zone in therm.zones:
+                    if zone.has_room_iq_monitor():
+                        tg.create_task(zone.load_current_sensor_state())
+
     async def update(self, force_update: bool = True) -> dict[str, Any] | None:
         """Updates the nexia status.
         :param force_update: Whether to force the update.
@@ -421,6 +436,8 @@ class NexiaHome:
         if not self.mobile_id:
             # not yet authenticated
             return None
+        if self.any_room_iq_monitors():
+            await self._load_current_room_iq_states()
 
         headers = {}
         if self._last_update_etag:

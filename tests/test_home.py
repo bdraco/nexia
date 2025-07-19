@@ -1426,22 +1426,18 @@ async def test_sensor_access(
     assert await zone.load_current_sensor_state(max_polls=0) is False
 
     # execute normal code path
+    polling_url = "https://www.mynexia.com/backstage/announcements/6a31e745716789b84603036489fe8d1e35ca80fa5dd381e5"
     mock_aioresponse.post(
         "https://www.mynexia.com/mobile/xxl_zones/85034552/request_current_sensor_state",
         payload={
             "success": True,
             "error": None,
-            "result": {
-                "polling_path": "https://www.mynexia.com/backstage/announcements/6a31e745716789b84603036489fe8d1e35ca80fa5dd381e5"
-            },
+            "result": {"polling_path": polling_url},
         },
     )
+    mock_aioresponse.get(polling_url, body=b"null")
     mock_aioresponse.get(
-        "https://www.mynexia.com/backstage/announcements/6a31e745716789b84603036489fe8d1e35ca80fa5dd381e5",
-        body=b"null",
-    )
-    mock_aioresponse.get(
-        "https://www.mynexia.com/backstage/announcements/6a31e745716789b84603036489fe8d1e35ca80fa5dd381e5",
+        polling_url,
         payload={
             "status": "success, altered to enhance test coverage",
             "options": {},
@@ -1510,6 +1506,45 @@ async def test_sensor_access(
     assert persist_file.exists() is True
     persist_file.unlink()
     assert persist_file.exists() is False
+
+
+async def test_room_iq_sensor_monitor(
+    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aiointercept
+) -> None:
+    """Test RoomIQ sensor monitor function."""
+    nexia = NexiaHome(aiohttp_session, house_id=2582941)
+    nexia.mobile_id = 5400000
+
+    mock_aioresponse.get(
+        "https://www.mynexia.com/mobile/houses/2582941",
+        body=await load_fixture("sensors_xl1050_house.json"),
+        repeat=True,
+    )
+
+    with patch(
+        "nexia.zone.NexiaThermostatZone.load_current_sensor_state", return_value=True
+    ) as mock_load_current_sensor_state:
+        # Test that we don't update current sensor state with no added monitors
+        assert nexia.any_room_iq_monitors() is False
+        assert await nexia.update() is not None
+        mock_load_current_sensor_state.assert_not_awaited()
+
+        # Add some monitors
+        zone = nexia.get_thermostat_by_id(5378307).get_zone_by_id(85034552)
+        zone.add_room_iq_monitor("sensor.upstairs_roomiq_battery")
+        zone.add_room_iq_monitor("sensor.center_roomiq_temperature")
+        assert nexia.any_room_iq_monitors() is True
+        # Remove one
+        zone.remove_room_iq_monitor("sensor.upstairs_roomiq_battery")
+        assert nexia.any_room_iq_monitors() is True
+
+        # Make sure we update current sensor state now
+        assert await nexia.update() is not None
+        mock_load_current_sensor_state.assert_awaited_once_with()
+
+    # Remove the last one
+    zone.remove_room_iq_monitor("sensor.center_roomiq_temperature")
+    assert nexia.any_room_iq_monitors() is False
 
 
 async def test_clamp_to_predefined_values() -> None:
