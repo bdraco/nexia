@@ -3,7 +3,7 @@ bump2version==1.0.1
 wheel==0.45.1
 watchdog==6.0.0
 mypy==1.15.0
-flake8==7.2.0
+flake8==7.3.0
 tox==4.28.4
 coverage==7.8.2
 Sphinx==8.2.3
