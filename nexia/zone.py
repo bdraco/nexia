@@ -155,7 +155,10 @@ class NexiaThermostatZone:
 
         :return: str
         """
-        return self._get_zone_setting("zone_mode")["current_value"].upper()
+        try:
+            return self._get_zone_setting("zone_mode")["current_value"].upper()
+        except KeyError:
+            return self._get_zone_setting("mode")["current_value"].upper()
 
     def get_requested_mode(self) -> str:
         """Returns the requested mode of the zone. This should match the zone's
@@ -180,15 +183,21 @@ class NexiaThermostatZone:
 
         :return:
         """
-        options = self._get_zone_setting("preset_selected")["options"]
-        return [opt["label"] for opt in options]
+        try:
+            options = self._get_zone_setting("preset_selected")["options"]
+            return [opt["label"] for opt in options]
+        except KeyError:
+            return []
 
-    def get_preset(self) -> str:
+    def get_preset(self) -> str | None:
         """Returns the zone's currently selected preset. Should be one of the
         strings in NexiaThermostat.get_zone_presets().
         :return: str.
         """
-        preset_selected = self._get_zone_setting("preset_selected")
+        try:
+            preset_selected = self._get_zone_setting("preset_selected")
+        except KeyError:
+            return None
         current_value = preset_selected["current_value"]
         labels = preset_selected["labels"]
         if isinstance(current_value, int):
@@ -212,6 +221,19 @@ class NexiaThermostatZone:
         for key in RUN_MODE_KEYS:
             if run_mode := self._get_zone_setting_or_none(key):
                 return run_mode
+
+        # UX360 stores thermostat_run_mode in features, not settings
+        try:
+            run_mode = self._get_zone_features("thermostat_run_mode")
+            if run_mode:
+                # Convert UX360 format to expected format
+                # UX360 uses "value" instead of "current_value"
+                if "value" in run_mode and "current_value" not in run_mode:
+                    run_mode["current_value"] = run_mode["value"]
+                return run_mode
+        except KeyError:
+            pass
+
         return None
 
     def get_setpoint_status(self) -> str:
@@ -232,6 +254,14 @@ class NexiaThermostatZone:
         )["label"]
 
         if run_mode_current_value in HOLD_VALUES_SET:
+            # For UX360, append the current mode when in hold
+            if run_mode_current_value == "hold":
+                try:
+                    current_mode = self.get_current_mode()
+                    # UX360 uses "Hold Temp" label, but we want just "Hold"
+                    return f"Hold - {current_mode.title()}"
+                except (KeyError, AttributeError):
+                    pass
             return run_mode_label
 
         preset_label = self.get_preset()
@@ -245,6 +275,12 @@ class NexiaThermostatZone:
         """
         if self.is_native_zone():
             return self.thermostat.get_system_status() != SYSTEM_STATUS_IDLE
+
+        zone_status = self._get_zone_key("zone_status")
+        if zone_status == "idle":
+            return False
+        if zone_status in ("cooling", "heating"):
+            return True
 
         operating_state = self._get_zone_key("operating_state")
         return not (not operating_state or operating_state == DAMPER_CLOSED)
