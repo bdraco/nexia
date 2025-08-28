@@ -1915,6 +1915,20 @@ async def test_ux360_current_state(
     assert zone2.get_temperature() == 72
 
 
+async def test_ux360_presets(aiohttp_session: aiohttp.ClientSession) -> None:
+    """Test that UX360 devices handle presets properly (they don't have preset_selected)."""
+    nexia = NexiaHome(aiohttp_session)
+    devices_json = json.loads(await load_fixture("ux360.json"))
+    nexia.update_from_json(devices_json)
+
+    thermostat = nexia.get_thermostat_by_id("123456")
+    zone = thermostat.get_zone_by_id("123456_1")
+
+    # UX360 devices don't have preset_selected, so these should return empty/None
+    assert zone.get_preset() is None
+    assert zone.get_presets() == []
+
+
 async def test_ux360_multiple_thermostats_detected(
     aiohttp_session: aiohttp.ClientSession,
 ) -> None:
