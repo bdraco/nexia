@@ -184,11 +184,8 @@ class NexiaThermostatZone:
 
         :return:
         """
-        try:
-            options = self._get_zone_setting("preset_selected")["options"]
-            return [opt["label"] for opt in options]
-        except KeyError:
-            return []
+        options = self._get_zone_setting("preset_selected")["options"]
+        return [opt["label"] for opt in options]
 
     def get_preset(self) -> str | None:
         """Returns the zone's currently selected preset. Should be one of the
