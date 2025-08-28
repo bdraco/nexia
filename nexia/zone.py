@@ -161,7 +161,13 @@ class NexiaThermostatZone:
 
         :return: str
         """
-        return self._get_zone_setting("zone_mode")["current_value"].upper()
+        zone_mode = self._get_zone_setting_or_none("zone_mode")
+        if zone_mode:
+            return zone_mode["current_value"].upper()
+        # Fall back to thermostat mode for devices without zone_mode
+        return self.thermostat.get_thermostat_settings_key_or_none("mode")[
+            "current_value"
+        ].upper()
 
     def get_requested_mode(self) -> str:
         """Returns the requested mode of the zone. This should match the zone's
@@ -187,6 +193,7 @@ class NexiaThermostatZone:
         :return:
         """
         preset_selected = self._get_zone_setting_or_none("preset_selected")
+        # Make sure this is actually preset_selected, not mode fallback
         if not preset_selected:
             return []
         return [opt["label"] for opt in preset_selected["options"]]
@@ -197,6 +204,7 @@ class NexiaThermostatZone:
         :return: str.
         """
         preset_selected = self._get_zone_setting_or_none("preset_selected")
+        # Make sure this is actually preset_selected, not mode fallback
         if not preset_selected:
             return None
         current_value = preset_selected["current_value"]
@@ -729,9 +737,7 @@ class NexiaThermostatZone:
             if key == "zone_mode":
                 key = "system_mode"
 
-            return thermostat.get_thermostat_settings_key_or_none(
-                key,
-            ) or thermostat.get_thermostat_settings_key_or_none("mode")
+            return thermostat.get_thermostat_settings_key_or_none(key)
 
         zone = self._zone_json
         subdict = find_dict_with_keyvalue_in_json(zone["settings"], "type", key)

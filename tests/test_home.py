@@ -948,10 +948,10 @@ async def test_issue_79891(aiohttp_session: aiohttp.ClientSession) -> None:
     assert zone.get_heating_setpoint() == 20.0
     assert zone.get_current_mode() == "AUTO"
     assert zone.get_requested_mode() == "AUTO"
-    assert zone.get_presets() == ["Off", "Auto", "Cool", "Heat"]
-    assert zone.get_preset() == "Auto"
+    assert zone.get_presets() == []  # No preset_selected setting, only mode
+    assert zone.get_preset() is None  # No preset_selected setting
     assert zone.get_status() == "auto"
-    assert zone.get_setpoint_status() == "Run Schedule - Auto"
+    assert zone.get_setpoint_status() == "Run Schedule"  # No preset to append
     assert zone.is_calling() is True
     assert zone.is_in_permanent_hold() is False
 
