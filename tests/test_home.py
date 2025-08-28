@@ -1900,7 +1900,7 @@ async def test_ux360_current_state(
     assert zone.get_current_mode() == "AUTO"
     assert zone.get_requested_mode() == "AUTO"
     assert zone.get_status() == "cooling"
-    assert zone.get_setpoint_status() == "Run Schedule - Auto"
+    assert zone.get_setpoint_status() == "Run Schedule"  # UX360 has no presets
     assert zone.is_calling() is True
     assert zone.is_in_permanent_hold() is False
 
@@ -1916,7 +1916,11 @@ async def test_ux360_current_state(
 
 
 async def test_ux360_presets(aiohttp_session: aiohttp.ClientSession) -> None:
-    """Test that UX360 devices handle presets properly (they don't have preset_selected)."""
+    """Test that UX360 devices handle presets properly.
+
+    UX360 devices don't have preset_selected, they only have mode settings.
+    get_preset() and get_presets() should return None/empty for UX360.
+    """
     nexia = NexiaHome(aiohttp_session)
     devices_json = json.loads(await load_fixture("ux360.json"))
     nexia.update_from_json(devices_json)
@@ -1924,7 +1928,7 @@ async def test_ux360_presets(aiohttp_session: aiohttp.ClientSession) -> None:
     thermostat = nexia.get_thermostat_by_id("123456")
     zone = thermostat.get_zone_by_id("123456_1")
 
-    # UX360 devices don't have preset_selected, so these should return empty/None
+    # UX360 devices don't have presets
     assert zone.get_preset() is None
     assert zone.get_presets() == []
 
