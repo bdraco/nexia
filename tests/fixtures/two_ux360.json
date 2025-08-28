@@ -1,0 +1,1700 @@
+{
+  "error": null,
+  "result": {
+    "_links": {
+      "child": [
+        {
+          "data": {
+            "_links": {
+              "self": {
+                "href": "https://www.mynexia.com/mobile/houses/12345678/devices"
+              },
+              "template": {
+                "data": {
+                  "_links": {
+                    "child-schema": [
+                      {
+                        "data": {
+                          "_links": {
+                            "next": {
+                              "href": "https://www.mynexia.com/mobile/houses/12345678/enrollables_schema"
+                            }
+                          },
+                          "icon": {
+                            "modifiers": [],
+                            "name": "new_device"
+                          },
+                          "label": "Connect New Device"
+                        }
+                      },
+                      {
+                        "data": {
+                          "_links": {
+                            "next": {
+                              "href": "https://www.mynexia.com/mobile/houses/12345678/groups/new"
+                            }
+                          },
+                          "icon": {
+                            "modifiers": [],
+                            "name": "create_group"
+                          },
+                          "label": "Create Group"
+                        }
+                      }
+                    ]
+                  },
+                  "fields": [],
+                  "title": null
+                }
+              }
+            },
+            "item_type": "application/vnd.nexia.device+json",
+            "items": [
+              {
+                "_links": {
+                  "filter_events": {
+                    "href": "https://www.mynexia.com/mobile/houses/12345678/events/collection?sys_guid=1b455bf0-2a5a-4d26-9b1d-043a9d83eab6"
+                  },
+                  "nexia:history": {
+                    "href": "https://www.mynexia.com/mobile/houses/12345678/events?device_id=A1000002"
+                  },
+                  "self": {
+                    "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A1000002"
+                  }
+                },
+                "country_code": "US",
+                "features": [
+                  {
+                    "items": [
+                      {
+                        "label": "Model",
+                        "type": "label_value",
+                        "value": "TSYS2C60A2VVUGA"
+                      },
+                      {
+                        "label": "Serial Number",
+                        "type": "label_value",
+                        "value": "A1000002"
+                      },
+                      {
+                        "label": "AUID",
+                        "type": "label_value",
+                        "value": "A1000002"
+                      },
+                      {
+                        "label": "Connection Status",
+                        "type": "label_value",
+                        "value": "Online"
+                      },
+                      {
+                        "label": "Main Firmware Version",
+                        "type": "label_value",
+                        "value": "09.01.00.250409"
+                      }
+                    ],
+                    "name": "advanced_info"
+                  },
+                  {
+                    "actions": {
+                      "unenroll": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A1000002/unenroll",
+                        "method": "POST"
+                      }
+                    },
+                    "name": "unenroll"
+                  },
+                  {
+                    "actions": {
+                      "set_alert_temperature_high": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A1000002/alert_temperature_high",
+                        "method": "POST"
+                      },
+                      "set_alert_temperature_low": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A1000002/alert_temperature_low",
+                        "method": "POST"
+                      },
+                      "set_setpoints": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A1000002/setpoints/1",
+                        "method": "PUT"
+                      }
+                    },
+                    "alert_temperature_high": 120,
+                    "alert_temperature_low": 0,
+                    "device_identifier": "A1000002",
+                    "name": "thermostat",
+                    "operating_state": "cool",
+                    "scale": "f",
+                    "setpoint_cool": 72,
+                    "setpoint_cool_max": 99,
+                    "setpoint_cool_min": 60,
+                    "setpoint_delta": 3,
+                    "setpoint_heat": 68,
+                    "setpoint_heat_max": 90,
+                    "setpoint_heat_min": 55,
+                    "setpoint_increment": 1,
+                    "status": "Cooling",
+                    "status_icon": {
+                      "modifiers": [],
+                      "name": "cooling"
+                    },
+                    "temperature": 72
+                  },
+                  {
+                    "is_connected": true,
+                    "name": "connection",
+                    "signal_strength": "unknown"
+                  },
+                  {
+                    "actions": {
+                      "update_thermostat_mode": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A1000002/mode/1",
+                        "method": "POST"
+                      }
+                    },
+                    "display_value": "Auto",
+                    "label": "System Mode",
+                    "name": "thermostat_mode",
+                    "options": [
+                      {
+                        "header": true,
+                        "id": "thermostat_mode",
+                        "label": "System Mode",
+                        "value": "thermostat_mode"
+                      },
+                      {
+                        "label": "Off",
+                        "value": "off"
+                      },
+                      {
+                        "label": "Auto",
+                        "value": "auto"
+                      },
+                      {
+                        "label": "Cool",
+                        "value": "cool"
+                      },
+                      {
+                        "label": "Heat",
+                        "value": "heat"
+                      }
+                    ],
+                    "value": "auto"
+                  },
+                  {
+                    "actions": {
+                      "update_thermostat_run_mode": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A1000002/run_mode/1",
+                        "method": "POST"
+                      }
+                    },
+                    "display_value": "Run Schedule",
+                    "label": "Run Mode",
+                    "name": "thermostat_run_mode",
+                    "options": [
+                      {
+                        "header": true,
+                        "id": "thermostat_run_mode",
+                        "label": "Run Mode",
+                        "value": "thermostat_run_mode"
+                      },
+                      {
+                        "id": "info_text",
+                        "info": true,
+                        "label": "Follow or override the schedule.",
+                        "value": "info_text"
+                      },
+                      {
+                        "label": "Hold Temp",
+                        "value": "hold"
+                      },
+                      {
+                        "label": "Run Schedule",
+                        "value": "schedule"
+                      }
+                    ],
+                    "value": "schedule"
+                  },
+                  {
+                    "actions": {
+                      "request_current_dealer_info": {
+                        "href": "https://www.mynexia.com/mobile/dealers/9402300471",
+                        "method": "GET"
+                      },
+                      "request_dealers_by_zip": {
+                        "href": "https://www.mynexia.com/mobile/dealers/A1000002/search",
+                        "method": "POST"
+                      }
+                    },
+                    "has_dealer_identifier": true,
+                    "name": "dealer_contact_info"
+                  },
+                  {
+                    "actions": {
+                      "update_thermostat_fan_mode": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A1000002/fan_mode",
+                        "method": "POST"
+                      }
+                    },
+                    "display_value": "Auto",
+                    "label": "Fan Mode",
+                    "name": "thermostat_fan_mode",
+                    "options": [
+                      {
+                        "header": true,
+                        "id": "thermostat_fan_mode",
+                        "label": "Fan Mode",
+                        "value": "thermostat_fan_mode"
+                      },
+                      {
+                        "label": "Circulate",
+                        "value": "circulate"
+                      },
+                      {
+                        "label": "Auto",
+                        "value": "auto"
+                      },
+                      {
+                        "label": "On",
+                        "value": "on"
+                      }
+                    ],
+                    "status_icon": {
+                      "modifiers": [],
+                      "name": "thermostat_fan_on"
+                    },
+                    "value": "auto"
+                  },
+                  {
+                    "compressor_speed": 0.56,
+                    "name": "thermostat_compressor_speed"
+                  },
+                  {
+                    "actions": {
+                      "update_thermostat_default_fan_mode": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A1000002/fan_mode",
+                        "method": "POST"
+                      }
+                    },
+                    "name": "thermostat_default_fan_mode",
+                    "value": "auto"
+                  },
+                  {
+                    "is_supported": false,
+                    "name": "gen_2_app",
+                    "validation_failures": [
+                      "Thermostat model is not supported."
+                    ]
+                  },
+                  {
+                    "actions": {
+                      "enable_scheduling": {
+                        "data": {
+                          "value": true
+                        },
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A1000002/scheduling_enabled",
+                        "method": "POST"
+                      },
+                      "get_active_schedule": {
+                        "href": "https://www.mynexia.com/mobile/thermostat_schedules/get_active_schedule?device_identifier=A1000002",
+                        "method": "POST"
+                      },
+                      "get_default_schedule": {
+                        "href": "https://www.mynexia.com/mobile/thermostat_schedules/get_default_schedule?device_identifier=A1000002",
+                        "method": "GET"
+                      },
+                      "set_active_schedule": {
+                        "href": "https://www.mynexia.com/mobile/thermostat_schedules/set_active_schedule?device_identifier=A1000002",
+                        "method": "POST"
+                      }
+                    },
+                    "can_add_remove_periods": true,
+                    "collection_url": "https://www.mynexia.com/mobile/schedules?device_identifier=A1000002&house_id=12345678",
+                    "enabled": true,
+                    "max_period_name_length": 10,
+                    "max_periods_per_day": 4,
+                    "name": "schedule",
+                    "setpoint_increment": 1
+                  },
+                  {
+                    "actions": {
+                      "get_monthly_runtime_history": {
+                        "href": "https://www.mynexia.com/mobile/runtime_history/A1000002?report_type=monthly",
+                        "method": "GET"
+                      },
+                      "get_runtime_history": {
+                        "href": "https://www.mynexia.com/mobile/runtime_history/A1000002?report_type=daily",
+                        "method": "GET"
+                      }
+                    },
+                    "name": "runtime_history"
+                  }
+                ],
+                "has_indoor_humidity": true,
+                "has_outdoor_temperature": true,
+                "icon": {
+                  "modifiers": ["temperature-72"],
+                  "name": "thermostat"
+                },
+                "id": "A1000002",
+                "indoor_humidity": 50,
+                "last_updated_at": "2025-08-28T13:59:54.000Z",
+                "manufacturer": "AmericanStandard",
+                "name": "Most of House",
+                "name_editable": true,
+                "outdoor_temperature": 81,
+                "settings": [
+                  {
+                    "_links": {
+                      "self": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A1000002/mode/1"
+                      }
+                    },
+                    "current_value": "auto",
+                    "labels": ["Off", "Auto", "Cool", "Heat"],
+                    "options": [
+                      {
+                        "label": "Off",
+                        "value": "off"
+                      },
+                      {
+                        "label": "Auto",
+                        "value": "auto"
+                      },
+                      {
+                        "label": "Cool",
+                        "value": "cool"
+                      },
+                      {
+                        "label": "Heat",
+                        "value": "heat"
+                      }
+                    ],
+                    "title": "Mode",
+                    "type": "mode",
+                    "values": ["off", "auto", "cool", "heat"]
+                  },
+                  {
+                    "_links": {
+                      "self": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A1000002/run_mode/1"
+                      }
+                    },
+                    "current_value": "schedule",
+                    "labels": ["Hold Temp", "Run Schedule"],
+                    "options": [
+                      {
+                        "label": "Hold Temp",
+                        "value": "hold"
+                      },
+                      {
+                        "label": "Run Schedule",
+                        "value": "schedule"
+                      }
+                    ],
+                    "title": "Run Mode",
+                    "type": "run_mode",
+                    "values": ["hold", "schedule"]
+                  },
+                  {
+                    "_links": {
+                      "self": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A1000002/scheduling_enabled"
+                      }
+                    },
+                    "current_value": true,
+                    "labels": ["ON", "OFF"],
+                    "options": [
+                      {
+                        "label": "ON",
+                        "value": true
+                      },
+                      {
+                        "label": "OFF",
+                        "value": false
+                      }
+                    ],
+                    "title": "Scheduling",
+                    "type": "scheduling_enabled",
+                    "values": [true, false]
+                  },
+                  {
+                    "_links": {
+                      "self": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A1000002/fan_mode"
+                      }
+                    },
+                    "current_value": "auto",
+                    "labels": ["Circulate", "Auto", "On"],
+                    "options": [
+                      {
+                        "label": "Circulate",
+                        "value": "circulate"
+                      },
+                      {
+                        "label": "Auto",
+                        "value": "auto"
+                      },
+                      {
+                        "label": "On",
+                        "value": "on"
+                      }
+                    ],
+                    "title": "Fan Mode",
+                    "type": "fan_mode",
+                    "values": ["circulate", "auto", "on"]
+                  },
+                  {
+                    "_links": {
+                      "self": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A1000002/scale"
+                      }
+                    },
+                    "current_value": "f",
+                    "labels": ["F", "C"],
+                    "options": [
+                      {
+                        "label": "F",
+                        "value": "f"
+                      },
+                      {
+                        "label": "C",
+                        "value": "c"
+                      }
+                    ],
+                    "title": "Temperature Scale",
+                    "type": "scale",
+                    "values": ["f", "c"]
+                  },
+                  {
+                    "_links": {
+                      "self": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A1000002/high_low_alerts"
+                      }
+                    },
+                    "current_value": "1",
+                    "labels": ["ON", "OFF"],
+                    "options": [
+                      {
+                        "label": "ON",
+                        "value": "1"
+                      },
+                      {
+                        "label": "OFF",
+                        "value": "0"
+                      }
+                    ],
+                    "title": "Send High and Low Temperature Alerts",
+                    "type": "high_low_alerts",
+                    "values": ["1", "0"]
+                  },
+                  {
+                    "_links": {
+                      "self": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A1000002/alert_temperature_low"
+                      }
+                    },
+                    "current_value": "45",
+                    "labels": ["35", "40", "45", "50", "55", "60", "65", "70"],
+                    "options": [
+                      {
+                        "label": "35",
+                        "value": "35"
+                      },
+                      {
+                        "label": "40",
+                        "value": "40"
+                      },
+                      {
+                        "label": "45",
+                        "value": "45"
+                      },
+                      {
+                        "label": "50",
+                        "value": "50"
+                      },
+                      {
+                        "label": "55",
+                        "value": "55"
+                      },
+                      {
+                        "label": "60",
+                        "value": "60"
+                      },
+                      {
+                        "label": "65",
+                        "value": "65"
+                      },
+                      {
+                        "label": "70",
+                        "value": "70"
+                      }
+                    ],
+                    "title": "Low Temperature Alert",
+                    "type": "alert_temperature_low",
+                    "values": ["35", "40", "45", "50", "55", "60", "65", "70"]
+                  },
+                  {
+                    "_links": {
+                      "self": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A1000002/alert_temperature_high"
+                      }
+                    },
+                    "current_value": "100",
+                    "labels": [
+                      "70",
+                      "75",
+                      "80",
+                      "85",
+                      "90",
+                      "95",
+                      "100",
+                      "105",
+                      "110"
+                    ],
+                    "options": [
+                      {
+                        "label": "70",
+                        "value": "70"
+                      },
+                      {
+                        "label": "75",
+                        "value": "75"
+                      },
+                      {
+                        "label": "80",
+                        "value": "80"
+                      },
+                      {
+                        "label": "85",
+                        "value": "85"
+                      },
+                      {
+                        "label": "90",
+                        "value": "90"
+                      },
+                      {
+                        "label": "95",
+                        "value": "95"
+                      },
+                      {
+                        "label": "100",
+                        "value": "100"
+                      },
+                      {
+                        "label": "105",
+                        "value": "105"
+                      },
+                      {
+                        "label": "110",
+                        "value": "110"
+                      }
+                    ],
+                    "title": "High Temperature Alert",
+                    "type": "alert_temperature_high",
+                    "values": [
+                      "70",
+                      "75",
+                      "80",
+                      "85",
+                      "90",
+                      "95",
+                      "100",
+                      "105",
+                      "110"
+                    ]
+                  },
+                  {
+                    "_links": {
+                      "self": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A1000002/send_delta_temperature_alert"
+                      }
+                    },
+                    "current_value": "1",
+                    "labels": ["ON", "OFF"],
+                    "options": [
+                      {
+                        "label": "ON",
+                        "value": "1"
+                      },
+                      {
+                        "label": "OFF",
+                        "value": "0"
+                      }
+                    ],
+                    "title": "Send Setpoint Delta Temperature Alert",
+                    "type": "send_delta_temperature_alert",
+                    "values": ["1", "0"]
+                  },
+                  {
+                    "_links": {
+                      "self": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A1000002/alert_setpoint_delta"
+                      }
+                    },
+                    "current_value": "5",
+                    "labels": ["5", "8", "10"],
+                    "options": [
+                      {
+                        "label": "5",
+                        "value": "5"
+                      },
+                      {
+                        "label": "8",
+                        "value": "8"
+                      },
+                      {
+                        "label": "10",
+                        "value": "10"
+                      }
+                    ],
+                    "title": "Setpoint Delta Temperature Alert",
+                    "type": "alert_setpoint_delta",
+                    "values": ["5", "8", "10"]
+                  }
+                ],
+                "state_code": "TX",
+                "status_secondary": null,
+                "status_tertiary": null,
+                "type": "faceplate_thermostat",
+                "zones": [
+                  {
+                    "_links": {
+                      "self": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A1000002/zones/1"
+                      }
+                    },
+                    "cooling_setpoint": 72,
+                    "current_zone_mode": "auto",
+                    "features": [
+                      {
+                        "actions": {
+                          "set_setpoints": {
+                            "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A1000002/setpoints/1",
+                            "method": "PUT"
+                          }
+                        },
+                        "device_identifier": "A1000002-1",
+                        "name": "thermostat",
+                        "scale": "f",
+                        "setpoint_cool": 72,
+                        "setpoint_cool_max": 99,
+                        "setpoint_cool_min": 60,
+                        "setpoint_delta": 3,
+                        "setpoint_heat": 68,
+                        "setpoint_heat_max": 90,
+                        "setpoint_heat_min": 55,
+                        "setpoint_increment": 1,
+                        "status": "Cooling",
+                        "status_icon": {
+                          "modifiers": [],
+                          "name": "cooling"
+                        },
+                        "temperature": 72
+                      },
+                      {
+                        "is_connected": true,
+                        "name": "connection",
+                        "signal_strength": "unknown"
+                      },
+                      {
+                        "actions": {
+                          "update_thermostat_mode": {
+                            "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A1000002/mode/1",
+                            "method": "POST"
+                          }
+                        },
+                        "display_value": "Auto",
+                        "label": "Zone Mode",
+                        "name": "thermostat_mode",
+                        "options": [
+                          {
+                            "header": true,
+                            "id": "thermostat_mode",
+                            "label": "Zone Mode",
+                            "value": "thermostat_mode"
+                          },
+                          {
+                            "label": "Off",
+                            "value": "off"
+                          },
+                          {
+                            "label": "Auto",
+                            "value": "auto"
+                          },
+                          {
+                            "label": "Cool",
+                            "value": "cool"
+                          },
+                          {
+                            "label": "Heat",
+                            "value": "heat"
+                          }
+                        ],
+                        "value": "auto"
+                      },
+                      {
+                        "actions": {
+                          "update_thermostat_run_mode": {
+                            "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A1000002/run_mode/1",
+                            "method": "POST"
+                          }
+                        },
+                        "display_value": "Run Schedule",
+                        "label": "Run Mode",
+                        "name": "thermostat_run_mode",
+                        "options": [
+                          {
+                            "header": true,
+                            "id": "thermostat_run_mode",
+                            "label": "Run Mode",
+                            "value": "thermostat_run_mode"
+                          },
+                          {
+                            "id": "info_text",
+                            "info": true,
+                            "label": "Follow or override the schedule.",
+                            "value": "info_text"
+                          },
+                          {
+                            "label": "Hold Temp",
+                            "value": "hold"
+                          },
+                          {
+                            "label": "Run Schedule",
+                            "value": "schedule"
+                          }
+                        ],
+                        "value": "schedule"
+                      },
+                      {
+                        "actions": {
+                          "enable_scheduling": {
+                            "data": {
+                              "value": true
+                            },
+                            "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A1000002/scheduling_enabled",
+                            "method": "POST"
+                          },
+                          "get_active_schedule": {
+                            "href": "https://www.mynexia.com/mobile/thermostat_schedules/get_active_schedule?device_identifier=A1000002-1",
+                            "method": "POST"
+                          },
+                          "get_default_schedule": {
+                            "href": "https://www.mynexia.com/mobile/thermostat_schedules/get_default_schedule?device_identifier=A1000002-1",
+                            "method": "GET"
+                          },
+                          "set_active_schedule": {
+                            "href": "https://www.mynexia.com/mobile/thermostat_schedules/set_active_schedule?device_identifier=A1000002-1",
+                            "method": "POST"
+                          }
+                        },
+                        "can_add_remove_periods": true,
+                        "collection_url": "https://www.mynexia.com/mobile/schedules?device_identifier=A1000002-1&house_id=12345678",
+                        "enabled": true,
+                        "max_period_name_length": 10,
+                        "max_periods_per_day": 4,
+                        "name": "schedule",
+                        "setpoint_increment": 1
+                      }
+                    ],
+                    "heating_setpoint": 68,
+                    "icon": {
+                      "modifiers": ["temperature-72"],
+                      "name": "thermostat"
+                    },
+                    "id": 1,
+                    "name": "Zone 1",
+                    "operating_state": "auto",
+                    "setpoints": {
+                      "cool": 72,
+                      "heat": 68
+                    },
+                    "settings": [],
+                    "temperature": 72,
+                    "type": "thermostat_zone",
+                    "zone_status": "cooling"
+                  }
+                ]
+              },
+              {
+                "_links": {
+                  "filter_events": {
+                    "href": "https://www.mynexia.com/mobile/houses/12345678/events/collection?sys_guid=6d34b0af-6b86-4284-9b7e-4a15d914584b"
+                  },
+                  "nexia:history": {
+                    "href": "https://www.mynexia.com/mobile/houses/12345678/events?device_id=A2000003"
+                  },
+                  "self": {
+                    "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A2000003"
+                  }
+                },
+                "country_code": "US",
+                "features": [
+                  {
+                    "items": [
+                      {
+                        "label": "Model",
+                        "type": "label_value",
+                        "value": "TSYS2C60A2VVUGA"
+                      },
+                      {
+                        "label": "Serial Number",
+                        "type": "label_value",
+                        "value": "A2000003"
+                      },
+                      {
+                        "label": "AUID",
+                        "type": "label_value",
+                        "value": "A2000003"
+                      },
+                      {
+                        "label": "Connection Status",
+                        "type": "label_value",
+                        "value": "Online"
+                      },
+                      {
+                        "label": "Main Firmware Version",
+                        "type": "label_value",
+                        "value": "09.01.00.250409"
+                      }
+                    ],
+                    "name": "advanced_info"
+                  },
+                  {
+                    "actions": {
+                      "unenroll": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A2000003/unenroll",
+                        "method": "POST"
+                      }
+                    },
+                    "name": "unenroll"
+                  },
+                  {
+                    "actions": {
+                      "set_alert_temperature_high": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A2000003/alert_temperature_high",
+                        "method": "POST"
+                      },
+                      "set_alert_temperature_low": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A2000003/alert_temperature_low",
+                        "method": "POST"
+                      },
+                      "set_setpoints": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A2000003/setpoints/1",
+                        "method": "PUT"
+                      }
+                    },
+                    "alert_temperature_high": 120,
+                    "alert_temperature_low": 0,
+                    "device_identifier": "A2000003",
+                    "name": "thermostat",
+                    "operating_state": "idle",
+                    "scale": "f",
+                    "setpoint_cool": 76,
+                    "setpoint_cool_max": 99,
+                    "setpoint_cool_min": 60,
+                    "setpoint_delta": 3,
+                    "setpoint_heat": 68,
+                    "setpoint_heat_max": 90,
+                    "setpoint_heat_min": 55,
+                    "setpoint_increment": 1,
+                    "status": "System Idle",
+                    "status_icon": null,
+                    "temperature": 76
+                  },
+                  {
+                    "is_connected": true,
+                    "name": "connection",
+                    "signal_strength": "unknown"
+                  },
+                  {
+                    "actions": {
+                      "update_thermostat_mode": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A2000003/mode/1",
+                        "method": "POST"
+                      }
+                    },
+                    "display_value": "Auto",
+                    "label": "System Mode",
+                    "name": "thermostat_mode",
+                    "options": [
+                      {
+                        "header": true,
+                        "id": "thermostat_mode",
+                        "label": "System Mode",
+                        "value": "thermostat_mode"
+                      },
+                      {
+                        "label": "Off",
+                        "value": "off"
+                      },
+                      {
+                        "label": "Auto",
+                        "value": "auto"
+                      },
+                      {
+                        "label": "Cool",
+                        "value": "cool"
+                      },
+                      {
+                        "label": "Heat",
+                        "value": "heat"
+                      }
+                    ],
+                    "value": "auto"
+                  },
+                  {
+                    "actions": {
+                      "update_thermostat_run_mode": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A2000003/run_mode/1",
+                        "method": "POST"
+                      }
+                    },
+                    "display_value": "Run Schedule",
+                    "label": "Run Mode",
+                    "name": "thermostat_run_mode",
+                    "options": [
+                      {
+                        "header": true,
+                        "id": "thermostat_run_mode",
+                        "label": "Run Mode",
+                        "value": "thermostat_run_mode"
+                      },
+                      {
+                        "id": "info_text",
+                        "info": true,
+                        "label": "Follow or override the schedule.",
+                        "value": "info_text"
+                      },
+                      {
+                        "label": "Hold Temp",
+                        "value": "hold"
+                      },
+                      {
+                        "label": "Run Schedule",
+                        "value": "schedule"
+                      }
+                    ],
+                    "value": "schedule"
+                  },
+                  {
+                    "actions": {
+                      "request_current_dealer_info": {
+                        "href": "https://www.mynexia.com/mobile/dealers/9402300471",
+                        "method": "GET"
+                      },
+                      "request_dealers_by_zip": {
+                        "href": "https://www.mynexia.com/mobile/dealers/A2000003/search",
+                        "method": "POST"
+                      }
+                    },
+                    "has_dealer_identifier": true,
+                    "name": "dealer_contact_info"
+                  },
+                  {
+                    "actions": {
+                      "update_thermostat_fan_mode": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A2000003/fan_mode",
+                        "method": "POST"
+                      }
+                    },
+                    "display_value": "Circulate",
+                    "label": "Fan Mode",
+                    "name": "thermostat_fan_mode",
+                    "options": [
+                      {
+                        "header": true,
+                        "id": "thermostat_fan_mode",
+                        "label": "Fan Mode",
+                        "value": "thermostat_fan_mode"
+                      },
+                      {
+                        "label": "Circulate",
+                        "value": "circulate"
+                      },
+                      {
+                        "label": "Auto",
+                        "value": "auto"
+                      },
+                      {
+                        "label": "On",
+                        "value": "on"
+                      }
+                    ],
+                    "status_icon": {
+                      "modifiers": [],
+                      "name": "thermostat_fan_off"
+                    },
+                    "value": "circulate"
+                  },
+                  {
+                    "actions": {
+                      "update_thermostat_default_fan_mode": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A2000003/fan_mode",
+                        "method": "POST"
+                      }
+                    },
+                    "name": "thermostat_default_fan_mode",
+                    "value": "circulate"
+                  },
+                  {
+                    "is_supported": false,
+                    "name": "gen_2_app",
+                    "validation_failures": [
+                      "Thermostat model is not supported."
+                    ]
+                  },
+                  {
+                    "actions": {
+                      "enable_scheduling": {
+                        "data": {
+                          "value": true
+                        },
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A2000003/scheduling_enabled",
+                        "method": "POST"
+                      },
+                      "get_active_schedule": {
+                        "href": "https://www.mynexia.com/mobile/thermostat_schedules/get_active_schedule?device_identifier=A2000003",
+                        "method": "POST"
+                      },
+                      "get_default_schedule": {
+                        "href": "https://www.mynexia.com/mobile/thermostat_schedules/get_default_schedule?device_identifier=A2000003",
+                        "method": "GET"
+                      },
+                      "set_active_schedule": {
+                        "href": "https://www.mynexia.com/mobile/thermostat_schedules/set_active_schedule?device_identifier=A2000003",
+                        "method": "POST"
+                      }
+                    },
+                    "can_add_remove_periods": true,
+                    "collection_url": "https://www.mynexia.com/mobile/schedules?device_identifier=A2000003&house_id=12345678",
+                    "enabled": true,
+                    "max_period_name_length": 10,
+                    "max_periods_per_day": 4,
+                    "name": "schedule",
+                    "setpoint_increment": 1
+                  },
+                  {
+                    "actions": {
+                      "get_monthly_runtime_history": {
+                        "href": "https://www.mynexia.com/mobile/runtime_history/A2000003?report_type=monthly",
+                        "method": "GET"
+                      },
+                      "get_runtime_history": {
+                        "href": "https://www.mynexia.com/mobile/runtime_history/A2000003?report_type=daily",
+                        "method": "GET"
+                      }
+                    },
+                    "name": "runtime_history"
+                  }
+                ],
+                "has_indoor_humidity": true,
+                "has_outdoor_temperature": true,
+                "icon": {
+                  "modifiers": ["temperature-76"],
+                  "name": "thermostat"
+                },
+                "id": "A2000003",
+                "indoor_humidity": 46,
+                "last_updated_at": "2025-08-28T13:49:04.000Z",
+                "manufacturer": "AmericanStandard",
+                "name": "Primary Suite",
+                "name_editable": true,
+                "outdoor_temperature": 80,
+                "settings": [
+                  {
+                    "_links": {
+                      "self": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A2000003/mode/1"
+                      }
+                    },
+                    "current_value": "auto",
+                    "labels": ["Off", "Auto", "Cool", "Heat"],
+                    "options": [
+                      {
+                        "label": "Off",
+                        "value": "off"
+                      },
+                      {
+                        "label": "Auto",
+                        "value": "auto"
+                      },
+                      {
+                        "label": "Cool",
+                        "value": "cool"
+                      },
+                      {
+                        "label": "Heat",
+                        "value": "heat"
+                      }
+                    ],
+                    "title": "Mode",
+                    "type": "mode",
+                    "values": ["off", "auto", "cool", "heat"]
+                  },
+                  {
+                    "_links": {
+                      "self": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A2000003/run_mode/1"
+                      }
+                    },
+                    "current_value": "schedule",
+                    "labels": ["Hold Temp", "Run Schedule"],
+                    "options": [
+                      {
+                        "label": "Hold Temp",
+                        "value": "hold"
+                      },
+                      {
+                        "label": "Run Schedule",
+                        "value": "schedule"
+                      }
+                    ],
+                    "title": "Run Mode",
+                    "type": "run_mode",
+                    "values": ["hold", "schedule"]
+                  },
+                  {
+                    "_links": {
+                      "self": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A2000003/scheduling_enabled"
+                      }
+                    },
+                    "current_value": true,
+                    "labels": ["ON", "OFF"],
+                    "options": [
+                      {
+                        "label": "ON",
+                        "value": true
+                      },
+                      {
+                        "label": "OFF",
+                        "value": false
+                      }
+                    ],
+                    "title": "Scheduling",
+                    "type": "scheduling_enabled",
+                    "values": [true, false]
+                  },
+                  {
+                    "_links": {
+                      "self": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A2000003/fan_mode"
+                      }
+                    },
+                    "current_value": "circulate",
+                    "labels": ["Circulate", "Auto", "On"],
+                    "options": [
+                      {
+                        "label": "Circulate",
+                        "value": "circulate"
+                      },
+                      {
+                        "label": "Auto",
+                        "value": "auto"
+                      },
+                      {
+                        "label": "On",
+                        "value": "on"
+                      }
+                    ],
+                    "title": "Fan Mode",
+                    "type": "fan_mode",
+                    "values": ["circulate", "auto", "on"]
+                  },
+                  {
+                    "_links": {
+                      "self": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A2000003/scale"
+                      }
+                    },
+                    "current_value": "f",
+                    "labels": ["F", "C"],
+                    "options": [
+                      {
+                        "label": "F",
+                        "value": "f"
+                      },
+                      {
+                        "label": "C",
+                        "value": "c"
+                      }
+                    ],
+                    "title": "Temperature Scale",
+                    "type": "scale",
+                    "values": ["f", "c"]
+                  },
+                  {
+                    "_links": {
+                      "self": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A2000003/high_low_alerts"
+                      }
+                    },
+                    "current_value": "1",
+                    "labels": ["ON", "OFF"],
+                    "options": [
+                      {
+                        "label": "ON",
+                        "value": "1"
+                      },
+                      {
+                        "label": "OFF",
+                        "value": "0"
+                      }
+                    ],
+                    "title": "Send High and Low Temperature Alerts",
+                    "type": "high_low_alerts",
+                    "values": ["1", "0"]
+                  },
+                  {
+                    "_links": {
+                      "self": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A2000003/alert_temperature_low"
+                      }
+                    },
+                    "current_value": "45",
+                    "labels": ["35", "40", "45", "50", "55", "60", "65", "70"],
+                    "options": [
+                      {
+                        "label": "35",
+                        "value": "35"
+                      },
+                      {
+                        "label": "40",
+                        "value": "40"
+                      },
+                      {
+                        "label": "45",
+                        "value": "45"
+                      },
+                      {
+                        "label": "50",
+                        "value": "50"
+                      },
+                      {
+                        "label": "55",
+                        "value": "55"
+                      },
+                      {
+                        "label": "60",
+                        "value": "60"
+                      },
+                      {
+                        "label": "65",
+                        "value": "65"
+                      },
+                      {
+                        "label": "70",
+                        "value": "70"
+                      }
+                    ],
+                    "title": "Low Temperature Alert",
+                    "type": "alert_temperature_low",
+                    "values": ["35", "40", "45", "50", "55", "60", "65", "70"]
+                  },
+                  {
+                    "_links": {
+                      "self": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A2000003/alert_temperature_high"
+                      }
+                    },
+                    "current_value": "100",
+                    "labels": [
+                      "70",
+                      "75",
+                      "80",
+                      "85",
+                      "90",
+                      "95",
+                      "100",
+                      "105",
+                      "110"
+                    ],
+                    "options": [
+                      {
+                        "label": "70",
+                        "value": "70"
+                      },
+                      {
+                        "label": "75",
+                        "value": "75"
+                      },
+                      {
+                        "label": "80",
+                        "value": "80"
+                      },
+                      {
+                        "label": "85",
+                        "value": "85"
+                      },
+                      {
+                        "label": "90",
+                        "value": "90"
+                      },
+                      {
+                        "label": "95",
+                        "value": "95"
+                      },
+                      {
+                        "label": "100",
+                        "value": "100"
+                      },
+                      {
+                        "label": "105",
+                        "value": "105"
+                      },
+                      {
+                        "label": "110",
+                        "value": "110"
+                      }
+                    ],
+                    "title": "High Temperature Alert",
+                    "type": "alert_temperature_high",
+                    "values": [
+                      "70",
+                      "75",
+                      "80",
+                      "85",
+                      "90",
+                      "95",
+                      "100",
+                      "105",
+                      "110"
+                    ]
+                  },
+                  {
+                    "_links": {
+                      "self": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A2000003/send_delta_temperature_alert"
+                      }
+                    },
+                    "current_value": "1",
+                    "labels": ["ON", "OFF"],
+                    "options": [
+                      {
+                        "label": "ON",
+                        "value": "1"
+                      },
+                      {
+                        "label": "OFF",
+                        "value": "0"
+                      }
+                    ],
+                    "title": "Send Setpoint Delta Temperature Alert",
+                    "type": "send_delta_temperature_alert",
+                    "values": ["1", "0"]
+                  },
+                  {
+                    "_links": {
+                      "self": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A2000003/alert_setpoint_delta"
+                      }
+                    },
+                    "current_value": "5",
+                    "labels": ["5", "8", "10"],
+                    "options": [
+                      {
+                        "label": "5",
+                        "value": "5"
+                      },
+                      {
+                        "label": "8",
+                        "value": "8"
+                      },
+                      {
+                        "label": "10",
+                        "value": "10"
+                      }
+                    ],
+                    "title": "Setpoint Delta Temperature Alert",
+                    "type": "alert_setpoint_delta",
+                    "values": ["5", "8", "10"]
+                  }
+                ],
+                "state_code": "TX",
+                "status_secondary": null,
+                "status_tertiary": null,
+                "type": "faceplate_thermostat",
+                "zones": [
+                  {
+                    "_links": {
+                      "self": {
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A2000003/zones/1"
+                      }
+                    },
+                    "cooling_setpoint": 76,
+                    "current_zone_mode": "auto",
+                    "features": [
+                      {
+                        "actions": {
+                          "set_setpoints": {
+                            "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A2000003/setpoints/1",
+                            "method": "PUT"
+                          }
+                        },
+                        "device_identifier": "A2000003-1",
+                        "name": "thermostat",
+                        "scale": "f",
+                        "setpoint_cool": 76,
+                        "setpoint_cool_max": 99,
+                        "setpoint_cool_min": 60,
+                        "setpoint_delta": 3,
+                        "setpoint_heat": 68,
+                        "setpoint_heat_max": 90,
+                        "setpoint_heat_min": 55,
+                        "setpoint_increment": 1,
+                        "status": "Idle",
+                        "status_icon": null,
+                        "temperature": 76
+                      },
+                      {
+                        "is_connected": true,
+                        "name": "connection",
+                        "signal_strength": "unknown"
+                      },
+                      {
+                        "actions": {
+                          "update_thermostat_mode": {
+                            "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A2000003/mode/1",
+                            "method": "POST"
+                          }
+                        },
+                        "display_value": "Auto",
+                        "label": "Zone Mode",
+                        "name": "thermostat_mode",
+                        "options": [
+                          {
+                            "header": true,
+                            "id": "thermostat_mode",
+                            "label": "Zone Mode",
+                            "value": "thermostat_mode"
+                          },
+                          {
+                            "label": "Off",
+                            "value": "off"
+                          },
+                          {
+                            "label": "Auto",
+                            "value": "auto"
+                          },
+                          {
+                            "label": "Cool",
+                            "value": "cool"
+                          },
+                          {
+                            "label": "Heat",
+                            "value": "heat"
+                          }
+                        ],
+                        "value": "auto"
+                      },
+                      {
+                        "actions": {
+                          "update_thermostat_run_mode": {
+                            "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A2000003/run_mode/1",
+                            "method": "POST"
+                          }
+                        },
+                        "display_value": "Run Schedule",
+                        "label": "Run Mode",
+                        "name": "thermostat_run_mode",
+                        "options": [
+                          {
+                            "header": true,
+                            "id": "thermostat_run_mode",
+                            "label": "Run Mode",
+                            "value": "thermostat_run_mode"
+                          },
+                          {
+                            "id": "info_text",
+                            "info": true,
+                            "label": "Follow or override the schedule.",
+                            "value": "info_text"
+                          },
+                          {
+                            "label": "Hold Temp",
+                            "value": "hold"
+                          },
+                          {
+                            "label": "Run Schedule",
+                            "value": "schedule"
+                          }
+                        ],
+                        "value": "schedule"
+                      },
+                      {
+                        "actions": {
+                          "enable_scheduling": {
+                            "data": {
+                              "value": true
+                            },
+                            "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/A2000003/scheduling_enabled",
+                            "method": "POST"
+                          },
+                          "get_active_schedule": {
+                            "href": "https://www.mynexia.com/mobile/thermostat_schedules/get_active_schedule?device_identifier=A2000003-1",
+                            "method": "POST"
+                          },
+                          "get_default_schedule": {
+                            "href": "https://www.mynexia.com/mobile/thermostat_schedules/get_default_schedule?device_identifier=A2000003-1",
+                            "method": "GET"
+                          },
+                          "set_active_schedule": {
+                            "href": "https://www.mynexia.com/mobile/thermostat_schedules/set_active_schedule?device_identifier=A2000003-1",
+                            "method": "POST"
+                          }
+                        },
+                        "can_add_remove_periods": true,
+                        "collection_url": "https://www.mynexia.com/mobile/schedules?device_identifier=A2000003-1&house_id=12345678",
+                        "enabled": true,
+                        "max_period_name_length": 10,
+                        "max_periods_per_day": 4,
+                        "name": "schedule",
+                        "setpoint_increment": 1
+                      }
+                    ],
+                    "heating_setpoint": 68,
+                    "icon": {
+                      "modifiers": ["temperature-76"],
+                      "name": "thermostat"
+                    },
+                    "id": 1,
+                    "name": "Zone 1",
+                    "operating_state": "auto",
+                    "setpoints": {
+                      "cool": 76,
+                      "heat": 68
+                    },
+                    "settings": [],
+                    "temperature": 76,
+                    "type": "thermostat_zone",
+                    "zone_status": "idle"
+                  }
+                ]
+              }
+            ]
+          },
+          "href": "https://www.mynexia.com/mobile/houses/12345678/devices",
+          "type": "application/vnd.nexia.collection+json"
+        },
+        {
+          "data": {
+            "_links": {
+              "self": {
+                "href": "https://www.mynexia.com/mobile/houses/12345678/automations"
+              },
+              "template": {
+                "href": "https://www.mynexia.com/mobile/houses/12345678/automation_edit_buffers",
+                "method": "POST"
+              }
+            },
+            "item_type": "application/vnd.nexia.automation+json",
+            "items": []
+          },
+          "href": "https://www.mynexia.com/mobile/houses/12345678/automations",
+          "type": "application/vnd.nexia.collection+json"
+        },
+        {
+          "data": {
+            "_links": {
+              "self": {
+                "href": "https://www.mynexia.com/mobile/houses/12345678/modes"
+              }
+            },
+            "item_type": "application/vnd.nexia.mode+json",
+            "items": [
+              {
+                "_links": {
+                  "self": {
+                    "href": "https://www.mynexia.com/mobile/modes/7231482"
+                  }
+                },
+                "current_mode": true,
+                "icon": "home.png",
+                "id": 7231482,
+                "name": "Day",
+                "settings": []
+              },
+              {
+                "_links": {
+                  "self": {
+                    "href": "https://www.mynexia.com/mobile/modes/7231485"
+                  }
+                },
+                "current_mode": false,
+                "icon": "home.png",
+                "id": 7231485,
+                "name": "Night",
+                "settings": []
+              }
+            ]
+          },
+          "href": "https://www.mynexia.com/mobile/houses/12345678/modes",
+          "type": "application/vnd.nexia.collection+json"
+        },
+        {
+          "data": {
+            "item_type": "application/vnd.nexia.event+json"
+          },
+          "href": "https://www.mynexia.com/mobile/houses/12345678/events/collection",
+          "type": "application/vnd.nexia.collection+json"
+        },
+        {
+          "data": {
+            "item_type": "application/vnd.nexia.video+json"
+          },
+          "href": "https://www.mynexia.com/mobile/houses/12345678/videos/collection",
+          "type": "application/vnd.nexia.collection+json"
+        },
+        {
+          "data": {
+            "_links": {
+              "self": {
+                "href": "https://www.mynexia.com/mobile/choices"
+              }
+            },
+            "item_type": "application/vnd.nexia.choice+json",
+            "items": []
+          },
+          "href": "https://www.mynexia.com/mobile/choices",
+          "type": "application/vnd.nexia.collection+json"
+        }
+      ],
+      "edit": [
+        {
+          "href": "https://www.mynexia.com/mobile/houses/12345678/edit",
+          "method": "GET"
+        }
+      ],
+      "feature_code_url": [
+        {
+          "href": "https://www.mynexia.com/mobile/houses/12345678/feature_code",
+          "method": "POST"
+        }
+      ],
+      "remove_zwave_device": [
+        {
+          "cancel_href": "https://www.mynexia.com/mobile/houses/12345678/cancel_remove_zwave_device",
+          "display": true,
+          "href": "https://www.mynexia.com/mobile/houses/12345678/remove_zwave_device",
+          "method": "POST",
+          "timeout": 90
+        }
+      ],
+      "self": {
+        "href": "https://www.mynexia.com/mobile/houses/12345678"
+      }
+    },
+    "dealer_opt_in": true,
+    "feature_codes": ["critical_alerts"],
+    "id": 12345678,
+    "latitude": 4343.8258,
+    "longitude": -23.121,
+    "name": "Wonderland",
+    "room_iq_enabled": true,
+    "third_party_integrations": [],
+    "time_zone": "America/Texas",
+    "zip_code": "12345"
+  },
+  "success": true
+}

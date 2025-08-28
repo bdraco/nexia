@@ -41,6 +41,13 @@ async def aiohttp_session():
     await session.close()
 
 
+@pytest.fixture(name="disable_delay", autouse=True)
+async def disable_delay():
+    """Mock session."""
+    with patch("nexia.home.UPDATE_DELAY_SECONDS", 0):
+        yield
+
+
 def _load_fixture(filename):
     """Load a fixture."""
     test_dir = dirname(__file__)
@@ -940,18 +947,18 @@ async def test_issue_79891(aiohttp_session: aiohttp.ClientSession) -> None:
     assert thermostat.is_blower_active() is False
 
     zone_ids = thermostat.get_zone_ids()
-    assert zone_ids == [1]
-    zone = thermostat.get_zone_by_id(1)
+    assert zone_ids == [83261001]
+    zone = thermostat.get_zone_by_id(83261001)
 
     assert zone.get_name() == "default"
     assert zone.get_cooling_setpoint() == 27.0
     assert zone.get_heating_setpoint() == 20.0
     assert zone.get_current_mode() == "AUTO"
     assert zone.get_requested_mode() == "AUTO"
-    assert zone.get_presets() == ["Off", "Auto", "Cool", "Heat"]
-    assert zone.get_preset() == "Auto"
+    assert zone.get_presets() == []  # No preset_selected setting, only mode
+    assert zone.get_preset() is None  # No preset_selected setting
     assert zone.get_status() == "auto"
-    assert zone.get_setpoint_status() == "Run Schedule - Auto"
+    assert zone.get_setpoint_status() == "Run Schedule"  # No preset to append
     assert zone.is_calling() is True
     assert zone.is_in_permanent_hold() is False
 
@@ -1796,7 +1803,7 @@ async def test_set_perm_hold_ux360(
     nexia.update_from_json(devices_json)
 
     thermostat = nexia.get_thermostat_by_id("123456")
-    zone = thermostat.get_zone_by_id(1)
+    zone = thermostat.get_zone_by_id("123456_1")
 
     devices = _extract_devices_from_houses_json(devices_json)
     children = extract_children_from_devices_json(devices)
@@ -1892,7 +1899,7 @@ async def test_ux360_current_state(
     assert thermostat.get_relative_humidity() == 0.50
     assert thermostat.get_outdoor_temperature() == 87
 
-    zone = thermostat.get_zone_by_id(1)
+    zone = thermostat.get_zone_by_id("XXXXXX1_1")
     assert zone.get_name() == "Zone 1"
     assert zone.get_temperature() == 71
     assert zone.get_cooling_setpoint() == 71
@@ -1900,7 +1907,7 @@ async def test_ux360_current_state(
     assert zone.get_current_mode() == "AUTO"
     assert zone.get_requested_mode() == "AUTO"
     assert zone.get_status() == "cooling"
-    assert zone.get_setpoint_status() == "Run Schedule - Auto"
+    assert zone.get_setpoint_status() == "Run Schedule"  # UX360 has no presets
     assert zone.is_calling() is True
     assert zone.is_in_permanent_hold() is False
 
@@ -1911,8 +1918,26 @@ async def test_ux360_current_state(
     assert thermostat2.get_outdoor_temperature() == 88
     assert thermostat2.get_current_compressor_speed() == 0.99
 
-    zone2 = thermostat2.get_zone_by_id(1)
+    zone2 = thermostat2.get_zone_by_id("XXXXXX2_1")
     assert zone2.get_temperature() == 72
+
+
+async def test_ux360_presets(aiohttp_session: aiohttp.ClientSession) -> None:
+    """Test that UX360 devices handle presets properly.
+
+    UX360 devices don't have preset_selected, they only have mode settings.
+    get_preset() and get_presets() should return None/empty for UX360.
+    """
+    nexia = NexiaHome(aiohttp_session)
+    devices_json = json.loads(await load_fixture("ux360.json"))
+    nexia.update_from_json(devices_json)
+
+    thermostat = nexia.get_thermostat_by_id("123456")
+    zone = thermostat.get_zone_by_id("123456_1")
+
+    # UX360 devices don't have presets
+    assert zone.get_preset() is None
+    assert zone.get_presets() == []
 
 
 async def test_ux360_multiple_thermostats_detected(
@@ -1948,7 +1973,7 @@ async def test_ux360_set_setpoints_with_put(
     nexia.update_from_json(devices_json)
 
     thermostat = nexia.get_thermostat_by_id("XXXXXX1")
-    zone = thermostat.get_zone_by_id(1)
+    zone = thermostat.get_zone_by_id("XXXXXX1_1")
 
     # Mock the PUT request for setting setpoints
     mock_aioresponse.put(
@@ -2068,3 +2093,90 @@ async def test_sensor_multi_select(aiohttp_session: aiohttp.ClientSession) -> No
     await asyncio.sleep(0.02)
     assert async_request_refetch.call_count == 1
     assert signal_updated.call_count == 3
+
+
+async def test_two_ux360(
+    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aioresponses
+) -> None:
+    """Test two UX360."""
+    nexia = NexiaHome(aiohttp_session)
+    devices_json = json.loads(await load_fixture("two_ux360.json"))
+    nexia.update_from_json(devices_json)
+
+    thermostat = nexia.get_thermostat_by_id("A2000003")
+    zone = thermostat.get_zone_by_id("A2000003_1")
+
+    # Mock the PUT request for setting setpoints
+    mock_aioresponse.put(
+        "https://www.mynexia.com/mobile/diagnostics/thermostats/A2000003/setpoints/1",
+        payload={
+            "success": True,
+            "error": None,
+            "result": {
+                "polling_path": "https://www.mynexia.com/backstage/announcements/16424912a49fda1b868e12d3502d6f6aa26be64c1eef8c83"
+            },
+        },
+    )
+
+    # Set new temperature setpoints
+    await zone.set_heat_cool_temp(heat_temperature=68, cool_temperature=72)
+
+    # Verify the PUT request was made
+    request = mock_aioresponse.requests.get(
+        (
+            "PUT",
+            URL(
+                "https://www.mynexia.com/mobile/diagnostics/thermostats/A2000003/setpoints/1"
+            ),
+        )
+    )
+    assert request is not None
+    # Check the payload
+    first_request = request[0]
+    assert first_request.kwargs["json"]["heat"] == 68
+    assert first_request.kwargs["json"]["cool"] == 72
+
+    # Test air cleaner mode for UX360 (should not have air cleaner)
+    assert thermostat.has_air_cleaner() is False
+    assert thermostat.get_air_cleaner_mode() is None
+
+    # Test the second UX360 thermostat
+    thermostat2 = nexia.get_thermostat_by_id("A1000002")
+    assert thermostat2.has_air_cleaner() is False
+    assert thermostat2.get_air_cleaner_mode() is None
+
+    # Test that zone handles UX360 run_mode format (value instead of current_value)
+    zone1 = thermostat.get_zone_by_id("A2000003_1")
+    # The fixture has thermostat_run_mode in features with "value": "schedule"
+    # This tests the conversion code in _get_zone_run_mode()
+    assert zone1.get_setpoint_status() == "Run Schedule"
+    assert not zone1.is_in_permanent_hold()
+
+    zone2 = thermostat2.get_zone_by_id("A1000002_1")
+    assert zone2.get_setpoint_status() == "Run Schedule"
+    assert not zone2.is_in_permanent_hold()
+
+    # Mock the PUT request for setting setpoints
+    mock_aioresponse.requests.clear()
+    mock_aioresponse.post(
+        "https://www.mynexia.com/mobile/diagnostics/thermostats/A1000002/fan_mode",
+        payload={
+            "success": True,
+            "error": None,
+            "result": {
+                "polling_path": "https://www.mynexia.com/backstage/announcements/16424912a49fda1b868e12d3502d6f6aa26be64c1eef8c83"
+            },
+        },
+    )
+
+    await thermostat2.set_fan_mode("Circulate")
+    # Verify the POST request was made
+    request = mock_aioresponse.requests.get(
+        (
+            "POST",
+            URL(
+                "https://www.mynexia.com/mobile/diagnostics/thermostats/A1000002/fan_mode"
+            ),
+        )
+    )
+    assert request is not None
