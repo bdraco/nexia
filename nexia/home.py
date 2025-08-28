@@ -397,13 +397,26 @@ class NexiaHome:
         """Executes the scheduled update."""
         _LOGGER.debug("Executing scheduled update")
         self._scheduled_update = None
-        if self._update_task is None or self._update_task.done():
+        if not self._update_in_progress and (
+            self._update_task is None or self._update_task.done()
+        ):
             self._update_task = self.loop.create_task(self.update())
         else:
             _LOGGER.debug("Update task is already running")
             self.schedule_update()
 
     async def update(self, force_update: bool = True) -> dict[str, Any] | None:
+        """Updates the nexia status.
+        :param force_update: Whether to force the update.
+        :return: The updated JSON data or None.
+        """
+        self._update_in_progress = True
+        try:
+            return await self._update(force_update)
+        finally:
+            self._update_in_progress = False
+
+    async def _update(self, force_update: bool = True) -> dict[str, Any] | None:
         """Forces a status update from nexia
         :return: None.
         """
