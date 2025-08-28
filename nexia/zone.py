@@ -836,11 +836,12 @@ class NexiaThermostatZone:
             )
         async with await call(url, payload) as response:
             result = (await response.json())["result"]
-            self.update_zone_json(result)
             if len(result) < 3:
                 # If we didn't get enough data, refresh the home
                 # after a brief delay
                 await self._nexia_home.delayed_update()
+            else:
+                self.update_zone_json(result)
 
     def update_zone_json(self, zone_json: dict[str, Any]) -> None:
         """Update with new json from the api."""
