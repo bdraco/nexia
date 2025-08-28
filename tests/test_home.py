@@ -2068,3 +2068,41 @@ async def test_sensor_multi_select(aiohttp_session: aiohttp.ClientSession) -> No
     await asyncio.sleep(0.02)
     assert async_request_refetch.call_count == 1
     assert signal_updated.call_count == 3
+
+
+async def test_two_ux360(
+    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aioresponses
+) -> None:
+    """Test two UX360."""
+    nexia = NexiaHome(aiohttp_session)
+    devices_json = json.loads(await load_fixture("two_ux360.json"))
+    nexia.update_from_json(devices_json)
+
+    thermostat = nexia.get_thermostat_by_id("A2000003")
+    zone = thermostat.get_zone_by_id(1)
+
+    # Mock the PUT request for setting setpoints
+    mock_aioresponse.put(
+        "https://www.mynexia.com/mobile/diagnostics/thermostats/A2000003/setpoints/1",
+        payload={
+            "result": devices_json["result"]["_links"]["child"][0]["data"]["items"][0]
+        },
+    )
+
+    # Set new temperature setpoints
+    await zone.set_heat_cool_temp(heat_temperature=68, cool_temperature=72)
+
+    # Verify the PUT request was made
+    request = mock_aioresponse.requests.get(
+        (
+            "PUT",
+            URL(
+                "https://www.mynexia.com/mobile/diagnostics/thermostats/A2000003/setpoints/1"
+            ),
+        )
+    )
+    assert request is not None
+    # Check the payload
+    first_request = request[0]
+    assert first_request.kwargs["json"]["heat"] == 68
+    assert first_request.kwargs["json"]["cool"] == 72

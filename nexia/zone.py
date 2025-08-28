@@ -155,10 +155,7 @@ class NexiaThermostatZone:
 
         :return: str
         """
-        try:
-            return self._get_zone_setting("zone_mode")["current_value"].upper()
-        except KeyError:
-            return self._get_zone_setting("mode")["current_value"].upper()
+        return self._get_zone_setting("zone_mode")["current_value"].upper()
 
     def get_requested_mode(self) -> str:
         """Returns the requested mode of the zone. This should match the zone's
