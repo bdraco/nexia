@@ -41,6 +41,8 @@ DEVICES_ELEMENT = 0
 AUTOMATIONS_ELEMENT = 1
 MAX_REDIRECTS = 3
 
+UPDATE_DELAY_SECONDS = 4
+
 BRAND_TO_URL = {
     BRAND_ASAIR: ASAIR_ROOT_URL,
     BRAND_TRANE: TRANE_ROOT_URL,
@@ -383,11 +385,13 @@ class NexiaHome:
 
     def schedule_update(self) -> None:
         """Schedules an update for the home."""
-        _LOGGER.debug("Scheduling update in 2 seconds")
+        _LOGGER.debug("Scheduling update in %s seconds", UPDATE_DELAY_SECONDS)
         if self._scheduled_update is not None:
             self._scheduled_update.cancel()
             self._scheduled_update = None
-        self._scheduled_update = self.loop.call_later(2, self._do_scheduled_update)
+        self._scheduled_update = self.loop.call_later(
+            UPDATE_DELAY_SECONDS, self._do_scheduled_update
+        )
 
     def _do_scheduled_update(self) -> None:
         """Executes the scheduled update."""
