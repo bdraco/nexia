@@ -664,7 +664,7 @@ class NexiaThermostat:
         # create a new list of IDs.
         return [zone.zone_id for zone in self.zones]
 
-    def get_zone_by_id(self, zone_id: int) -> NexiaThermostatZone:
+    def get_zone_by_id(self, zone_id: int | str) -> NexiaThermostatZone:
         """Get a zone by its nexia id."""
         for zone in self.zones:
             if zone.zone_id == zone_id:

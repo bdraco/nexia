@@ -940,8 +940,8 @@ async def test_issue_79891(aiohttp_session: aiohttp.ClientSession) -> None:
     assert thermostat.is_blower_active() is False
 
     zone_ids = thermostat.get_zone_ids()
-    assert zone_ids == [1]
-    zone = thermostat.get_zone_by_id(1)
+    assert zone_ids == [83261001]
+    zone = thermostat.get_zone_by_id(83261001)
 
     assert zone.get_name() == "default"
     assert zone.get_cooling_setpoint() == 27.0
@@ -1796,7 +1796,7 @@ async def test_set_perm_hold_ux360(
     nexia.update_from_json(devices_json)
 
     thermostat = nexia.get_thermostat_by_id("123456")
-    zone = thermostat.get_zone_by_id(1)
+    zone = thermostat.get_zone_by_id("123456_1")
 
     devices = _extract_devices_from_houses_json(devices_json)
     children = extract_children_from_devices_json(devices)
@@ -1892,7 +1892,7 @@ async def test_ux360_current_state(
     assert thermostat.get_relative_humidity() == 0.50
     assert thermostat.get_outdoor_temperature() == 87
 
-    zone = thermostat.get_zone_by_id(1)
+    zone = thermostat.get_zone_by_id("XXXXXX1_1")
     assert zone.get_name() == "Zone 1"
     assert zone.get_temperature() == 71
     assert zone.get_cooling_setpoint() == 71
@@ -1911,7 +1911,7 @@ async def test_ux360_current_state(
     assert thermostat2.get_outdoor_temperature() == 88
     assert thermostat2.get_current_compressor_speed() == 0.99
 
-    zone2 = thermostat2.get_zone_by_id(1)
+    zone2 = thermostat2.get_zone_by_id("XXXXXX2_1")
     assert zone2.get_temperature() == 72
 
 
@@ -1948,7 +1948,7 @@ async def test_ux360_set_setpoints_with_put(
     nexia.update_from_json(devices_json)
 
     thermostat = nexia.get_thermostat_by_id("XXXXXX1")
-    zone = thermostat.get_zone_by_id(1)
+    zone = thermostat.get_zone_by_id("XXXXXX1_1")
 
     # Mock the PUT request for setting setpoints
     mock_aioresponse.put(
@@ -2079,7 +2079,7 @@ async def test_two_ux360(
     nexia.update_from_json(devices_json)
 
     thermostat = nexia.get_thermostat_by_id("A2000003")
-    zone = thermostat.get_zone_by_id(1)
+    zone = thermostat.get_zone_by_id("A2000003_1")
 
     # Mock the PUT request for setting setpoints
     mock_aioresponse.put(
