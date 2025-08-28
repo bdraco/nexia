@@ -459,11 +459,16 @@ class NexiaThermostat:
         """
         return bool(self.get_thermostat_settings_key_or_none("air_cleaner_mode"))
 
-    def get_air_cleaner_mode(self) -> str:
+    def get_air_cleaner_mode(self) -> str | None:
         """Returns the system's air cleaner mode
-        :return: str.
+        :return: str or None if no air cleaner.
         """
-        return self.get_thermostat_settings_key("air_cleaner_mode")["current_value"]
+        air_cleaner_setting = self.get_thermostat_settings_key_or_none(
+            "air_cleaner_mode"
+        )
+        if not air_cleaner_setting:
+            return None
+        return air_cleaner_setting["current_value"]
 
     ########################################################################
     # System Universal Set Methods

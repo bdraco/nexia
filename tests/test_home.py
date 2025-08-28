@@ -2124,3 +2124,12 @@ async def test_two_ux360(
     first_request = request[0]
     assert first_request.kwargs["json"]["heat"] == 68
     assert first_request.kwargs["json"]["cool"] == 72
+
+    # Test air cleaner mode for UX360 (should not have air cleaner)
+    assert thermostat.has_air_cleaner() is False
+    assert thermostat.get_air_cleaner_mode() is None
+
+    # Test the second UX360 thermostat
+    thermostat2 = nexia.get_thermostat_by_id("A1000002")
+    assert thermostat2.has_air_cleaner() is False
+    assert thermostat2.get_air_cleaner_mode() is None
