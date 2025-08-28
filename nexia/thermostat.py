@@ -15,7 +15,7 @@ from .const import (
     HUMIDITY_MIN,
 )
 from .util import find_dict_with_keyvalue_in_json, find_humidity_setpoint, is_number
-from .zone import NexiaThermostatZone
+from .zone import NexiaThermostatZone, make_zone_id
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -834,7 +834,7 @@ class NexiaThermostat:
 
         zone_updates_by_id = {}
         for zone_json in thermostat_json["zones"]:
-            zone_updates_by_id[zone_json["id"]] = zone_json
+            zone_updates_by_id[make_zone_id(self, zone_json)] = zone_json
 
         for zone in self.zones:
             if zone.zone_id in zone_updates_by_id:

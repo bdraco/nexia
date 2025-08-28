@@ -105,6 +105,18 @@ ENDPOINT_MAP = {
 }
 
 
+def make_zone_id(
+    nexia_thermostat: NexiaThermostat, zone_json: dict[str, Any]
+) -> str | int:
+    """Create a unique zone ID for a thermostat zone."""
+    zone_id: str | int = zone_json["id"]
+    if type(zone_id) is int and zone_id < 256:  # Max zones
+        # For UX360 zone ids are not unique so we need to add
+        # to the thermostat id
+        return f"{nexia_thermostat.thermostat_id}_{zone_id}"
+    return zone_id
+
+
 class NexiaThermostatZone:
     """A nexia thermostat zone."""
 
@@ -118,11 +130,7 @@ class NexiaThermostatZone:
         self._nexia_home = nexia_home
         self._zone_json = zone_json
         self.thermostat = nexia_thermostat
-        self.zone_id: str | int = zone_json["id"]
-        if type(self.zone_id) is int and self.zone_id < 256:  # Max zones
-            # For UX360 zone ids are not unique so we need to add
-            # to the thermostat id
-            self.zone_id = f"{nexia_thermostat.thermostat_id}_{self.zone_id}"
+        self.zone_id = make_zone_id(nexia_thermostat, zone_json)
 
     @property
     def API_MOBILE_ZONE_URL(self) -> str:  # pylint: disable=invalid-name
