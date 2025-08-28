@@ -41,7 +41,7 @@ DEVICES_ELEMENT = 0
 AUTOMATIONS_ELEMENT = 1
 MAX_REDIRECTS = 3
 
-UPDATE_DELAY_SECONDS = 4
+UPDATE_DELAY_SECONDS = 2
 
 BRAND_TO_URL = {
     BRAND_ASAIR: ASAIR_ROOT_URL,
@@ -129,8 +129,7 @@ class NexiaHome:
         self.session = session
         self.loop = asyncio.get_running_loop()
         self.log_response = True
-        self._scheduled_update: asyncio.TimerHandle | None = None
-        self._update_task: asyncio.Task | None = None
+        self._update_in_progress: asyncio.Future[None] | None = None
 
     @property
     def API_MOBILE_PHONE_URL(self) -> str:  # pylint: disable=invalid-name
@@ -383,38 +382,24 @@ class NexiaHome:
         self._update_devices()
         self._update_automations()
 
-    def schedule_update(self) -> None:
+    async def delayed_update(self) -> None:
         """Schedules an update for the home."""
-        _LOGGER.debug("Scheduling update in %s seconds", UPDATE_DELAY_SECONDS)
-        if self._scheduled_update is not None:
-            self._scheduled_update.cancel()
-            self._scheduled_update = None
-        self._scheduled_update = self.loop.call_later(
-            UPDATE_DELAY_SECONDS, self._do_scheduled_update
-        )
-
-    def _do_scheduled_update(self) -> None:
-        """Executes the scheduled update."""
-        _LOGGER.debug("Executing scheduled update")
-        self._scheduled_update = None
-        if not self._update_in_progress and (
-            self._update_task is None or self._update_task.done()
-        ):
-            self._update_task = self.loop.create_task(self.update())
-        else:
-            _LOGGER.debug("Update task is already running")
-            self.schedule_update()
+        if self._update_in_progress and not self._update_in_progress.done():
+            await self._update_in_progress
+        await asyncio.sleep(UPDATE_DELAY_SECONDS)
+        await self.update()
 
     async def update(self, force_update: bool = True) -> dict[str, Any] | None:
         """Updates the nexia status.
         :param force_update: Whether to force the update.
         :return: The updated JSON data or None.
         """
-        self._update_in_progress = True
+        self._update_in_progress = self.loop.create_future()
         try:
             return await self._update(force_update)
         finally:
-            self._update_in_progress = False
+            if not self._update_in_progress.done():
+                self._update_in_progress.set_result(None)
 
     async def _update(self, force_update: bool = True) -> dict[str, Any] | None:
         """Forces a status update from nexia
