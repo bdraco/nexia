@@ -192,10 +192,7 @@ class NexiaThermostatZone:
         strings in NexiaThermostat.get_zone_presets().
         :return: str.
         """
-        try:
-            preset_selected = self._get_zone_setting("preset_selected")
-        except KeyError:
-            return None
+        preset_selected = self._get_zone_setting("preset_selected")
         current_value = preset_selected["current_value"]
         labels = preset_selected["labels"]
         if isinstance(current_value, int):
