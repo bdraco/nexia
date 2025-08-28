@@ -234,16 +234,14 @@ class NexiaThermostatZone:
         # UX360 stores thermostat_run_mode in features, not settings
         try:
             run_mode = self._get_zone_features("thermostat_run_mode")
-            if run_mode:
-                # Convert UX360 format to expected format
-                # UX360 uses "value" instead of "current_value"
-                if "value" in run_mode and "current_value" not in run_mode:
-                    run_mode["current_value"] = run_mode["value"]
-                return run_mode
         except KeyError:
-            pass
+            return None
 
-        return None
+        # Convert UX360 format to expected format
+        # UX360 uses "value" instead of "current_value"
+        if "value" in run_mode and "current_value" not in run_mode:
+            run_mode["current_value"] = run_mode["value"]
+        return run_mode
 
     def get_setpoint_status(self) -> str:
         """Returns the setpoint status, like "Following Schedule - Home", or
