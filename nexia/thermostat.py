@@ -656,7 +656,7 @@ class NexiaThermostat:
     ########################################################################
     # Zone Get Methods
 
-    def get_zone_ids(self) -> list[int]:
+    def get_zone_ids(self) -> list[int | str]:
         """Returns a list of available zone IDs with a starting index of 0.
         :return: list(int).
         """

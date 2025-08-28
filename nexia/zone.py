@@ -116,7 +116,11 @@ class NexiaThermostatZone:
         self._nexia_home = nexia_home
         self._zone_json = zone_json
         self.thermostat = nexia_thermostat
-        self.zone_id: int = zone_json["id"]
+        self.zone_id: str | int = zone_json["id"]
+        if type(self.zone_id) is int and self.zone_id < 256:  # Max zones
+            # For UX360 zone ids are not unique so we need to add
+            # to the thermostat id
+            self.zone_id = f"{nexia_thermostat.thermostat_id}_{self.zone_id}"
 
     @property
     def API_MOBILE_ZONE_URL(self) -> str:  # pylint: disable=invalid-name
