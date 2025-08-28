@@ -487,7 +487,9 @@ class NexiaThermostat:
                 break
 
         if not fan_mode_value:
-            raise KeyError(f"Invalid fan mode {fan_mode} specified")
+            raise KeyError(
+                f"Invalid fan mode {fan_mode} specified; valid modes: {[opt['label'] for opt in fan_mode_data['options']]}"
+            )
 
         # API times out if fan_mode is set to same attribute
         if fan_mode_value != current_fan_mode_value:

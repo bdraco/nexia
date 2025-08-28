@@ -41,6 +41,13 @@ async def aiohttp_session():
     await session.close()
 
 
+@pytest.fixture(name="disable_delay", autouse=True)
+async def disable_delay():
+    """Mock session."""
+    with patch("nexia.home.UPDATE_DELAY_SECONDS", 0):
+        yield
+
+
 def _load_fixture(filename):
     """Load a fixture."""
     test_dir = dirname(__file__)
@@ -2103,7 +2110,11 @@ async def test_two_ux360(
     mock_aioresponse.put(
         "https://www.mynexia.com/mobile/diagnostics/thermostats/A2000003/setpoints/1",
         payload={
-            "result": devices_json["result"]["_links"]["child"][0]["data"]["items"][0]
+            "success": True,
+            "error": None,
+            "result": {
+                "polling_path": "https://www.mynexia.com/backstage/announcements/16424912a49fda1b868e12d3502d6f6aa26be64c1eef8c83"
+            },
         },
     )
 
@@ -2144,3 +2155,28 @@ async def test_two_ux360(
     zone2 = thermostat2.get_zone_by_id("A1000002_1")
     assert zone2.get_setpoint_status() == "Run Schedule"
     assert not zone2.is_in_permanent_hold()
+
+    # Mock the PUT request for setting setpoints
+    mock_aioresponse.requests.clear()
+    mock_aioresponse.post(
+        "https://www.mynexia.com/mobile/diagnostics/thermostats/A1000002/fan_mode",
+        payload={
+            "success": True,
+            "error": None,
+            "result": {
+                "polling_path": "https://www.mynexia.com/backstage/announcements/16424912a49fda1b868e12d3502d6f6aa26be64c1eef8c83"
+            },
+        },
+    )
+
+    await thermostat2.set_fan_mode("Circulate")
+    # Verify the POST request was made
+    request = mock_aioresponse.requests.get(
+        (
+            "POST",
+            URL(
+                "https://www.mynexia.com/mobile/diagnostics/thermostats/A1000002/fan_mode"
+            ),
+        )
+    )
+    assert request is not None
