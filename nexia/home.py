@@ -383,6 +383,7 @@ class NexiaHome:
 
     def schedule_update(self) -> None:
         """Schedules an update for the home."""
+        _LOGGER.debug("Scheduling update in 2 seconds")
         if self._scheduled_update is not None:
             self._scheduled_update.cancel()
             self._scheduled_update = None
@@ -390,8 +391,13 @@ class NexiaHome:
 
     def _do_scheduled_update(self) -> None:
         """Executes the scheduled update."""
+        _LOGGER.debug("Executing scheduled update")
         self._scheduled_update = None
-        self._update_task = self.loop.create_task(self.update())
+        if self._update_task is None or self._update_task.done():
+            self._update_task = self.loop.create_task(self.update())
+        else:
+            _LOGGER.debug("Update task is already running")
+            self.schedule_update()
 
     async def update(self, force_update: bool = True) -> dict[str, Any] | None:
         """Forces a status update from nexia
