@@ -2133,3 +2133,14 @@ async def test_two_ux360(
     thermostat2 = nexia.get_thermostat_by_id("A1000002")
     assert thermostat2.has_air_cleaner() is False
     assert thermostat2.get_air_cleaner_mode() is None
+
+    # Test that zone handles UX360 run_mode format (value instead of current_value)
+    zone1 = thermostat.get_zone_by_id("A2000003_1")
+    # The fixture has thermostat_run_mode in features with "value": "schedule"
+    # This tests the conversion code in _get_zone_run_mode()
+    assert zone1.get_setpoint_status() == "Run Schedule"
+    assert not zone1.is_in_permanent_hold()
+
+    zone2 = thermostat2.get_zone_by_id("A1000002_1")
+    assert zone2.get_setpoint_status() == "Run Schedule"
+    assert not zone2.is_in_permanent_hold()
