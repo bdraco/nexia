@@ -41,6 +41,9 @@ DEVICES_ELEMENT = 0
 AUTOMATIONS_ELEMENT = 1
 MAX_REDIRECTS = 3
 
+# UX360 takes ~7 to reflect state
+UPDATE_DELAY_SECONDS = 7
+
 BRAND_TO_URL = {
     BRAND_ASAIR: ASAIR_ROOT_URL,
     BRAND_TRANE: TRANE_ROOT_URL,
@@ -127,6 +130,7 @@ class NexiaHome:
         self.session = session
         self.loop = asyncio.get_running_loop()
         self.log_response = True
+        self._update_in_progress: asyncio.Future[None] | None = None
 
     @property
     def API_MOBILE_PHONE_URL(self) -> str:  # pylint: disable=invalid-name
@@ -379,7 +383,26 @@ class NexiaHome:
         self._update_devices()
         self._update_automations()
 
+    async def delayed_update(self) -> None:
+        """Schedules an update for the home."""
+        if self._update_in_progress and not self._update_in_progress.done():
+            await self._update_in_progress
+        await asyncio.sleep(UPDATE_DELAY_SECONDS)
+        await self.update()
+
     async def update(self, force_update: bool = True) -> dict[str, Any] | None:
+        """Updates the nexia status.
+        :param force_update: Whether to force the update.
+        :return: The updated JSON data or None.
+        """
+        self._update_in_progress = self.loop.create_future()
+        try:
+            return await self._update(force_update)
+        finally:
+            if not self._update_in_progress.done():
+                self._update_in_progress.set_result(None)
+
+    async def _update(self, force_update: bool = True) -> dict[str, Any] | None:
         """Forces a status update from nexia
         :return: None.
         """
