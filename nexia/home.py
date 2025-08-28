@@ -127,6 +127,8 @@ class NexiaHome:
         self.session = session
         self.loop = asyncio.get_running_loop()
         self.log_response = True
+        self._scheduled_update: asyncio.TimerHandle | None = None
+        self._update_task: asyncio.Task | None = None
 
     @property
     def API_MOBILE_PHONE_URL(self) -> str:  # pylint: disable=invalid-name
@@ -378,6 +380,18 @@ class NexiaHome:
         self.automations_json = _extract_automations_from_houses_json(json_dict)
         self._update_devices()
         self._update_automations()
+
+    def schedule_update(self) -> None:
+        """Schedules an update for the home."""
+        if self._scheduled_update is not None:
+            self._scheduled_update.cancel()
+            self._scheduled_update = None
+        self._scheduled_update = self.loop.call_later(2, self._do_scheduled_update)
+
+    def _do_scheduled_update(self) -> None:
+        """Executes the scheduled update."""
+        self._scheduled_update = None
+        self._update_task = self.loop.create_task(self.update())
 
     async def update(self, force_update: bool = True) -> dict[str, Any] | None:
         """Forces a status update from nexia

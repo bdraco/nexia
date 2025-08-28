@@ -818,7 +818,8 @@ class NexiaThermostat:
             self.update_thermostat_json(result)
             if len(result) < 3:
                 # If we didn't get enough data, refresh the home
-                await self._nexia_home.update()
+                # after a brief delay
+                self._nexia_home.schedule_update()
 
     def update_thermostat_json(self, thermostat_json):
         """Update with new json from the api."""
