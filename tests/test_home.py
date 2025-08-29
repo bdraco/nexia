@@ -1940,6 +1940,76 @@ async def test_ux360_presets(aiohttp_session: aiohttp.ClientSession) -> None:
     assert zone.get_presets() == []
 
 
+async def test_ux360_zoned(aiohttp_session: aiohttp.ClientSession) -> None:
+    """Test getting the state of a ux360 with 3 zones."""
+    nexia = NexiaHome(aiohttp_session)
+    devices_json = json.loads(await load_fixture("ux360_zoned.json"))
+    nexia.update_from_json(devices_json)
+
+    # Test the single thermostat
+    thermostat = nexia.get_thermostat_by_id("0000000001")
+    assert thermostat.get_model() == "TSYS2C60A2VVUGA"
+    assert thermostat.get_firmware() == "09.01.00.250409"
+    assert thermostat.get_device_id() == "0000000001"
+    assert thermostat.get_type() == "TSYS2C60A2VVUGA"
+    assert thermostat.get_name() == "Home"
+    assert thermostat.get_deadband() == 3
+    assert thermostat.get_setpoint_limits() == (55, 99)
+    assert thermostat.has_variable_fan_speed() is False
+    assert thermostat.get_unit() == "F"
+    assert thermostat.get_fan_mode() == "Auto"
+    assert thermostat.get_fan_modes() == ["Circulate", "Auto", "On"]
+    assert thermostat.get_current_compressor_speed() == 0.66
+    assert thermostat.has_dehumidify_support() is False
+    assert thermostat.has_humidify_support() is False
+    assert thermostat.has_emergency_heat() is False
+    assert thermostat.get_system_status() == "Cooling"
+    assert thermostat.has_air_cleaner() is False
+    assert thermostat.is_blower_active() is True
+    assert thermostat.is_online is True
+    assert thermostat.get_relative_humidity() == 0.40
+    assert thermostat.get_outdoor_temperature() == 79
+
+    # Test zone 1 - Bedrooms
+    zone1 = thermostat.get_zone_by_id("0000000001_1")
+    assert zone1.get_name() == "Bedrooms"
+    assert zone1.get_temperature() == 70
+    assert zone1.get_cooling_setpoint() == 70
+    assert zone1.get_heating_setpoint() == 62
+    assert zone1.get_current_mode() == "AUTO"
+    assert zone1.get_requested_mode() == "AUTO"
+    assert zone1.get_status() == "cooling"
+    assert zone1.get_setpoint_status() == "Hold Temp"
+    assert zone1.is_calling() is True
+    assert zone1.is_in_permanent_hold() is True
+
+    # Test zone 2 - Living Room
+    zone2 = thermostat.get_zone_by_id("0000000001_2")
+    assert zone2.get_name() == "Living Room"
+    assert zone2.get_temperature() == 73
+    assert zone2.get_cooling_setpoint() == 73
+    assert zone2.get_heating_setpoint() == 63
+    assert zone2.get_current_mode() == "AUTO"
+    assert zone2.get_requested_mode() == "AUTO"
+    assert zone2.get_status() == "cooling"
+    assert zone2.get_setpoint_status() == "Hold Temp"
+    assert zone2.is_calling() is True
+    assert zone2.is_in_permanent_hold() is True
+
+    # Test zone 3 - Gym
+    zone3 = thermostat.get_zone_by_id("0000000001_3")
+    assert zone3.get_name() == "Gym"
+    assert zone3.get_temperature() == 74
+    assert zone3.get_cooling_setpoint() == 75
+    assert zone3.get_heating_setpoint() == 63
+    assert zone3.get_current_mode() == "AUTO"
+    assert zone3.get_requested_mode() == "AUTO"
+    assert zone3.get_status() == "idle"
+    assert zone3.get_setpoint_status() == "Hold Temp"
+    assert zone3.is_calling() is False
+    assert zone3.is_in_permanent_hold() is True
+
+
 async def test_ux360_multiple_thermostats_detected(
     aiohttp_session: aiohttp.ClientSession,
 ) -> None:

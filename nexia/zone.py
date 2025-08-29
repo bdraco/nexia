@@ -172,6 +172,9 @@ class NexiaThermostatZone:
         zone_mode = self._get_zone_setting_or_none("zone_mode")
         if zone_mode:
             return zone_mode["current_value"].upper()
+        thermostat_mode = self._get_zone_features_or_none("thermostat_mode")
+        if thermostat_mode:
+            return thermostat_mode["value"].upper()
         # Fall back to thermostat mode for devices without zone_mode
         return self.thermostat.get_thermostat_settings_key_or_none("mode")[
             "current_value"
@@ -238,6 +241,8 @@ class NexiaThermostatZone:
         for key in RUN_MODE_KEYS:
             if run_mode := self._get_zone_setting_or_none(key):
                 return run_mode
+            if run_mode := self._get_zone_features_or_none(key):
+                return {**run_mode, "current_value": run_mode["value"]}
 
         return None
 
@@ -275,7 +280,7 @@ class NexiaThermostatZone:
 
         # UX360
         zone_status = self._get_zone_key("zone_status")
-        if zone_status == UX360_IDLE_STATES:
+        if zone_status in UX360_IDLE_STATES:
             return False
         if zone_status in UX360_ACTIVE_STATES:
             return True
@@ -763,6 +768,17 @@ class NexiaThermostatZone:
         if not subdict:
             raise KeyError(f'Zone feature key "{key}" invalid.')
         return subdict
+
+    def _get_zone_features_or_none(self, key: str) -> Any:
+        """Returns the zone value from the provided key in the zone's
+        JSON.
+        :param key: str
+        :return: value.
+        """
+        try:
+            return self._get_zone_features(key)
+        except KeyError:
+            return None
 
     def _get_zone_key(self, key: str) -> Any:
         """Returns the zone value for the key provided.
