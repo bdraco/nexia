@@ -1940,9 +1940,7 @@ async def test_ux360_presets(aiohttp_session: aiohttp.ClientSession) -> None:
     assert zone.get_presets() == []
 
 
-async def test_ux360_zoned(
-    aiohttp_session: aiohttp.ClientSession
-) -> None:
+async def test_ux360_zoned(aiohttp_session: aiohttp.ClientSession) -> None:
     """Test getting the state of a ux360 with 3 zones."""
     nexia = NexiaHome(aiohttp_session)
     devices_json = json.loads(await load_fixture("ux360_zoned.json"))

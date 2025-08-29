@@ -219,18 +219,8 @@
                                 "label": "Heat"
                               }
                             ],
-                            "labels": [
-                              "Off",
-                              "Auto",
-                              "Cool",
-                              "Heat"
-                            ],
-                            "values": [
-                              "off",
-                              "auto",
-                              "cool",
-                              "heat"
-                            ],
+                            "labels": ["Off", "Auto", "Cool", "Heat"],
+                            "values": ["off", "auto", "cool", "heat"],
                             "_links": {
                               "self": {
                                 "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/0000000001/mode/1"
@@ -240,9 +230,7 @@
                         ],
                         "icon": {
                           "name": "thermostat",
-                          "modifiers": [
-                            "temperature-70"
-                          ]
+                          "modifiers": ["temperature-70"]
                         },
                         "features": [
                           {
@@ -419,18 +407,8 @@
                                 "label": "Heat"
                               }
                             ],
-                            "labels": [
-                              "Off",
-                              "Auto",
-                              "Cool",
-                              "Heat"
-                            ],
-                            "values": [
-                              "off",
-                              "auto",
-                              "cool",
-                              "heat"
-                            ],
+                            "labels": ["Off", "Auto", "Cool", "Heat"],
+                            "values": ["off", "auto", "cool", "heat"],
                             "_links": {
                               "self": {
                                 "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/0000000001/mode/2"
@@ -440,9 +418,7 @@
                         ],
                         "icon": {
                           "name": "thermostat",
-                          "modifiers": [
-                            "temperature-73"
-                          ]
+                          "modifiers": ["temperature-73"]
                         },
                         "features": [
                           {
@@ -619,18 +595,8 @@
                                 "label": "Heat"
                               }
                             ],
-                            "labels": [
-                              "Off",
-                              "Auto",
-                              "Cool",
-                              "Heat"
-                            ],
-                            "values": [
-                              "off",
-                              "auto",
-                              "cool",
-                              "heat"
-                            ],
+                            "labels": ["Off", "Auto", "Cool", "Heat"],
+                            "values": ["off", "auto", "cool", "heat"],
                             "_links": {
                               "self": {
                                 "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/0000000001/mode/3"
@@ -640,9 +606,7 @@
                         ],
                         "icon": {
                           "name": "thermostat",
-                          "modifiers": [
-                            "temperature-74"
-                          ]
+                          "modifiers": ["temperature-74"]
                         },
                         "features": [
                           {
@@ -798,21 +762,15 @@
                 "icon": [
                   {
                     "name": "thermostat",
-                    "modifiers": [
-                      "temperature-70"
-                    ]
+                    "modifiers": ["temperature-70"]
                   },
                   {
                     "name": "thermostat",
-                    "modifiers": [
-                      "temperature-73"
-                    ]
+                    "modifiers": ["temperature-73"]
                   },
                   {
                     "name": "thermostat",
-                    "modifiers": [
-                      "temperature-74"
-                    ]
+                    "modifiers": ["temperature-74"]
                   }
                 ],
                 "_links": {
@@ -842,14 +800,8 @@
                         "label": "OFF"
                       }
                     ],
-                    "labels": [
-                      "ON",
-                      "OFF"
-                    ],
-                    "values": [
-                      true,
-                      false
-                    ],
+                    "labels": ["ON", "OFF"],
+                    "values": [true, false],
                     "_links": {
                       "self": {
                         "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/0000000001/scheduling_enabled"
@@ -874,16 +826,8 @@
                         "label": "On"
                       }
                     ],
-                    "labels": [
-                      "Circulate",
-                      "Auto",
-                      "On"
-                    ],
-                    "values": [
-                      "circulate",
-                      "auto",
-                      "on"
-                    ],
+                    "labels": ["Circulate", "Auto", "On"],
+                    "values": ["circulate", "auto", "on"],
                     "_links": {
                       "self": {
                         "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/0000000001/fan_mode"
@@ -904,14 +848,8 @@
                         "label": "C"
                       }
                     ],
-                    "labels": [
-                      "F",
-                      "C"
-                    ],
-                    "values": [
-                      "f",
-                      "c"
-                    ],
+                    "labels": ["F", "C"],
+                    "values": ["f", "c"],
                     "_links": {
                       "self": {
                         "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/0000000001/scale"
@@ -932,14 +870,8 @@
                         "label": "OFF"
                       }
                     ],
-                    "labels": [
-                      "ON",
-                      "OFF"
-                    ],
-                    "values": [
-                      "1",
-                      "0"
-                    ],
+                    "labels": ["ON", "OFF"],
+                    "values": ["1", "0"],
                     "_links": {
                       "self": {
                         "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/0000000001/high_low_alerts"
@@ -984,26 +916,8 @@
                         "label": "70"
                       }
                     ],
-                    "labels": [
-                      "35",
-                      "40",
-                      "45",
-                      "50",
-                      "55",
-                      "60",
-                      "65",
-                      "70"
-                    ],
-                    "values": [
-                      "35",
-                      "40",
-                      "45",
-                      "50",
-                      "55",
-                      "60",
-                      "65",
-                      "70"
-                    ],
+                    "labels": ["35", "40", "45", "50", "55", "60", "65", "70"],
+                    "values": ["35", "40", "45", "50", "55", "60", "65", "70"],
                     "_links": {
                       "self": {
                         "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/0000000001/alert_temperature_low"
@@ -1094,14 +1008,8 @@
                         "label": "OFF"
                       }
                     ],
-                    "labels": [
-                      "ON",
-                      "OFF"
-                    ],
-                    "values": [
-                      "1",
-                      "0"
-                    ],
+                    "labels": ["ON", "OFF"],
+                    "values": ["1", "0"],
                     "_links": {
                       "self": {
                         "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/0000000001/send_delta_temperature_alert"
@@ -1122,14 +1030,8 @@
                         "label": "OFF"
                       }
                     ],
-                    "labels": [
-                      "ON",
-                      "OFF"
-                    ],
-                    "values": [
-                      true,
-                      false
-                    ],
+                    "labels": ["ON", "OFF"],
+                    "values": [true, false],
                     "_links": {
                       "self": {
                         "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/0000000001/filter_reminders_enabled"
@@ -1154,16 +1056,8 @@
                         "label": "90 days"
                       }
                     ],
-                    "labels": [
-                      "30 days",
-                      "60 days",
-                      "90 days"
-                    ],
-                    "values": [
-                      30,
-                      60,
-                      90
-                    ],
+                    "labels": ["30 days", "60 days", "90 days"],
+                    "values": [30, 60, 90],
                     "_links": {
                       "self": {
                         "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/0000000001/filter_reminders_frequency"
@@ -1295,18 +1189,8 @@
                             "label": "Heat"
                           }
                         ],
-                        "labels": [
-                          "Off",
-                          "Auto",
-                          "Cool",
-                          "Heat"
-                        ],
-                        "values": [
-                          "off",
-                          "auto",
-                          "cool",
-                          "heat"
-                        ],
+                        "labels": ["Off", "Auto", "Cool", "Heat"],
+                        "values": ["off", "auto", "cool", "heat"],
                         "_links": {
                           "self": {
                             "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/0000000001/mode/1"
@@ -1316,9 +1200,7 @@
                     ],
                     "icon": {
                       "name": "thermostat",
-                      "modifiers": [
-                        "temperature-70"
-                      ]
+                      "modifiers": ["temperature-70"]
                     },
                     "features": [
                       {
@@ -1495,18 +1377,8 @@
                             "label": "Heat"
                           }
                         ],
-                        "labels": [
-                          "Off",
-                          "Auto",
-                          "Cool",
-                          "Heat"
-                        ],
-                        "values": [
-                          "off",
-                          "auto",
-                          "cool",
-                          "heat"
-                        ],
+                        "labels": ["Off", "Auto", "Cool", "Heat"],
+                        "values": ["off", "auto", "cool", "heat"],
                         "_links": {
                           "self": {
                             "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/0000000001/mode/2"
@@ -1516,9 +1388,7 @@
                     ],
                     "icon": {
                       "name": "thermostat",
-                      "modifiers": [
-                        "temperature-73"
-                      ]
+                      "modifiers": ["temperature-73"]
                     },
                     "features": [
                       {
@@ -1695,18 +1565,8 @@
                             "label": "Heat"
                           }
                         ],
-                        "labels": [
-                          "Off",
-                          "Auto",
-                          "Cool",
-                          "Heat"
-                        ],
-                        "values": [
-                          "off",
-                          "auto",
-                          "cool",
-                          "heat"
-                        ],
+                        "labels": ["Off", "Auto", "Cool", "Heat"],
+                        "values": ["off", "auto", "cool", "heat"],
                         "_links": {
                           "self": {
                             "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/0000000001/mode/3"
@@ -1716,9 +1576,7 @@
                     ],
                     "icon": {
                       "name": "thermostat",
-                      "modifiers": [
-                        "temperature-74"
-                      ]
+                      "modifiers": ["temperature-74"]
                     },
                     "features": [
                       {
