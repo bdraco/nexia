@@ -858,7 +858,7 @@
                     "actions": {
                       "set_setpoints": {
                         "method": "PUT",
-                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/2222249/setpoints/1"
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/2222249/setpoints/83261001"
                       },
                       "set_alert_temperature_low": {
                         "method": "POST",
@@ -1220,7 +1220,7 @@
                 "zones": [
                   {
                     "type": "thermostat_zone",
-                    "id": 1,
+                    "id": 83261001,
                     "name": "default",
                     "current_zone_mode": "auto",
                     "temperature": 26.0,
@@ -1246,7 +1246,7 @@
                         "actions": {
                           "set_setpoints": {
                             "method": "PUT",
-                            "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/2222249/setpoints/1"
+                            "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/2222249/setpoints/83261001"
                           }
                         },
                         "setpoint_delta": 2,
@@ -1341,7 +1341,7 @@
                     ],
                     "_links": {
                       "self": {
-                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/2222249/zones/1"
+                        "href": "https://www.mynexia.com/mobile/diagnostics/thermostats/2222249/zones/83261001"
                       }
                     }
                   }

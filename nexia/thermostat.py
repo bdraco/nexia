@@ -15,7 +15,7 @@ from .const import (
     HUMIDITY_MIN,
 )
 from .util import find_dict_with_keyvalue_in_json, find_humidity_setpoint, is_number
-from .zone import NexiaThermostatZone
+from .zone import NexiaThermostatZone, make_zone_id
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -459,11 +459,16 @@ class NexiaThermostat:
         """
         return bool(self.get_thermostat_settings_key_or_none("air_cleaner_mode"))
 
-    def get_air_cleaner_mode(self) -> str:
+    def get_air_cleaner_mode(self) -> str | None:
         """Returns the system's air cleaner mode
-        :return: str.
+        :return: str or None if no air cleaner.
         """
-        return self.get_thermostat_settings_key("air_cleaner_mode")["current_value"]
+        air_cleaner_setting = self.get_thermostat_settings_key_or_none(
+            "air_cleaner_mode"
+        )
+        if not air_cleaner_setting:
+            return None
+        return air_cleaner_setting["current_value"]
 
     ########################################################################
     # System Universal Set Methods
@@ -482,7 +487,9 @@ class NexiaThermostat:
                 break
 
         if not fan_mode_value:
-            raise KeyError(f"Invalid fan mode {fan_mode} specified")
+            raise KeyError(
+                f"Invalid fan mode {fan_mode} specified; valid modes: {[opt['label'] for opt in fan_mode_data['options']]}"
+            )
 
         # API times out if fan_mode is set to same attribute
         if fan_mode_value != current_fan_mode_value:
@@ -656,7 +663,7 @@ class NexiaThermostat:
     ########################################################################
     # Zone Get Methods
 
-    def get_zone_ids(self) -> list[int]:
+    def get_zone_ids(self) -> list[int | str]:
         """Returns a list of available zone IDs with a starting index of 0.
         :return: list(int).
         """
@@ -664,7 +671,7 @@ class NexiaThermostat:
         # create a new list of IDs.
         return [zone.zone_id for zone in self.zones]
 
-    def get_zone_by_id(self, zone_id: int) -> NexiaThermostatZone:
+    def get_zone_by_id(self, zone_id: int | str) -> NexiaThermostatZone:
         """Get a zone by its nexia id."""
         for zone in self.zones:
             if zone.zone_id == zone_id:
@@ -801,15 +808,21 @@ class NexiaThermostat:
             )
 
         if method == "POST":
-            async with await self._nexia_home.post_url(url, payload) as response:
-                self.update_thermostat_json((await response.json())["result"])
+            call = self._nexia_home.post_url
         elif method == "PUT":
-            async with await self._nexia_home.put_url(url, payload) as response:
-                self.update_thermostat_json((await response.json())["result"])
+            call = self._nexia_home.put_url
         else:
             raise ValueError(
                 f"Unsupported method {method} for endpoint {end_point} url {url}"
             )
+        async with await call(url, payload) as response:
+            result = (await response.json())["result"]
+            if len(result) < 3:
+                # If we didn't get enough data, refresh the home
+                # after a brief delay
+                await self._nexia_home.delayed_update()
+            else:
+                self.update_thermostat_json(result)
 
     def update_thermostat_json(self, thermostat_json):
         """Update with new json from the api."""
@@ -824,7 +837,7 @@ class NexiaThermostat:
 
         zone_updates_by_id = {}
         for zone_json in thermostat_json["zones"]:
-            zone_updates_by_id[zone_json["id"]] = zone_json
+            zone_updates_by_id[make_zone_id(self, zone_json)] = zone_json
 
         for zone in self.zones:
             if zone.zone_id in zone_updates_by_id:

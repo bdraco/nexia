@@ -35,6 +35,8 @@ if TYPE_CHECKING:
     from .home import NexiaHome
     from .thermostat import NexiaThermostat
 
+UX360_IDLE_STATES = {"idle"}
+UX360_ACTIVE_STATES = {"cooling", "heating"}
 RUN_MODE_KEYS = (
     "run_mode",
     "thermostat_run_mode",  # ux360
@@ -103,6 +105,18 @@ ENDPOINT_MAP = {
 }
 
 
+def make_zone_id(
+    nexia_thermostat: NexiaThermostat, zone_json: dict[str, Any]
+) -> str | int:
+    """Create a unique zone ID for a thermostat zone."""
+    zone_id: str | int = zone_json["id"]
+    if type(zone_id) is int and zone_id < 256:  # Max zones
+        # For UX360 zone ids are not unique so we need to add
+        # to the thermostat id
+        return f"{nexia_thermostat.thermostat_id}_{zone_id}"
+    return zone_id
+
+
 class NexiaThermostatZone:
     """A nexia thermostat zone."""
 
@@ -116,7 +130,7 @@ class NexiaThermostatZone:
         self._nexia_home = nexia_home
         self._zone_json = zone_json
         self.thermostat = nexia_thermostat
-        self.zone_id: int = zone_json["id"]
+        self.zone_id = make_zone_id(nexia_thermostat, zone_json)
 
     @property
     def API_MOBILE_ZONE_URL(self) -> str:  # pylint: disable=invalid-name
@@ -155,10 +169,13 @@ class NexiaThermostatZone:
 
         :return: str
         """
-        try:
-            return self._get_zone_setting("zone_mode")["current_value"].upper()
-        except KeyError:
-            return self._get_zone_setting("mode")["current_value"].upper()
+        zone_mode = self._get_zone_setting_or_none("zone_mode")
+        if zone_mode:
+            return zone_mode["current_value"].upper()
+        # Fall back to thermostat mode for devices without zone_mode
+        return self.thermostat.get_thermostat_settings_key_or_none("mode")[
+            "current_value"
+        ].upper()
 
     def get_requested_mode(self) -> str:
         """Returns the requested mode of the zone. This should match the zone's
@@ -183,20 +200,20 @@ class NexiaThermostatZone:
 
         :return:
         """
-        try:
-            options = self._get_zone_setting("preset_selected")["options"]
-            return [opt["label"] for opt in options]
-        except KeyError:
+        preset_selected = self._get_zone_setting_or_none("preset_selected")
+        # Make sure this is actually preset_selected, not mode fallback
+        if not preset_selected:
             return []
+        return [opt["label"] for opt in preset_selected["options"]]
 
     def get_preset(self) -> str | None:
         """Returns the zone's currently selected preset. Should be one of the
         strings in NexiaThermostat.get_zone_presets().
         :return: str.
         """
-        try:
-            preset_selected = self._get_zone_setting("preset_selected")
-        except KeyError:
+        preset_selected = self._get_zone_setting_or_none("preset_selected")
+        # Make sure this is actually preset_selected, not mode fallback
+        if not preset_selected:
             return None
         current_value = preset_selected["current_value"]
         labels = preset_selected["labels"]
@@ -265,7 +282,7 @@ class NexiaThermostatZone:
             return run_mode_label
 
         preset_label = self.get_preset()
-        if run_mode_current_value == PRESET_MODE_NONE:
+        if run_mode_current_value == PRESET_MODE_NONE or preset_label is None:
             return run_mode_label
         return f"{run_mode_label} - {preset_label}"
 
@@ -276,12 +293,14 @@ class NexiaThermostatZone:
         if self.is_native_zone():
             return self.thermostat.get_system_status() != SYSTEM_STATUS_IDLE
 
+        # UX360
         zone_status = self._get_zone_key("zone_status")
-        if zone_status == "idle":
+        if zone_status == UX360_IDLE_STATES:
             return False
-        if zone_status in ("cooling", "heating"):
+        if zone_status in UX360_ACTIVE_STATES:
             return True
 
+        # Other systems
         operating_state = self._get_zone_key("operating_state")
         return not (not operating_state or operating_state == DAMPER_CLOSED)
 
@@ -734,9 +753,7 @@ class NexiaThermostatZone:
             if key == "zone_mode":
                 key = "system_mode"
 
-            return thermostat.get_thermostat_settings_key_or_none(
-                key,
-            ) or thermostat.get_thermostat_settings_key_or_none("mode")
+            return thermostat.get_thermostat_settings_key_or_none(key)
 
         zone = self._zone_json
         subdict = find_dict_with_keyvalue_in_json(zone["settings"], "type", key)
@@ -830,15 +847,21 @@ class NexiaThermostatZone:
         method: str,
     ) -> None:
         if method == "POST":
-            async with await self._nexia_home.post_url(url, payload) as response:
-                self.update_zone_json((await response.json())["result"])
+            call = self._nexia_home.post_url
         elif method == "PUT":
-            async with await self._nexia_home.put_url(url, payload) as response:
-                self.update_zone_json((await response.json())["result"])
+            call = self._nexia_home.put_url
         else:
             raise ValueError(
                 f"Unsupported method {method} for endpoint {end_point} url {url}"
             )
+        async with await call(url, payload) as response:
+            result = (await response.json())["result"]
+            if len(result) < 3:
+                # If we didn't get enough data, refresh the home
+                # after a brief delay
+                await self._nexia_home.delayed_update()
+            else:
+                self.update_zone_json(result)
 
     def update_zone_json(self, zone_json: dict[str, Any]) -> None:
         """Update with new json from the api."""
