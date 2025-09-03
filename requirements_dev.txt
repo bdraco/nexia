@@ -8,7 +8,7 @@ tox==4.28.4
 coverage==7.10.5
 Sphinx==8.2.3
 twine==6.1.0
-orjson==3.11.2
+orjson==3.11.3
 pytest-asyncio==1.1.0
 pytest==8.4.1
 pytest-runner==6.0.1
