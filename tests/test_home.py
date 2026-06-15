@@ -2280,3 +2280,49 @@ async def test_two_ux360(
         )
     )
     assert request is not None
+
+
+async def test_two_ux360_multizone(aiohttp_session: aiohttp.ClientSession) -> None:
+    """Two UX360 thermostats where each owns several zones.
+
+    Regression coverage for GH #149: a home with two UX360 systems, one driving
+    three zones and the other driving two, must surface all five zones. UX360
+    devices number their zones per-thermostat (1, 2, 3 ...), so the ids collide
+    across thermostats and only survive because ``make_zone_id`` namespaces each
+    zone with its owning thermostat id.
+    """
+    nexia = NexiaHome(aiohttp_session)
+    devices_json = json.loads(await load_fixture("two_ux360_multizone.json"))
+    nexia.update_from_json(devices_json)
+
+    # Both thermostats are detected.
+    assert sorted(nexia.get_thermostat_ids()) == ["0000000001", "0000000002"]
+
+    three_zone = nexia.get_thermostat_by_id("0000000001")
+    two_zone = nexia.get_thermostat_by_id("0000000002")
+
+    # The three-zone system keeps all three zones (the symptom in #149 was that
+    # only one survived).
+    assert three_zone.get_zone_ids() == [
+        "0000000001_1",
+        "0000000001_2",
+        "0000000001_3",
+    ]
+    assert two_zone.get_zone_ids() == ["0000000002_1", "0000000002_2"]
+
+    # Per-thermostat zone numbers collide (both start at 1); namespacing keeps
+    # every zone id unique across the whole home.
+    all_zone_ids = three_zone.get_zone_ids() + two_zone.get_zone_ids()
+    assert len(all_zone_ids) == len(set(all_zone_ids)) == 5
+
+    # Zones resolve to the correct thermostat and carry distinct state.
+    assert [
+        three_zone.get_zone_by_id(zid).get_name() for zid in three_zone.get_zone_ids()
+    ] == ["Bedrooms", "Living Room", "Gym"]
+    assert [
+        two_zone.get_zone_by_id(zid).get_name() for zid in two_zone.get_zone_ids()
+    ] == ["Loft", "Studio"]
+
+    # A zone id from one thermostat is not addressable on the other.
+    with pytest.raises(KeyError):
+        two_zone.get_zone_by_id("0000000001_3")
