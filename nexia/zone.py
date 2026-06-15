@@ -304,8 +304,8 @@ class NexiaThermostatZone:
         appropriate range and within the deadband limits.
 
         Will throw exception if not valid.
-        :param heat_temperature: int
-        :param cool_temperature: int
+        :param heat_temperature: float or None
+        :param cool_temperature: float or None
         :return: None
         """
         deadband = self.thermostat.get_deadband()
@@ -453,13 +453,13 @@ class NexiaThermostatZone:
 
     async def call_permanent_hold(
         self,
-        heat_temperature=None,
-        cool_temperature=None,
+        heat_temperature: float | None = None,
+        cool_temperature: float | None = None,
     ) -> None:
         """Tells the zone to call a permanent hold. Optionally can provide the
         temperatures.
-        :param heat_temperature:
-        :param cool_temperature:
+        :param heat_temperature: float or None
+        :param cool_temperature: float or None
         :return:
         """
         if heat_temperature is None and cool_temperature is None:
@@ -561,8 +561,8 @@ class NexiaThermostatZone:
 
     async def _set_hold_and_setpoints(
         self,
-        cool_temperature: int | None,
-        heat_temperature: int | None,
+        cool_temperature: float | None,
+        heat_temperature: float | None,
     ) -> None:
         # Set the thermostat
         await self.set_permanent_hold()
