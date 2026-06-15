@@ -256,6 +256,10 @@ class NexiaHome:
             _LOGGER.debug(
                 "POST Response returned code 302, re-attempting login and resending request.",
             )
+            # Release the redirect response so its connection returns to the
+            # pool before we recurse; otherwise the body is never consumed and
+            # the connection leaks until garbage collection.
+            await response.release()
             await self.login()
             return await self.post_url(request_url, payload)
 
@@ -294,6 +298,10 @@ class NexiaHome:
             _LOGGER.debug(
                 "PUT Response returned code 302, re-attempting login and resending request.",
             )
+            # Release the redirect response so its connection returns to the
+            # pool before we recurse; otherwise the body is never consumed and
+            # the connection leaks until garbage collection.
+            await response.release()
             await self.login()
             return await self.put_url(request_url, payload)
 
@@ -331,6 +339,10 @@ class NexiaHome:
                 "GET Response returned code 302, re-attempting login and resending request.",
             )
             # assuming its redirecting to login
+            # Release the redirect response so its connection returns to the
+            # pool before we recurse; otherwise the body is never consumed and
+            # the connection leaks until garbage collection.
+            await response.release()
             await self.login()
             return await self._get_url(request_url)
 

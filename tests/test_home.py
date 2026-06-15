@@ -2370,3 +2370,74 @@ async def test_fractional_deadband_returns_float(
     thermostat = nexia.get_thermostat_by_id("XXXXXX1")
     assert isinstance(thermostat.get_deadband(), float)
     assert thermostat.get_deadband() == 3.0
+
+
+def _make_response(status: int) -> MagicMock:
+    """Build a fake ClientResponse with awaitable release/raise_for_status."""
+    resp = MagicMock(spec=aiohttp.ClientResponse)
+    resp.status = status
+    resp.release = AsyncMock()
+    resp.raise_for_status = MagicMock()
+    resp.text = AsyncMock(return_value="")
+    resp.headers = {}
+    resp.content = b""
+    resp.method = "GET"
+    resp.url = "https://example/x"
+    return resp
+
+
+async def test_post_url_releases_redirect_response_before_retry() -> None:
+    """A 302 re-login must release the redirect response before recursing.
+
+    Otherwise the unconsumed body keeps the pooled connection checked out
+    until garbage collection (a connection leak).
+    """
+    session = MagicMock()
+    nexia = NexiaHome(session, state_file=Path("nexia_config_test.conf"))
+
+    redirect = _make_response(302)
+    final = _make_response(200)
+    session.post = AsyncMock(side_effect=[redirect, final])
+
+    with patch.object(nexia, "login", new=AsyncMock()) as mock_login:
+        result = await nexia.post_url("https://example/x", {"a": 1})
+
+    assert result is final
+    redirect.release.assert_awaited_once()
+    final.release.assert_not_called()
+    mock_login.assert_awaited_once()
+
+
+async def test_put_url_releases_redirect_response_before_retry() -> None:
+    """A 302 re-login must release the redirect response before recursing."""
+    session = MagicMock()
+    nexia = NexiaHome(session, state_file=Path("nexia_config_test.conf"))
+
+    redirect = _make_response(302)
+    final = _make_response(200)
+    session.put = AsyncMock(side_effect=[redirect, final])
+
+    with patch.object(nexia, "login", new=AsyncMock()):
+        result = await nexia.put_url("https://example/x", {"a": 1})
+
+    assert result is final
+    redirect.release.assert_awaited_once()
+
+
+async def test_get_url_releases_redirect_response_before_retry() -> None:
+    """A 302 re-login must release the redirect response before recursing."""
+    session = MagicMock()
+    nexia = NexiaHome(session, state_file=Path("nexia_config_test.conf"))
+
+    redirect = _make_response(302)
+    final = _make_response(200)
+    session.get = AsyncMock(side_effect=[redirect, final])
+
+    with patch.object(nexia, "login", new=AsyncMock()):
+        # Directly exercise the private GET helper to assert its redirect
+        # response-release contract — the public callers wrap it in
+        # `async with`, which would mask the intermediate retry response.
+        result = await nexia._get_url("https://example/x")  # noqa: SLF001
+
+    assert result is final
+    redirect.release.assert_awaited_once()
