@@ -2441,3 +2441,52 @@ async def test_get_url_releases_redirect_response_before_retry() -> None:
 
     assert result is final
     redirect.release.assert_awaited_once()
+
+
+async def test_check_heat_cool_setpoints_rejects_out_of_range(
+    aiohttp_session: aiohttp.ClientSession,
+) -> None:
+    """check_heat_cool_setpoints must reject setpoints outside the device limits.
+
+    The thermostat exposes limits of (55, 99) with a deadband of 3. A heat
+    setpoint below the minimum or a cool setpoint above the maximum must raise,
+    not pass validation silently.
+    """
+    nexia = NexiaHome(aiohttp_session)
+    devices_json = json.loads(await load_fixture("mobile_houses_123456.json"))
+    nexia.update_from_json(devices_json)
+
+    thermostat = nexia.get_thermostat_by_id(2059661)
+    zone = thermostat.get_zone_by_id(83261002)
+
+    assert thermostat.get_setpoint_limits() == (55, 99)
+
+    # Heat below the minimum (55) must raise.
+    with pytest.raises(AttributeError, match="minimum temperature"):
+        zone.check_heat_cool_setpoints(heat_temperature=20)
+
+    # Cool above the maximum (99) must raise.
+    with pytest.raises(AttributeError, match="maximum temperature"):
+        zone.check_heat_cool_setpoints(cool_temperature=120)
+
+    # A heat/cool pair that straddles the limits must raise even though the
+    # pair itself is internally consistent (heat < cool, deadband respected).
+    with pytest.raises(AttributeError, match="temperature"):
+        zone.check_heat_cool_setpoints(heat_temperature=20, cool_temperature=120)
+
+
+async def test_check_heat_cool_setpoints_accepts_in_range(
+    aiohttp_session: aiohttp.ClientSession,
+) -> None:
+    """A valid in-range heat/cool pair passes validation without raising."""
+    nexia = NexiaHome(aiohttp_session)
+    devices_json = json.loads(await load_fixture("mobile_houses_123456.json"))
+    nexia.update_from_json(devices_json)
+
+    thermostat = nexia.get_thermostat_by_id(2059661)
+    zone = thermostat.get_zone_by_id(83261002)
+
+    # 69/78 sits inside (55, 99) and respects the deadband of 3.
+    assert zone.check_heat_cool_setpoints(heat_temperature=69, cool_temperature=78) is None
+    # Boundary values (exactly at the limits) are allowed.
+    assert zone.check_heat_cool_setpoints(heat_temperature=55, cool_temperature=99) is None
