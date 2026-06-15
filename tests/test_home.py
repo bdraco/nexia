@@ -2326,3 +2326,47 @@ async def test_two_ux360_multizone(aiohttp_session: aiohttp.ClientSession) -> No
     # A zone id from one thermostat is not addressable on the other.
     with pytest.raises(KeyError):
         two_zone.get_zone_by_id("0000000001_3")
+
+
+async def test_celsius_temperature_getters_return_float(
+    aiohttp_session: aiohttp.ClientSession,
+) -> None:
+    """Celsius systems report fractional degrees; the temperature/setpoint
+    getters must return float, matching their type annotations (the published
+    py.typed surface). See fixtures/issue_79891.json (a Celsius XL824).
+    """
+    nexia = NexiaHome(aiohttp_session)
+    devices_json = json.loads(await load_fixture("issue_79891.json"))
+    nexia.update_from_json(devices_json)
+
+    thermostat = nexia.get_thermostat_by_id(2473073)
+    assert thermostat.get_unit() == "C"
+
+    # Thermostat-level setpoint limits are fractional on this system.
+    low, high = thermostat.get_setpoint_limits()
+    assert isinstance(low, float)
+    assert isinstance(high, float)
+    assert (low, high) == (13.0, 37.0)
+
+    # Zone-level numeric getters.
+    zone = thermostat.get_zone_by_id(83496154)
+    assert isinstance(zone.get_cooling_setpoint(), float)
+    assert isinstance(zone.get_heating_setpoint(), float)
+    assert isinstance(zone.get_temperature(), float)
+    assert zone.get_cooling_setpoint() == 26.5
+    assert zone.get_heating_setpoint() == 22.0
+
+
+async def test_fractional_deadband_returns_float(
+    aiohttp_session: aiohttp.ClientSession,
+) -> None:
+    """A system reporting a fractional setpoint delta must surface it as float
+    rather than truncating to int. See fixtures/ux360_real.json.
+    """
+    nexia = NexiaHome(aiohttp_session)
+    devices_json = json.loads(await load_fixture("ux360_real.json"))
+    nexia.update_from_json(devices_json)
+
+    thermostat = nexia.get_thermostat_by_id("XXXXXX1")
+    assert isinstance(thermostat.get_deadband(), float)
+    assert thermostat.get_deadband() == 3.0

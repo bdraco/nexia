@@ -145,18 +145,24 @@ class NexiaThermostatZone:
 
         return str(self._get_zone_key("name"))
 
-    def get_cooling_setpoint(self) -> int:
+    def get_cooling_setpoint(self) -> float:
         """Returns the cooling setpoint in the temperature unit of the thermostat
-        :return: int.
+
+        Celsius systems report half-degree setpoints (e.g. 26.5), so the value
+        may be a float; Fahrenheit systems report whole degrees.
+        :return: float.
         """
         return (
             self._get_zone_key("setpoints")["cool"]
             or self.thermostat.get_setpoint_limits()[1]
         )
 
-    def get_heating_setpoint(self) -> int:
+    def get_heating_setpoint(self) -> float:
         """Returns the heating setpoint in the temperature unit of the thermostat
-        :return: int.
+
+        Celsius systems report half-degree setpoints (e.g. 22.0), so the value
+        may be a float; Fahrenheit systems report whole degrees.
+        :return: float.
         """
         return (
             self._get_zone_key("setpoints")["heat"]
@@ -188,10 +194,13 @@ class NexiaThermostatZone:
         """
         return self._get_zone_features("thermostat_mode")["value"].upper()
 
-    def get_temperature(self) -> int:
+    def get_temperature(self) -> float:
         """Returns the temperature of the zone in the temperature unit of the
         thermostat.
-        :return: int.
+
+        Celsius systems report fractional degrees (e.g. 26.0), so the value may
+        be a float; Fahrenheit systems report whole degrees.
+        :return: float.
         """
         return self._get_zone_key("temperature")
 

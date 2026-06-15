@@ -258,20 +258,26 @@ class NexiaThermostat:
     ########################################################################
     # System Attributes
 
-    def get_deadband(self) -> int:
+    def get_deadband(self) -> float:
         """Returns the deadband of the thermostat. This is the minimum number of
         degrees between the heat and cool setpoints in the number of degrees in
         the temperature unit selected by the
         thermostat.
-        :return: int.
+
+        Celsius systems may report a fractional delta (e.g. 3.0), so the value
+        may be a float; Fahrenheit systems report whole degrees.
+        :return: float.
         """
         return self._get_thermostat_features_key("thermostat")["setpoint_delta"]
 
-    def get_setpoint_limits(self) -> tuple[int, int]:
+    def get_setpoint_limits(self) -> tuple[float, float]:
         """Returns a tuple of the minimum and maximum temperature that can be set
         on any zone. This is in the temperature unit selected by the
         thermostat.
-        :return: (int, int).
+
+        Celsius systems report fractional limits (e.g. 13.0, 37.0), so the
+        values may be floats; Fahrenheit systems report whole degrees.
+        :return: (float, float).
         """
         return (
             self._get_thermostat_features_key("thermostat")["setpoint_heat_min"],
