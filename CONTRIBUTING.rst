@@ -64,11 +64,11 @@ Ready to contribute? Here's how to set up `nexia` for local development.
 
     $ git clone git@github.com:your_name_here/nexia.git
 
-3. Install your local copy into a virtualenv. Assuming you have virtualenvwrapper installed, this is how you set up your fork for local development::
+3. Install your local copy with `poetry <https://python-poetry.org/>`_. This
+   creates a virtualenv and installs the runtime and development dependencies::
 
-    $ mkvirtualenv nexia
     $ cd nexia/
-    $ python setup.py develop
+    $ poetry install
 
 4. Create a branch for local development::
 
@@ -76,14 +76,12 @@ Ready to contribute? Here's how to set up `nexia` for local development.
 
    Now you can make your changes locally.
 
-5. When you're done making changes, check that your changes pass flake8 and the
-   tests, including testing other Python versions with tox::
+5. When you're done making changes, check that your changes pass the linters and
+   the tests::
 
-    $ flake8 nexia tests
-    $ python setup.py test or pytest
-    $ tox
-
-   To get flake8 and tox, just pip install them into your virtualenv.
+    $ poetry run ruff check nexia tests
+    $ poetry run mypy nexia
+    $ poetry run pytest
 
 6. Commit your changes and push your branch to GitHub::
 
