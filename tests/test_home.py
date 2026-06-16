@@ -1,6 +1,7 @@
 """Tests for Nexia Home."""
 
 import asyncio
+import gc
 import json
 import logging
 import os
@@ -2103,6 +2104,32 @@ async def test_resettable_single_shot() -> None:
     single_shot.reset_delayed_action_trigger()
     assert delayed_call.call_count == 1
     assert single_shot.action_pending() is False
+
+
+async def test_single_shot_runs_under_gc_pressure() -> None:
+    """The delayed action fires even when GC runs before the task executes.
+
+    asyncio keeps only weak references to tasks, so an unreferenced
+    fire-and-forget task can be collected before it runs. SingleShot must hold
+    a strong reference so the action survives garbage collection.
+    """
+    loop = asyncio.get_running_loop()
+    ran = asyncio.Event()
+
+    async def delayed_call() -> None:
+        ran.set()
+
+    single_shot = SingleShot(loop, 0.0, delayed_call)
+    single_shot.reset_delayed_action_trigger()
+
+    # Force collection across several loop iterations while the task is in
+    # flight; without a strong reference it could be reclaimed here.
+    for _ in range(5):
+        gc.collect()
+        await asyncio.sleep(0)
+
+    await asyncio.wait_for(ran.wait(), timeout=1.0)
+    assert ran.is_set()
 
 
 @patch.object(NexiaThermostatZone, "select_room_iq_sensors")

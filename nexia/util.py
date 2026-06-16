@@ -86,6 +86,10 @@ class SingleShot:
         self._cancel_delayed_action: asyncio.TimerHandle | None = None
         self._execute_lock = asyncio.Lock()
         self._shutting_down = False
+        # asyncio holds only weak references to tasks, so a fire-and-forget
+        # task can be garbage-collected before it runs. Keep strong references
+        # here and drop each one when it completes.
+        self._background_tasks: set[asyncio.Task[None]] = set()
 
     async def _delayed_action(self) -> None:
         """Perform the action now that the delay has completed."""
@@ -109,10 +113,19 @@ class SingleShot:
         if self._cancel_delayed_action:
             self._cancel_delayed_action.cancel()
 
-        # Use lambda to defer creating awaitable object until needed
         self._cancel_delayed_action = self._loop.call_later(
-            self._delay, lambda: self._loop.create_task(self._delayed_action())
+            self._delay, self._schedule_delayed_action
         )
+
+    def _schedule_delayed_action(self) -> None:
+        """Spawn the delayed action, keeping a strong reference to the task.
+
+        The event loop only keeps weak references to tasks, so without this the
+        task could be garbage-collected before `_delayed_action` runs.
+        """
+        task = self._loop.create_task(self._delayed_action())
+        self._background_tasks.add(task)
+        task.add_done_callback(self._background_tasks.discard)
 
     def action_pending(self) -> bool:
         """Return if a delayed action is pending."""
