@@ -5,5 +5,5 @@ pylint
 pytest
 pytest-asyncio
 pytest-cov
-aioresponses
+aiointercept
 tox

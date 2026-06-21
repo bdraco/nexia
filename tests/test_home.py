@@ -10,8 +10,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import aiohttp
 import pytest
-from aioresponses import aioresponses
-from aioresponses.compat import URL
+from aiointercept import aiointercept
+from yarl import URL
 
 from nexia.home import (
     LoginFailedException,
@@ -28,8 +28,8 @@ pytestmark = pytest.mark.asyncio
 
 
 @pytest.fixture
-def mock_aioresponse():
-    with aioresponses() as m:
+async def mock_aioresponse():
+    async with aiointercept(mock_external_urls=True) as m:
         yield m
 
 
@@ -64,7 +64,7 @@ async def load_fixture(filename):
 
 
 async def test_login(
-    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aioresponses
+    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aiointercept
 ) -> None:
     """Test login sequence."""
     persist_file = Path("nexia_config_test.conf")
@@ -87,7 +87,9 @@ async def test_login(
         status=307,
         headers={aiohttp.hdrs.LOCATION: forgot_password_url},
     )
-    mock_aioresponse.get(
+    # A 307 preserves the method, so the client re-issues the POST to the
+    # forgotten-credentials page; register the followed request.
+    mock_aioresponse.post(
         forgot_password_url,
     )
     with pytest.raises(
@@ -223,7 +225,7 @@ async def test_idle_thermo(aiohttp_session: aiohttp.ClientSession) -> None:
     assert zone_ids == [83261002, 83261005, 83261008, 83261011]
 
 
-async def test_idle_thermo_issue_33758(mock_aioresponse: aioresponses) -> None:
+async def test_idle_thermo_issue_33758(mock_aioresponse: aiointercept) -> None:
     """Get methods for an idle thermostat."""
     aiohttp_session = aiohttp.ClientSession()
     nexia = NexiaHome(aiohttp_session)
@@ -776,7 +778,7 @@ async def test_single_zone_system_off(aiohttp_session: aiohttp.ClientSession) ->
 
 
 async def test_automations(
-    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aioresponses
+    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aiointercept
 ) -> None:
     """Get methods for an active thermostat."""
     nexia = NexiaHome(aiohttp_session)
@@ -1190,7 +1192,7 @@ async def test_emergency_heat(aiohttp_session: aiohttp.ClientSession) -> None:
 
 
 async def test_humidity_and_fan_mode(
-    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aioresponses
+    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aiointercept
 ) -> None:
     """Tests for preventing an API timeout when updating humidity
     and fan modes to the same value
@@ -1312,7 +1314,7 @@ async def test_humidity_and_fan_mode(
 
 
 async def test_sensor_access(
-    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aioresponses
+    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aiointercept
 ) -> None:
     """Test sensor access methods."""
     persist_file = Path("nexia_config_test.conf")
@@ -1527,7 +1529,7 @@ async def test_clamp_to_predefined_values() -> None:
 
 
 async def test_set_preset(
-    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aioresponses
+    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aiointercept
 ) -> None:
     """Test setting a zone preset."""
     nexia = NexiaHome(aiohttp_session)
@@ -1579,7 +1581,7 @@ async def test_set_preset(
 
 
 async def test_set_return_to_schedule_already_in_schedule(
-    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aioresponses
+    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aiointercept
 ) -> None:
     """Test returning to schedule."""
     nexia = NexiaHome(aiohttp_session)
@@ -1603,7 +1605,7 @@ async def test_set_return_to_schedule_already_in_schedule(
 
 
 async def test_set_return_to_schedule_from_hold(
-    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aioresponses
+    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aiointercept
 ) -> None:
     """Test returning to schedule."""
     nexia = NexiaHome(aiohttp_session)
@@ -1634,7 +1636,7 @@ async def test_set_return_to_schedule_from_hold(
 
 
 async def test_set_return_to_schedule_xl824(
-    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aioresponses
+    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aiointercept
 ) -> None:
     """Test returning to schedule with xl824."""
     nexia = NexiaHome(aiohttp_session)
@@ -1665,7 +1667,7 @@ async def test_set_return_to_schedule_xl824(
 
 
 async def test_set_return_to_schedule_single_zone_xl1050(
-    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aioresponses
+    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aiointercept
 ) -> None:
     """Test returning to schedule with xl1050 single zone."""
     nexia = NexiaHome(aiohttp_session)
@@ -1696,7 +1698,7 @@ async def test_set_return_to_schedule_single_zone_xl1050(
 
 
 async def test_set_return_to_schedule_single_zone_xl624(
-    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aioresponses
+    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aiointercept
 ) -> None:
     """Test returning to schedule with xl624."""
     nexia = NexiaHome(aiohttp_session)
@@ -1727,7 +1729,7 @@ async def test_set_return_to_schedule_single_zone_xl624(
 
 
 async def test_set_permanent_hold(
-    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aioresponses
+    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aiointercept
 ) -> None:
     """Test returning to schedule."""
     nexia = NexiaHome(aiohttp_session)
@@ -1761,7 +1763,7 @@ async def test_set_permanent_hold(
 
 
 async def test_set_zone_mode(
-    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aioresponses
+    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aiointercept
 ) -> None:
     """Test setting zone mode."""
     nexia = NexiaHome(aiohttp_session)
@@ -1795,7 +1797,7 @@ async def test_set_zone_mode(
 
 
 async def test_set_perm_hold_ux360(
-    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aioresponses
+    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aiointercept
 ) -> None:
     """Test perm hold for a ux360."""
     nexia = NexiaHome(aiohttp_session)
@@ -1833,7 +1835,7 @@ async def test_set_perm_hold_ux360(
 
 
 async def test_set_fan_mode_ux360(
-    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aioresponses
+    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aiointercept
 ) -> None:
     """Test fan mode on a ux360."""
     nexia = NexiaHome(aiohttp_session)
@@ -1864,7 +1866,7 @@ async def test_set_fan_mode_ux360(
 
 
 async def test_ux360_current_state(
-    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aioresponses
+    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aiointercept
 ) -> None:
     """Test getting the state of a ux360."""
     nexia = NexiaHome(aiohttp_session)
@@ -2035,7 +2037,7 @@ async def test_ux360_multiple_thermostats_detected(
 
 
 async def test_ux360_set_setpoints_with_put(
-    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aioresponses
+    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aiointercept
 ) -> None:
     """Test setting setpoints on UX360 which uses PUT method."""
     nexia = NexiaHome(aiohttp_session)
@@ -2166,7 +2168,7 @@ async def test_sensor_multi_select(aiohttp_session: aiohttp.ClientSession) -> No
 
 
 async def test_two_ux360(
-    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aioresponses
+    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aiointercept
 ) -> None:
     """Test two UX360."""
     nexia = NexiaHome(aiohttp_session)
