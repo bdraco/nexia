@@ -218,3 +218,9 @@ report.exclude_lines = [
   "raise AssertionError",
   "raise NotImplementedError",
 ]
+
+[tool.semantic_release]
+branch = "master"
+version_toml = [ "pyproject.toml:project.version" ]
+version_variables = [ "nexia/const.py:__version__" ]
+build_command = "pip install poetry && poetry build"

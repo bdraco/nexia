@@ -115,12 +115,9 @@ $ pytest tests.test_nexia
 Deploying
 ---------
 
-A reminder for the maintainers on how to deploy.
-Make sure all your changes are committed (including an entry in HISTORY.rst).
-Then run::
-
-$ bump2version patch # possible: major / minor / patch
-$ git push
-$ git push --tags
-
-Travis will then deploy to PyPI if tests pass.
+Releases are automated with python-semantic-release; there is nothing to run by hand.
+On every merge to ``master`` the CI workflow inspects the Conventional Commit
+messages, bumps the version, updates the changelog, tags the release, and
+publishes to PyPI and GitHub Releases. Just make sure your PR title follows the
+Conventional Commits format (``feat:``, ``fix:``, ``feat!:`` for a breaking
+change, and so on), since the squashed PR title becomes the commit on ``master``.
