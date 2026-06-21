@@ -221,6 +221,7 @@ report.exclude_lines = [
 
 [tool.semantic_release]
 branch = "master"
+tag_format = "{version}"
 version_toml = [ "pyproject.toml:project.version" ]
 version_variables = [ "nexia/const.py:__version__" ]
 build_command = "pip install poetry && poetry build"
