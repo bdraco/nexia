@@ -221,6 +221,8 @@ report.exclude_lines = [
 
 [tool.semantic_release]
 branch = "master"
+# Existing release tags have no "v" prefix (e.g. 2.11.1), unlike PSR's default
+# "v{version}"; without this PSR finds no prior release and bumps from 0.0.0.
 tag_format = "{version}"
 version_toml = [ "pyproject.toml:project.version" ]
 version_variables = [ "nexia/const.py:__version__" ]
