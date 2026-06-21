@@ -97,7 +97,7 @@ jobs:
         with:
           no_operation_mode: true
 
-  # Real release, only on master. The pypi environment and write/OIDC
+  # Real release, only on master. The release environment and write/OIDC
   # permissions are scoped to this job so they never apply to PR runs.
   release:
     if: github.ref_name == 'master'
@@ -106,7 +106,7 @@ jobs:
       - lint
     runs-on: ubuntu-latest
     environment:
-      name: pypi
+      name: release
       url: https://pypi.org/p/nexia
     concurrency:
       group: release-${{ github.ref }}
