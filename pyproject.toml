@@ -8,7 +8,7 @@ version="2.11.1"
 license = { text = "Apache-2.0" }
 description = "Python library for connecting to nexia"
 authors = [{ name = "J. Nick Koston", email = "nick@koston.org" }]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 keywords = ["nexia"]
 classifiers=[
     "Development Status :: 2 - Pre-Alpha",
@@ -16,7 +16,6 @@ classifiers=[
     "License :: OSI Approved :: Apache Software License",
     "Natural Language :: English",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
 ]
 dependencies = [
