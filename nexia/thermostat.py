@@ -578,7 +578,6 @@ class NexiaThermostat:
 
         if self.has_humidify_support():
             humidify_supported = True
-            min_humidify, max_humidify = self.get_humidify_setpoint_limits()
             if humidify_setpoint is None:
                 humidify_setpoint = self.get_humidify_setpoint()
         else:
@@ -589,7 +588,6 @@ class NexiaThermostat:
 
         if self.has_dehumidify_support():
             dehumidify_supported = True
-            min_dehumidify, max_dehumidify = self.get_dehumidify_setpoint_limits()
             if dehumidify_setpoint is None:
                 dehumidify_setpoint = self.get_dehumidify_setpoint()
         else:

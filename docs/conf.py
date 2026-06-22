@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Nexia Climate Device Access."""
 #
 # nexia documentation build configuration file, created by

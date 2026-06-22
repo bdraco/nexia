@@ -193,7 +193,7 @@ class NexiaHome:
         """
         root_host = self.root_url_object.host
         root_scheme = self.root_url_object.scheme
-        assert root_host is not None
+        assert root_host is not None  # noqa: S101  # type-narrowing invariant
         return URL(raw_path).with_scheme(root_scheme).with_host(root_host)
 
     def _api_key_headers(self) -> dict[str, str]:
@@ -402,7 +402,7 @@ class NexiaHome:
             if not self._update_in_progress.done():
                 self._update_in_progress.set_result(None)
 
-    async def _update(self, force_update: bool = True) -> dict[str, Any] | None:
+    async def _update(self, force_update: bool = True) -> dict[str, Any] | None:  # noqa: ARG002  # accepted for API symmetry with update()
         """Forces a status update from nexia
         :return: None.
         """
@@ -445,7 +445,7 @@ class NexiaHome:
         return ts_json
 
     def _update_devices(self):
-        self.last_update = datetime.datetime.now()
+        self.last_update = datetime.datetime.now()  # noqa: DTZ005  # naive local time is the existing public behavior
         children = extract_children_from_devices_json(self.devices_json)
         _LOGGER.debug("Found %d potential thermostat devices", len(children))
         if self.thermostats is None:
@@ -479,7 +479,7 @@ class NexiaHome:
                 )
 
     def _update_automations(self) -> None:
-        self.last_update = datetime.datetime.now()
+        self.last_update = datetime.datetime.now()  # noqa: DTZ005  # naive local time is the existing public behavior
 
         if self.automations is None:
             self.automations = []
@@ -488,7 +488,7 @@ class NexiaHome:
             return
 
         automation_updates_by_id = {}
-        assert self.automations_json is not None
+        assert self.automations_json is not None  # noqa: S101  # type-narrowing invariant
         for automation_json in self.automations_json:
             automation_updates_by_id[automation_json["id"]] = automation_json
 
@@ -561,7 +561,7 @@ class NexiaHome:
 
     def get_name(self) -> str:
         """Name of the house."""
-        assert self._name is not None
+        assert self._name is not None  # noqa: S101  # type-narrowing invariant
         return self._name
 
     def get_last_update(self) -> str:
@@ -571,7 +571,7 @@ class NexiaHome:
         datetime.datetime.min if never updated.
         """
         if self.last_update is None:
-            return datetime.datetime.isoformat(datetime.datetime.min)
+            return datetime.datetime.isoformat(datetime.datetime.min)  # noqa: DTZ901  # naive sentinel matches last_update
         return datetime.datetime.isoformat(self.last_update)
 
     def get_thermostat_by_id(self, thermostat_id: int | str) -> NexiaThermostat:

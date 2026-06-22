@@ -43,108 +43,58 @@ group.dev.dependencies.mypy = ">=1.18"
 
 [tool.ruff]
 lint.select = [
-  "A001",     # Variable {name} is shadowing a Python builtin
-  "ASYNC210", # Async functions should not call blocking HTTP methods
-  "ASYNC220", # Async functions should not create subprocesses with blocking methods
-  "ASYNC221", # Async functions should not run processes with blocking methods
-  "ASYNC222", # Async functions should not wait on processes with blocking methods
-  "ASYNC230", # Async functions should not open files with blocking methods like open
-  "ASYNC251", # Async functions should not call time.sleep
-  "B002",     # Python does not support the unary prefix increment
-  "B005",     # Using .strip() with multi-character strings is misleading
-  "B007",     # Loop control variable {name} not used within loop body
-  "B014",     # Exception handler with duplicate exception
-  "B015",     # Pointless comparison. Did you mean to assign a value? Otherwise, prepend assert or remove it.
-  "B017",     # pytest.raises(BaseException) should be considered evil
-  "B018",     # Found useless attribute access. Either assign it to a variable or remove it.
-  "B023",     # Function definition does not bind loop variable {name}
-  "B026",     # Star-arg unpacking after a keyword argument is strongly discouraged
-  "B032",     # Possible unintentional type annotation (using :). Did you mean to assign (using =)?
-  "B904",     # Use raise from to specify exception cause
-  "B905",     # zip() without an explicit strict= parameter
-  "BLE",
-  "C",        # complexity
-  "COM818",   # Trailing comma on bare tuple prohibited
-  "D",        # docstrings
-  "DTZ003",   # Use datetime.now(tz=) instead of datetime.utcnow()
-  "DTZ004",   # Use datetime.fromtimestamp(ts, tz=) instead of datetime.utcfromtimestamp(ts)
-  "E",        # pycodestyle
-  "F",        # pyflakes/autoflake
-  "F541",     # f-string without any placeholders
-  "FLY",      # flynt
-  "FURB",     # refurb
-  "G",        # flake8-logging-format
-  "I",        # isort
-  "ICN001",   # import concentions; {name} should be imported as {asname}
-  "INP",      # flake8-no-pep420
-  "ISC",      # flake8-implicit-str-concat
-  "LOG",      # flake8-logging
-  "N804",     # First argument of a class method should be named cls
-  "N805",     # First argument of a method should be named self
-  "N815",     # Variable {name} in class scope should not be mixedCase
-  "PERF",     # Perflint
-  "PGH",      # pygrep-hooks
-  "PIE",      # flake8-pie
-  "PL",       # pylint
-  "PT",       # flake8-pytest-style
-  "PTH",      # flake8-pathlib
-  "PYI",      # flake8-pyi
-  "RET",      # flake8-return
-  "RSE",      # flake8-raise
-  "RUF005",   # Consider iterable unpacking instead of concatenation
-  "RUF006",   # Store a reference to the return value of asyncio.create_task
-  "RUF007",   # Prefer itertools.pairwise() over zip() when iterating over successive pairs
-  "RUF008",   # Do not use mutable default values for dataclass attributes
-  "RUF010",   # Use explicit conversion flag
-  "RUF013",   # PEP 484 prohibits implicit Optional
-  "RUF016",   # Slice in indexed access to type {value_type} uses type {index_type} instead of an integer
-  "RUF017",   # Avoid quadratic list summation
-  "RUF018",   # Avoid assignment expressions in assert statements
-  "RUF019",   # Unnecessary key check before dictionary access
-  "RUF020",   # {never_like} | T is equivalent to T
-  "RUF021",   # Parenthesize a and b expressions when chaining and and or together, to make the precedence clear
-  "RUF022",   # Sort __all__
-  "RUF023",   # Sort __slots__
-  "RUF024",   # Do not pass mutable objects as values to dict.fromkeys
-  "RUF026",   # default_factory is a positional-only argument to defaultdict
-  "RUF030",   # print() call in assert statement is likely unintentional
-  "RUF032",   # Decimal() called with float literal argument
-  "RUF033",   # __post_init__ method with argument defaults
-  "RUF034",   # Useless if-else condition
-  "RUF100",   # Unused `noqa` directive
-  "RUF101",   # noqa directives that use redirected rule codes
-  "RUF200",   # Failed to parse pyproject.toml: {message}
-  "S102",     # Use of exec detected
-  "S103",     # bad-file-permissions
-  "S108",     # hardcoded-temp-file
-  "S306",     # suspicious-mktemp-usage
-  "S307",     # suspicious-eval-usage
-  "S313",     # suspicious-xmlc-element-tree-usage
-  "S314",     # suspicious-xml-element-tree-usage
-  "S315",     # suspicious-xml-expat-reader-usage
-  "S316",     # suspicious-xml-expat-builder-usage
-  "S317",     # suspicious-xml-sax-usage
-  "S318",     # suspicious-xml-mini-dom-usage
-  "S319",     # suspicious-xml-pull-dom-usage
-  "S601",     # paramiko-call
-  "S602",     # subprocess-popen-with-shell-equals-true
-  "S604",     # call-with-shell-equals-true
-  "S608",     # hardcoded-sql-expression
-  "S609",     # unix-command-wildcard-injection
-  "SIM",      # flake8-simplify
-  "SLF",      # flake8-self
-  "SLOT",     # flake8-slots
-  "T20",      # flake8-print
-  "T100",     # Trace found: {name} used
-  "TC",       # flake8-type-checking
-  "TID",      # Tidy imports
-  "TRY",      # tryceratops
-  "UP",       # pyupgrade
-  "UP031",    # Use format specifiers instead of percent format
-  "UP032",    # Use f-string instead of `format` call
-  "W",        # pycodestyle
+  "A",    # flake8-builtins
+  "ARG",  # flake8-unused-arguments
+  "ASYNC", # async rules
+  "B",    # flake8-bugbear
+  "BLE",  # flake8-blind-except
+  "C4",   # flake8-comprehensions
+  "C90",  # mccabe complexity
+  "D",    # pydocstyle
+  "DTZ",  # flake8-datetimez
+  "E",    # pycodestyle
+  "ERA",  # eradicate (commented-out code)
+  "EXE",  # flake8-executable
+  "F",    # pyflakes/autoflake
+  "FA",   # flake8-future-annotations
+  "FIX",  # flake8-fixme
+  "FLY",  # flynt
+  "FURB", # refurb
+  "G",    # flake8-logging-format
+  "I",    # isort
+  "ICN",  # flake8-import-conventions
+  "INP",  # flake8-no-pep420
+  "ISC",  # flake8-implicit-str-concat
+  "LOG",  # flake8-logging
+  "N",    # pep8-naming
+  "NPY",  # numpy-specific rules
+  "PERF", # Perflint
+  "PGH",  # pygrep-hooks
+  "PIE",  # flake8-pie
+  "PL",   # pylint
+  "PT",   # flake8-pytest-style
+  "PTH",  # flake8-use-pathlib
+  "PYI",  # flake8-pyi
+  "Q",    # flake8-quotes
+  "RET",  # flake8-return
+  "RSE",  # flake8-raise
+  "RUF",  # ruff
+  "S",    # flake8-bandit
+  "SIM",  # flake8-simplify
+  "SLF",  # flake8-self
+  "SLOT", # flake8-slots
+  "T10",  # flake8-debugger
+  "T20",  # flake8-print
+  "TC",   # flake8-type-checking
+  "TD",   # flake8-todos
+  "TID",  # tidy imports
+  "TRY",  # tryceratops
+  "UP",   # pyupgrade
+  "W",    # pycodestyle warnings
+  "YTT",  # flake8-2020
 ]
 lint.ignore = [
+  "ASYNC109", # `timeout` params are part of the public async API
   "COM812",
   "COM819",
   "D102",    # Too many to fix now
@@ -174,12 +124,13 @@ lint.ignore = [
   "PLR0915", # Too many statements ({statements} > {max_statements})
   "PLR2004", # Magic value used in comparison, consider replacing {value} with a constant variable
   "PLW2901", # Outer {outer_kind} variable {name} overwritten by inner {inner_kind} target
+  "N802",    # Uppercase URL/string properties (API_MOBILE_*_URL) are public API; renaming breaks callers
+  "N818",    # LoginFailedException is public API; renaming to add an Error suffix breaks callers
   "PT011",   # pytest.raises({exception}) is too broad, set the `match` parameter or use a more specific exception
   "PT018",   # Assertion should be broken down into multiple parts
   "PTH118",  # Too many to fix now
   "PTH120",  # Too many to fix now
   "PTH123",  # Too many to fix now
-  "Q",
   "RUF001",  # String contains ambiguous unicode character.
   "RUF002",  # Docstring contains ambiguous unicode character.
   "RUF003",  # Comment contains ambiguous unicode character.
@@ -200,6 +151,20 @@ lint.ignore = [
   "UP038",   # Use `X | Y` in `isinstance` call instead of `(X, Y)`
   # May conflict with the formatter, https://docs.astral.sh/ruff/formatter/#conflicting-lint-rules
   "W191"
+]
+# Tests legitimately assert, reach into private state, use literal credentials,
+# request fixtures they don't reference, and touch the filesystem in async bodies.
+lint.per-file-ignores."docs/conf.py" = [
+  "ERA001", # Sphinx config keeps commented-out option boilerplate
+  "INP001", # Sphinx config is intentionally not part of a package
+]
+lint.per-file-ignores."tests/**" = [
+  "ARG",     # unused fixture arguments are requested for their side effects
+  "ASYNC240", # blocking Path calls are fine in test bodies
+  "S101",    # asserts are the point of the test suite
+  "S105",    # literal test credentials are not real secrets
+  "S106",    # literal test credentials are not real secrets
+  "SLF",     # tests pin invariants by reaching into private state
 ]
 
 [tool.pytest]
