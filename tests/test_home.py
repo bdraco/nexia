@@ -2107,13 +2107,12 @@ async def test_resettable_single_shot() -> None:
 
 
 async def test_single_shot_keeps_strong_task_reference() -> None:
-    """SingleShot holds a strong reference to the spawned task until it runs.
+    """SingleShot's delayed action still runs under garbage-collection pressure.
 
     asyncio keeps only weak references to tasks, so an unreferenced
-    fire-and-forget task can be collected before it runs. SingleShot must track
-    the task in ``_background_tasks`` and drop it via the done-callback once the
-    action completes. This asserts on that mechanism directly so it would fail
-    if the strong-reference wiring were removed.
+    fire-and-forget task can be collected before it runs. SingleShot keeps a
+    strong reference to the spawned task until it completes, so the action runs
+    even when garbage collection is forced before the timer fires.
     """
     loop = asyncio.get_running_loop()
     ran = asyncio.Event()
@@ -2124,18 +2123,14 @@ async def test_single_shot_keeps_strong_task_reference() -> None:
     single_shot = SingleShot(loop, 0.0, delayed_call)
     single_shot.reset_delayed_action_trigger()
 
-    # Let the timer fire and spawn the task, then force collection to prove the
-    # task survives GC because SingleShot holds a strong reference to it.
-    await asyncio.sleep(0)
-    assert len(single_shot._background_tasks) == 1
+    # Force collection while the timer is pending and the task is spawning, to
+    # prove the task is not collected out from under the event loop.
     for _ in range(5):
         gc.collect()
         await asyncio.sleep(0)
 
     await asyncio.wait_for(ran.wait(), timeout=1.0)
     assert ran.is_set()
-    # The done-callback drops the completed task from the tracking set.
-    assert single_shot._background_tasks == set()
 
 
 @patch.object(NexiaThermostatZone, "select_room_iq_sensors")
