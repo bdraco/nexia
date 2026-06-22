@@ -15,7 +15,7 @@ class NexiaSensor:
     type: str
     serial_number: str
     weight: float
-    temperature: int
+    temperature: float
     temperature_valid: bool
     humidity: int
     humidity_valid: bool
