@@ -41,8 +41,8 @@ group.dev.dependencies.pytest-cov = ">=5.0"
 group.dev.dependencies.aiointercept = ">=0.1.7"
 group.dev.dependencies.mypy = ">=1.18"
 
-# PEP 561 marker ships with the wheel; poetry-core includes py.typed under the
-# package, declared explicitly to guarantee it lands in the built artifacts.
+# PEP 561 marker. poetry-core does not pack non-.py files into the wheel by
+# default, so declare it explicitly for sdist + wheel.
 include = [ { path = "nexia/py.typed", format = [ "sdist", "wheel" ] } ]
 
 [tool.ruff]
