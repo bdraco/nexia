@@ -774,7 +774,8 @@ async def test_single_zone_system_off(aiohttp_session: aiohttp.ClientSession) ->
     assert zone.get_preset() == "None"
     assert zone.get_status() == "Idle"
     assert zone.get_setpoint_status() == "Permanent Hold"
-    assert zone.is_calling() is True
+    # System is off, so the native zone is not calling for heat/cool.
+    assert zone.is_calling() is False
     assert zone.is_in_permanent_hold() is True
 
 
