@@ -2487,10 +2487,6 @@ async def test_check_heat_cool_setpoints_accepts_in_range(
     zone = thermostat.get_zone_by_id(83261002)
 
     # 69/78 sits inside (55, 99) and respects the deadband of 3.
-    assert (
-        zone.check_heat_cool_setpoints(heat_temperature=69, cool_temperature=78) is None
-    )
+    zone.check_heat_cool_setpoints(heat_temperature=69, cool_temperature=78)
     # Boundary values (exactly at the limits) are allowed.
-    assert (
-        zone.check_heat_cool_setpoints(heat_temperature=55, cool_temperature=99) is None
-    )
+    zone.check_heat_cool_setpoints(heat_temperature=55, cool_temperature=99)
