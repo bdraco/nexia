@@ -2437,7 +2437,7 @@ async def test_get_url_releases_redirect_response_before_retry() -> None:
         # Directly exercise the private GET helper to assert its redirect
         # response-release contract — the public callers wrap it in
         # `async with`, which would mask the intermediate retry response.
-        result = await nexia._get_url("https://example/x")  # noqa: SLF001
+        result = await nexia._get_url("https://example/x")
 
     assert result is final
     redirect.release.assert_awaited_once()
