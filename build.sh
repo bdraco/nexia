@@ -1,5 +1,5 @@
 #!/bin/sh
 
-python setup.py sdist bdist_wheel
+poetry build
 
-twine upload dist/*
+poetry publish
