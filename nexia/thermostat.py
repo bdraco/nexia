@@ -843,6 +843,22 @@ class NexiaThermostat:
         for zone_json in thermostat_json["zones"]:
             zone_updates_by_id[make_zone_id(self, zone_json)] = zone_json
 
+        existing_zone_ids = set()
         for zone in self.zones:
+            existing_zone_ids.add(zone.zone_id)
             if zone.zone_id in zone_updates_by_id:
                 zone.update_zone_json(zone_updates_by_id[zone.zone_id])
+
+        # A UX360 can take several seconds to report all of its zones, so a
+        # zone absent from the initial discovery may appear on a later update.
+        # Add any such zones instead of silently dropping them (issue #149).
+        for zone_id, zone_json in zone_updates_by_id.items():
+            if zone_id not in existing_zone_ids:
+                _LOGGER.debug(
+                    "Adding newly reported zone %s to thermostat %s",
+                    zone_id,
+                    self.thermostat_id,
+                )
+                self.zones.append(
+                    NexiaThermostatZone(self._nexia_home, self, zone_json)
+                )

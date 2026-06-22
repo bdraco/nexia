@@ -2328,6 +2328,53 @@ async def test_two_ux360_multizone(aiohttp_session: aiohttp.ClientSession) -> No
         two_zone.get_zone_by_id("0000000001_3")
 
 
+async def test_ux360_late_reported_zones_are_added(
+    aiohttp_session: aiohttp.ClientSession,
+) -> None:
+    """A UX360 can take several seconds to report all of its zones, so a zone
+    missing from the initial discovery may only appear on a later update.
+
+    Regression coverage for GH #149: the three-zone system initially reports a
+    single zone; once the remaining zones arrive on a subsequent update they
+    must be added rather than silently dropped.
+    """
+
+    def _trim_to_first_zone(node: object) -> None:
+        """Keep only the first zone of the three-zone thermostat in place."""
+        if isinstance(node, dict):
+            if node.get("id") == "0000000001" and isinstance(node.get("zones"), list):
+                node["zones"] = node["zones"][:1]
+            for value in node.values():
+                _trim_to_first_zone(value)
+        elif isinstance(node, list):
+            for item in node:
+                _trim_to_first_zone(item)
+
+    nexia = NexiaHome(aiohttp_session)
+
+    partial_json = json.loads(await load_fixture("two_ux360_multizone.json"))
+    _trim_to_first_zone(partial_json)
+    nexia.update_from_json(partial_json)
+
+    three_zone = nexia.get_thermostat_by_id("0000000001")
+    # Initial discovery only saw one zone.
+    assert three_zone.get_zone_ids() == ["0000000001_1"]
+
+    # The full payload arrives on a later update.
+    full_json = json.loads(await load_fixture("two_ux360_multizone.json"))
+    nexia.update_from_json(full_json)
+
+    # All three zones are now present, in API order, with no duplicates.
+    assert three_zone.get_zone_ids() == [
+        "0000000001_1",
+        "0000000001_2",
+        "0000000001_3",
+    ]
+    assert [
+        three_zone.get_zone_by_id(zid).get_name() for zid in three_zone.get_zone_ids()
+    ] == ["Bedrooms", "Living Room", "Gym"]
+
+
 async def test_celsius_temperature_getters_return_float(
     aiohttp_session: aiohttp.ClientSession,
 ) -> None:
