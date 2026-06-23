@@ -2459,9 +2459,7 @@ async def test_get_url_preserves_headers_on_relogin_retry() -> None:
     session.get = AsyncMock(side_effect=[redirect, final])
 
     with patch.object(nexia, "login", new=AsyncMock()):
-        await nexia._get_url(
-            "https://example/x", headers={"If-None-Match": "etag-123"}
-        )
+        await nexia._get_url("https://example/x", headers={"If-None-Match": "etag-123"})
 
     retry_headers = session.get.await_args_list[1].kwargs["headers"]
     assert retry_headers["If-None-Match"] == "etag-123"
