@@ -301,7 +301,10 @@ class NexiaThermostatZone:
 
         # Other systems
         operating_state = self._get_zone_key("operating_state")
-        return bool(operating_state) and operating_state not in NON_CALLING_OPERATING_STATES
+        return (
+            bool(operating_state)
+            and operating_state not in NON_CALLING_OPERATING_STATES
+        )
 
     def is_native_zone(self) -> bool:
         """Returns True if the zone is a NativeZone
