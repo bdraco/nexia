@@ -1087,7 +1087,9 @@ async def test_new_xl824(aiohttp_session: aiohttp.ClientSession) -> None:
     assert zone.get_preset() == "None"
     assert zone.get_status() == "Idle"
     assert zone.get_setpoint_status() == "Permanent Hold"
-    assert zone.is_calling() is True
+    # Mode OFF, status Idle, system "Fan Running" — the blower runs but there is
+    # no heat/cool demand, so the native zone is not calling.
+    assert zone.is_calling() is False
     assert zone.is_in_permanent_hold() is True
 
 
@@ -1189,7 +1191,9 @@ async def test_emergency_heat(aiohttp_session: aiohttp.ClientSession) -> None:
     assert zone.get_preset() == "None"
     assert zone.get_status() == "Idle"
     assert zone.get_setpoint_status() == "Run Schedule - None"
-    assert zone.is_calling() is True
+    # Mode HEAT but status Idle, compressor speed 0 and system "Fan Running":
+    # the blower circulates without a heat call, so the zone is not calling.
+    assert zone.is_calling() is False
     assert zone.is_in_permanent_hold() is False
 
 
