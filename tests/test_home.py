@@ -208,9 +208,7 @@ async def test_late_thermostat_and_automation_are_added(
 
     # Simulate an initial poll that under-reported one thermostat + one automation.
     nexia = NexiaHome(aiohttp_session)
-    nexia.devices_json = [
-        d for d in full_devices if d.get("id") != late_thermostat_id
-    ]
+    nexia.devices_json = [d for d in full_devices if d.get("id") != late_thermostat_id]
     nexia.automations_json = [
         a for a in full_automations if a.get("id") != late_automation_id
     ]
