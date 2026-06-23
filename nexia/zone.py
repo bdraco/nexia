@@ -290,9 +290,7 @@ class NexiaThermostatZone:
             # Idle", "System Off" and "Fan Running" (fan-only, no compressor
             # call) all mean no demand; "Waiting..." keeps reporting a call
             # since demand exists during the compressor protection delay.
-            return (
-                self.thermostat.get_system_status() not in SYSTEM_STATUS_NOT_CALLING
-            )
+            return self.thermostat.get_system_status() not in SYSTEM_STATUS_NOT_CALLING
 
         # UX360
         zone_status = self._get_zone_key("zone_status")
