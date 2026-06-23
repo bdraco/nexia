@@ -113,7 +113,7 @@ class NexiaHome:
         self.username = username
         self.password = password
         self.house_id = house_id
-        self.mobile_id = None
+        self.mobile_id: int | None = None
         self.brand = brand
         self.login_attempts_left = MAX_LOGIN_ATTEMPTS
         self._state_file = state_file or f"{brand}_config_{self.username}.conf"
@@ -411,11 +411,13 @@ class NexiaHome:
 
     async def _load_current_room_iq_states(self) -> None:
         """Load the current state of all monitored zones' RoomIQ sensors in parallel."""
-        async with asyncio.TaskGroup() as tg:
-            for therm in self.thermostats:
-                for zone in therm.zones:
-                    if zone.has_room_iq_monitor():
-                        tg.create_task(zone.load_current_sensor_state())
+        load_current_sensor_state_coroutines = (
+            zone.load_current_sensor_state()
+            for therm in self.thermostats
+            for zone in therm.zones
+            if zone.has_room_iq_monitor()
+        )
+        await asyncio.gather(*load_current_sensor_state_coroutines)
 
     async def update(self, force_update: bool = True) -> dict[str, Any] | None:
         """Updates the nexia status.
@@ -439,7 +441,7 @@ class NexiaHome:
         if self.any_room_iq_monitors():
             await self._load_current_room_iq_states()
 
-        headers = {}
+        headers: dict[str, str] = {}
         if self._last_update_etag:
             headers["If-None-Match"] = self._last_update_etag
 
