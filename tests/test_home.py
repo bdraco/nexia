@@ -186,6 +186,58 @@ async def test_update(aiohttp_session: aiohttp.ClientSession) -> None:
     nexia.update_from_json(devices_json)
 
 
+async def test_late_thermostat_and_automation_are_added(
+    aiohttp_session: aiohttp.ClientSession,
+) -> None:
+    """A thermostat/automation that first appears on a later fetch must be added.
+
+    Some systems under-report devices on the initial poll, so an entity can be
+    absent at construction and only show up on a subsequent update. _update_devices
+    and _update_automations must append the late arrivals instead of only patching
+    already-known ids (#149 fixed this for zones; the same gap existed one level up,
+    for whole thermostats and automations). Existing objects must be preserved so
+    consumers that hold references (e.g. Home Assistant) keep working.
+    """
+    reference = NexiaHome(aiohttp_session)
+    house = json.loads(await load_fixture("mobile_houses_123456.json"))
+    reference.update_from_json(house)
+    full_devices = list(reference.devices_json)
+    full_automations = list(reference.automations_json)
+    late_thermostat_id = reference.get_thermostat_ids()[-1]
+    late_automation_id = reference.get_automation_ids()[-1]
+
+    # Simulate an initial poll that under-reported one thermostat + one automation.
+    nexia = NexiaHome(aiohttp_session)
+    nexia.devices_json = [
+        d for d in full_devices if d.get("id") != late_thermostat_id
+    ]
+    nexia.automations_json = [
+        a for a in full_automations if a.get("id") != late_automation_id
+    ]
+    nexia._update_devices()
+    nexia._update_automations()
+    assert late_thermostat_id not in nexia.get_thermostat_ids()
+    assert late_automation_id not in nexia.get_automation_ids()
+
+    existing_thermostat = nexia.thermostats[0]
+    existing_automation = nexia.automations[0]
+
+    # A later poll now reports everything.
+    nexia.devices_json = full_devices
+    nexia.automations_json = full_automations
+    nexia._update_devices()
+    nexia._update_automations()
+
+    assert late_thermostat_id in nexia.get_thermostat_ids()
+    assert late_automation_id in nexia.get_automation_ids()
+    # Pre-existing objects are reused, not rebuilt.
+    assert nexia.thermostats[0] is existing_thermostat
+    assert (
+        nexia.get_automation_by_id(existing_automation.automation_id)
+        is existing_automation
+    )
+
+
 async def test_idle_thermo(aiohttp_session: aiohttp.ClientSession) -> None:
     """Get methods for an idle thermostat."""
     nexia = NexiaHome(aiohttp_session)
