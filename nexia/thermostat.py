@@ -207,7 +207,7 @@ class NexiaThermostat:
         temperature sensor
         :return: bool.
         """
-        return self._get_thermostat_key_or_none("has_outdoor_temperature")
+        return bool(self._get_thermostat_key_or_none("has_outdoor_temperature"))
 
     def has_relative_humidity(self) -> bool:
         """Capability indication of whether the thermostat has a relative
