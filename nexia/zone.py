@@ -565,11 +565,7 @@ class NexiaThermostatZone:
                 # half-deadband up to the next grid step. Using math.ceil on
                 # the raw half over-widened the band on Celsius systems
                 # (deadband 1.0 yielded ±1.0 instead of the minimal ±0.5).
-                step = (
-                    0.5
-                    if self.thermostat.get_unit() == UNIT_CELSIUS
-                    else 1.0
-                )
+                step = 0.5 if self.thermostat.get_unit() == UNIT_CELSIUS else 1.0
                 half_deadband = math.ceil(deadband / 2 / step) * step
                 target = self.round_temp(set_temperature)
                 cool_temperature = target + half_deadband

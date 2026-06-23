@@ -2507,9 +2507,7 @@ async def test_set_heat_cool_temp_auto_mode_fahrenheit_band(
     zone = nexia.get_thermostat_by_id(345678).get_zone_by_id(234567)
     assert zone.get_current_mode() == "AUTO"
 
-    with patch.object(
-        zone, "_set_setpoints", new=AsyncMock()
-    ) as set_setpoints:
+    with patch.object(zone, "_set_setpoints", new=AsyncMock()) as set_setpoints:
         await zone.set_heat_cool_temp(set_temperature=70)
 
     cool, heat = set_setpoints.call_args.args
