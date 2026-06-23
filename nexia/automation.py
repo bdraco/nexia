@@ -41,7 +41,7 @@ class NexiaAutomation:
     @property
     def enabled(self) -> bool:
         """Enabled stat of the automation."""
-        return self._get_automation_key("enabled")
+        return bool(self._get_automation_key("enabled"))
 
     async def activate(self) -> None:
         """Run the automation."""

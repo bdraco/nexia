@@ -356,7 +356,9 @@ class NexiaThermostat:
         :return: bool.
         """
         if self.has_emergency_heat():
-            return self.get_thermostat_settings_key("emergency_heat")["current_value"]
+            return bool(
+                self.get_thermostat_settings_key("emergency_heat")["current_value"]
+            )
         raise RuntimeError("This system does not support emergency heat")
 
     ########################################################################
