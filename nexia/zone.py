@@ -558,12 +558,22 @@ class NexiaThermostatZone:
                     self.round_temp(heat_temperature) + deadband,
                 )
             else:
-                cool_temperature = self.round_temp(set_temperature) + math.ceil(
-                    deadband / 2,
+                # Split the deadband symmetrically around the target. The
+                # offset must land on the unit's setpoint grid (0.5° on
+                # Celsius, 1° on Fahrenheit) and be wide enough that the
+                # resulting band still satisfies the deadband, so round the
+                # half-deadband up to the next grid step. Using math.ceil on
+                # the raw half over-widened the band on Celsius systems
+                # (deadband 1.0 yielded ±1.0 instead of the minimal ±0.5).
+                step = (
+                    0.5
+                    if self.thermostat.get_unit() == UNIT_CELSIUS
+                    else 1.0
                 )
-                heat_temperature = self.round_temp(set_temperature) - math.ceil(
-                    deadband / 2,
-                )
+                half_deadband = math.ceil(deadband / 2 / step) * step
+                target = self.round_temp(set_temperature)
+                cool_temperature = target + half_deadband
+                heat_temperature = target - half_deadband
 
         await self._set_setpoints(cool_temperature, heat_temperature)
 

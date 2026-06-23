@@ -2490,3 +2490,52 @@ async def test_check_heat_cool_setpoints_accepts_in_range(
     zone.check_heat_cool_setpoints(heat_temperature=69, cool_temperature=78)
     # Boundary values (exactly at the limits) are allowed.
     zone.check_heat_cool_setpoints(heat_temperature=55, cool_temperature=99)
+
+
+async def test_set_heat_cool_temp_auto_mode_fahrenheit_band(
+    aiohttp_session: aiohttp.ClientSession,
+) -> None:
+    """Auto-mode set_temperature splits the deadband on the Fahrenheit grid.
+
+    The zone is in AUTO mode, so a single set_temperature is expanded into a
+    heat/cool band centered on the target. On Fahrenheit (deadband 3) the
+    half-deadband rounds up to 2, giving a ±2° band.
+    """
+    nexia = NexiaHome(aiohttp_session)
+    devices_json = json.loads(await load_fixture("single_zone_xl1050.json"))
+    nexia.update_from_json(devices_json)
+    zone = nexia.get_thermostat_by_id(345678).get_zone_by_id(234567)
+    assert zone.get_current_mode() == "AUTO"
+
+    with patch.object(
+        zone, "_set_setpoints", new=AsyncMock()
+    ) as set_setpoints:
+        await zone.set_heat_cool_temp(set_temperature=70)
+
+    cool, heat = set_setpoints.call_args.args
+    assert (cool, heat) == (72, 68)
+
+
+async def test_set_heat_cool_temp_auto_mode_celsius_half_degree_grid(
+    aiohttp_session: aiohttp.ClientSession,
+) -> None:
+    """Auto-mode set_temperature stays on the 0.5° grid for Celsius systems.
+
+    With a 1.0° Celsius deadband the half-deadband is exactly 0.5°, so the band
+    is the minimal ±0.5° around the target rather than the over-wide ±1.0° that
+    integer ceil produced.
+    """
+    nexia = NexiaHome(aiohttp_session)
+    devices_json = json.loads(await load_fixture("single_zone_xl1050.json"))
+    nexia.update_from_json(devices_json)
+    zone = nexia.get_thermostat_by_id(345678).get_zone_by_id(234567)
+
+    with (
+        patch.object(zone.thermostat, "get_unit", return_value="C"),
+        patch.object(zone.thermostat, "get_deadband", return_value=1.0),
+        patch.object(zone, "_set_setpoints", new=AsyncMock()) as set_setpoints,
+    ):
+        await zone.set_heat_cool_temp(set_temperature=21.5)
+
+    cool, heat = set_setpoints.call_args.args
+    assert (cool, heat) == (22.0, 21.0)
