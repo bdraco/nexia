@@ -344,7 +344,11 @@ class NexiaHome:
             # the connection leaks until garbage collection.
             await response.release()
             await self.login()
-            return await self._get_url(request_url)
+            # Re-pass headers so the caller's conditional-request header
+            # (e.g. If-None-Match) survives the retry; without it the next
+            # poll after a session expiry always refetches the full body
+            # instead of getting a cheap 304.
+            return await self._get_url(request_url, headers=headers)
 
         response.raise_for_status()
         return response
