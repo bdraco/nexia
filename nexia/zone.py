@@ -730,26 +730,28 @@ class NexiaThermostatZone:
         return False
 
     def add_room_iq_monitor(self, monitor_id: str) -> None:
-        """Add a RoomIQ sensor monitor to this zone's collection.
+        """Register a subscriber for this zone's RoomIQ sensor state updates.
 
-        A RoomIQ sensor monitor lets this library know there is a party
-        interested in seeing current states of this zone's RoomIQ sensors.
-        If no monitors are added, updates don't load current RoomIQ sensor states.
-        :param monitor_id: string for the interested party (unique in this zone)
+        When at least one monitor is registered, each Nexia Home update will
+        also fetch the current RoomIQ sensor states for this zone, adding
+        5–40 seconds of latency and additional network traffic.
+
+        :param monitor_id: Identifier for the subscriber (unique in this zone).
         """
         self._room_iq_monitors.add(monitor_id)
 
     def remove_room_iq_monitor(self, monitor_id: str) -> None:
-        """Remove a RoomIQ sensor monitor from this zone's collection.
+        """Unregister a subscriber for this zone's RoomIQ sensor state updates.
 
-        This tells the Nexia library the specified party is no longer
-        interested in seeing current states of this zone's RoomIQ sensors.
-        :param monitor_id: same string that was supplied to add_room_iq_monitor
+        This tells the Nexia library the specified subscriber is no longer
+        interested in current states of this zone's RoomIQ sensors.
+
+        :param monitor_id: Same identifier that was supplied to add_room_iq_monitor.
         """
         self._room_iq_monitors.discard(monitor_id)
 
     def has_room_iq_monitor(self) -> bool:
-        """Return True when this zone has any RoomIQ sensor monitors."""
+        """Return True when this zone has any RoomIQ sensor monitors registered."""
         return bool(self._room_iq_monitors)
 
     def round_temp(self, temperature: float) -> float:

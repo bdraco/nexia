@@ -70,7 +70,7 @@ The following service is provided by the Nexia Home:
 
 ### Service `any_room_iq_monitors`
 
-Return True when any RoomIQ sensor monitors are present.
+Return True when any RoomIQ sensor monitors are registered.
 No arguments are passed to this service.
 
 ## Thermostat Attributes
@@ -507,28 +507,28 @@ This service returns a bool indicating if it completed successfully.
 
 ### Service `add_room_iq_monitor`
 
-Add a RoomIQ sensor monitor to this zone's collection.
-A RoomIQ sensor monitor lets the Nexia library know there is a party
-interested in seeing current states of this zone's RoomIQ sensors.
-If no monitors are added, updates don't load current RoomIQ sensor states.
+Register a subscriber for this zone's RoomIQ sensor state updates.
+When at least one monitor is registered, each Nexia Home update will
+also fetch the current RoomIQ sensor states for this zone, adding
+5–40 seconds of latency and additional network traffic.
 
-| Service data attribute | Optional | Default | Description                                           |
-| ---------------------- | -------- | ------- | ----------------------------------------------------- |
-| `monitor_id`           | no       |         | string for the interested party (unique in this zone) |
+| Service data attribute | Optional | Default | Description                                         |
+| ---------------------- | -------- | ------- | --------------------------------------------------- |
+| `monitor_id`           | no       |         | identifier for the subscriber (unique in this zone) |
 
 ### Service `remove_room_iq_monitor`
 
-Remove a RoomIQ sensor monitor from this zone's collection.
-This tells the Nexia library the specified party is no longer
-interested in seeing current states of this zone's RoomIQ sensors.
+Unregister a subscriber for this zone's RoomIQ sensor state updates.
+This tells the Nexia library the specified subscriber is no longer
+interested in current states of this zone's RoomIQ sensors.
 
-| Service data attribute | Optional | Default | Description                                          |
-| ---------------------- | -------- | ------- | ---------------------------------------------------- |
-| `monitor_id`           | no       |         | same string that was supplied to add_room_iq_monitor |
+| Service data attribute | Optional | Default | Description                                              |
+| ---------------------- | -------- | ------- | -------------------------------------------------------- |
+| `monitor_id`           | no       |         | same identifier that was supplied to add_room_iq_monitor |
 
 ### Service `has_room_iq_monitor`
 
-Return True when this zone has any RoomIQ sensor monitors.
+Return True when this zone has any RoomIQ sensor monitors registered.
 
 ## NexiaRoomIQHarmonizer Services
 

@@ -1542,6 +1542,10 @@ async def test_room_iq_sensor_monitor(
         assert await nexia.update() is not None
         mock_load_current_sensor_state.assert_awaited_once_with()
 
+        # Force exception path
+        mock_load_current_sensor_state.side_effect = aiohttp.ServerTimeoutError
+        assert await nexia.update() is not None
+
     # Remove the last one
     zone.remove_room_iq_monitor("sensor.center_roomiq_temperature")
     assert nexia.any_room_iq_monitors() is False

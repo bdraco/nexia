@@ -403,7 +403,7 @@ class NexiaHome:
         await self.update()
 
     def any_room_iq_monitors(self) -> bool:
-        """Return True when any RoomIQ sensor monitors are present."""
+        """Return True when any RoomIQ sensor monitors are registered."""
         return bool(self.thermostats) and any(
             any(zone.has_room_iq_monitor() for zone in therm.zones)
             for therm in self.thermostats
@@ -417,7 +417,18 @@ class NexiaHome:
             for zone in therm.zones
             if zone.has_room_iq_monitor()
         )
-        await asyncio.gather(*load_current_sensor_state_coroutines)
+        results = await asyncio.gather(
+            *load_current_sensor_state_coroutines, return_exceptions=True
+        )
+        for result in results:
+            if isinstance(result, Exception):
+                # stale data beats no data - just log this and continue
+                _LOGGER.exception(
+                    "Failed to load RoomIQ sensor state: Exception %s: %s",
+                    result.__class__.__name__,
+                    str(result),
+                    exc_info=result,
+                )
 
     async def update(self, force_update: bool = True) -> dict[str, Any] | None:
         """Updates the nexia status.
@@ -439,6 +450,7 @@ class NexiaHome:
             # not yet authenticated
             return None
         if self.any_room_iq_monitors():
+            # load current data now so the server is not dealing with stale data
             await self._load_current_room_iq_states()
 
         headers: dict[str, str] = {}
