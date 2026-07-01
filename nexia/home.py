@@ -493,24 +493,35 @@ class NexiaHome:
         _LOGGER.debug("Found %d potential thermostat devices", len(children))
         if self.thermostats is None:
             self.thermostats = []
-            for child in children:
-                nexia_thermostat = NexiaThermostat(self, child)
-                zone_ids = nexia_thermostat.get_zone_ids()
-                if not zone_ids:
-                    # No zones (likely an xl624 which is not supported at this time)
-                    _LOGGER.warning(
-                        "Skipping thermostat %s (%s) - no zones found",
-                        child.get("id", "Unknown"),
-                        child.get("name", "Unknown"),
-                    )
-                    continue
-                _LOGGER.debug(
-                    "Adding thermostat %s (%s) with %d zones",
-                    nexia_thermostat.thermostat_id,
-                    nexia_thermostat.get_name(),
-                    len(zone_ids),
+
+        # Append thermostats that first appear on a later fetch. Some systems
+        # under-report devices on the initial poll, so a thermostat may be
+        # absent at construction and only show up on a subsequent update. The
+        # library never removes thermostats, so add-only is safe — mirrors the
+        # late-zone handling in NexiaThermostat.update_thermostat_json (#149).
+        existing_ids = {thermostat.thermostat_id for thermostat in self.thermostats}
+        for child in children:
+            child_id = child.get("id")
+            if child_id is None or child_id in existing_ids:
+                continue
+            nexia_thermostat = NexiaThermostat(self, child)
+            zone_ids = nexia_thermostat.get_zone_ids()
+            if not zone_ids:
+                # No zones (likely an xl624 which is not supported at this time)
+                _LOGGER.warning(
+                    "Skipping thermostat %s (%s) - no zones found",
+                    child.get("id", "Unknown"),
+                    child.get("name", "Unknown"),
                 )
-                self.thermostats.append(nexia_thermostat)
+                continue
+            _LOGGER.debug(
+                "Adding thermostat %s (%s) with %d zones",
+                nexia_thermostat.thermostat_id,
+                nexia_thermostat.get_name(),
+                len(zone_ids),
+            )
+            self.thermostats.append(nexia_thermostat)
+            existing_ids.add(child_id)
 
         thermostat_updates_by_id = {
             child["id"]: child for child in children if "id" in child
@@ -523,18 +534,27 @@ class NexiaHome:
 
     def _update_automations(self) -> None:
         self.last_update = datetime.datetime.now()  # noqa: DTZ005  # naive local time is the existing public behavior
+        assert self.automations_json is not None  # noqa: S101  # type-narrowing invariant
 
         if self.automations is None:
             self.automations = []
-            for automation_json in self.automations_json:
-                self.automations.append(NexiaAutomation(self, automation_json))
-            return
 
-        automation_updates_by_id = {}
-        assert self.automations_json is not None  # noqa: S101  # type-narrowing invariant
+        # Append automations that first appear on a later fetch, for the same
+        # reason as thermostats above: the library never removes automations,
+        # so add-only keeps a late-arriving automation from being dropped.
+        existing_ids = {automation.automation_id for automation in self.automations}
         for automation_json in self.automations_json:
-            automation_updates_by_id[automation_json["id"]] = automation_json
+            automation_id = automation_json.get("id")
+            if automation_id is None or automation_id in existing_ids:
+                continue
+            self.automations.append(NexiaAutomation(self, automation_json))
+            existing_ids.add(automation_id)
 
+        automation_updates_by_id = {
+            automation_json["id"]: automation_json
+            for automation_json in self.automations_json
+            if "id" in automation_json
+        }
         for automation in self.automations:
             if automation.automation_id in automation_updates_by_id:
                 automation.update_automation_json(
