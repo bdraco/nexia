@@ -2482,6 +2482,28 @@ async def test_get_url_releases_redirect_response_before_retry() -> None:
     redirect.release.assert_awaited_once()
 
 
+async def test_get_url_preserves_headers_on_relogin_retry() -> None:
+    """A 302 re-login retry must re-send the caller's headers.
+
+    `_update` passes an `If-None-Match` conditional-request header so an
+    unchanged house returns a cheap 304. If that header is dropped on the
+    post-relogin retry, every poll after a session expiry refetches the
+    full body. The retry GET must carry the same header through.
+    """
+    session = MagicMock()
+    nexia = NexiaHome(session, state_file=Path("nexia_config_test.conf"))
+
+    redirect = _make_response(302)
+    final = _make_response(200)
+    session.get = AsyncMock(side_effect=[redirect, final])
+
+    with patch.object(nexia, "login", new=AsyncMock()):
+        await nexia._get_url("https://example/x", headers={"If-None-Match": "etag-123"})
+
+    retry_headers = session.get.await_args_list[1].kwargs["headers"]
+    assert retry_headers["If-None-Match"] == "etag-123"
+
+
 async def test_check_heat_cool_setpoints_rejects_out_of_range(
     aiohttp_session: aiohttp.ClientSession,
 ) -> None:
