@@ -2529,3 +2529,22 @@ async def test_check_heat_cool_setpoints_accepts_in_range(
     zone.check_heat_cool_setpoints(heat_temperature=69, cool_temperature=78)
     # Boundary values (exactly at the limits) are allowed.
     zone.check_heat_cool_setpoints(heat_temperature=55, cool_temperature=99)
+
+
+async def test_has_outdoor_temperature_returns_bool(
+    aiohttp_session: aiohttp.ClientSession,
+) -> None:
+    """has_outdoor_temperature must honor its -> bool contract (py.typed).
+
+    When the thermostat JSON omits the key it must return False, not None.
+    """
+    nexia = NexiaHome(aiohttp_session)
+
+    missing = NexiaThermostat(nexia, {"id": 1})
+    assert missing.has_outdoor_temperature() is False
+
+    present = NexiaThermostat(nexia, {"id": 2, "has_outdoor_temperature": True})
+    assert present.has_outdoor_temperature() is True
+
+    absent = NexiaThermostat(nexia, {"id": 3, "has_outdoor_temperature": False})
+    assert absent.has_outdoor_temperature() is False
