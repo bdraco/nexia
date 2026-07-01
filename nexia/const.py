@@ -46,8 +46,19 @@ SYSTEM_STATUS_HEAT = "Heating"
 SYSTEM_STATUS_WAIT = "Waiting..."
 SYSTEM_STATUS_IDLE = "System Idle"
 SYSTEM_STATUS_OFF = "System Off"
+SYSTEM_STATUS_FAN_RUNNING = "Fan Running"
 
 BLOWER_OFF_STATUSES = {SYSTEM_STATUS_WAIT, SYSTEM_STATUS_IDLE, SYSTEM_STATUS_OFF}
+
+# System statuses that mean no heat/cool demand. "Fan Running" runs only the
+# blower (fan mode On/Circulate) without a compressor/heat call, so a native
+# zone is not calling for heat/cool. "Waiting..." stays absent: demand exists
+# during the compressor protection delay.
+SYSTEM_STATUS_NOT_CALLING = {
+    SYSTEM_STATUS_IDLE,
+    SYSTEM_STATUS_OFF,
+    SYSTEM_STATUS_FAN_RUNNING,
+}
 
 AIR_CLEANER_MODE_AUTO = "auto"
 AIR_CLEANER_MODE_QUICK = "quick"

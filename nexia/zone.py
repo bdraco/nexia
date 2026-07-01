@@ -22,7 +22,7 @@ from .const import (
     OPERATION_MODE_OFF,
     OPERATION_MODES,
     PRESET_MODE_NONE,
-    SYSTEM_STATUS_IDLE,
+    SYSTEM_STATUS_NOT_CALLING,
     UNIT_CELSIUS,
     ZONE_IDLE,
 )
@@ -286,7 +286,12 @@ class NexiaThermostatZone:
         :return: bool.
         """
         if self.is_native_zone():
-            return self.thermostat.get_system_status() != SYSTEM_STATUS_IDLE
+            # A single (Native) zone mirrors the whole system, so it is only
+            # calling when the system is actively heating/cooling. "System
+            # Idle", "System Off" and "Fan Running" (fan-only, no compressor
+            # call) all mean no demand; "Waiting..." keeps reporting a call
+            # since demand exists during the compressor protection delay.
+            return self.thermostat.get_system_status() not in SYSTEM_STATUS_NOT_CALLING
 
         # UX360
         zone_status = self._get_zone_key("zone_status")
