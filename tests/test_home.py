@@ -2529,3 +2529,51 @@ async def test_check_heat_cool_setpoints_accepts_in_range(
     zone.check_heat_cool_setpoints(heat_temperature=69, cool_temperature=78)
     # Boundary values (exactly at the limits) are allowed.
     zone.check_heat_cool_setpoints(heat_temperature=55, cool_temperature=99)
+
+
+async def test_get_history_json(
+    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aiointercept
+) -> None:
+    """Thermostat JSON history downloads return the parsed payload as-is."""
+    nexia = NexiaHome(aiohttp_session)
+    devices_json = json.loads(await load_fixture("single_zone_xl1050.json"))
+    nexia.update_from_json(devices_json)
+    thermostat = nexia.get_thermostat_by_id(345678)
+
+    daily = {"period": "daily", "samples": [{"t": 70}, {"t": 71}]}
+    monthly = {"period": "monthly", "samples": [{"t": 68}]}
+    mock_aioresponse.get(
+        "https://www.mynexia.com/xxl_history/345678/daily_history.json",
+        payload=daily,
+    )
+    mock_aioresponse.get(
+        "https://www.mynexia.com/xxl_history/345678/monthly_history.json",
+        payload=monthly,
+    )
+
+    assert await thermostat.get_daily_history_json() == daily
+    assert await thermostat.get_monthly_history_json() == monthly
+
+
+async def test_get_history_csv(
+    aiohttp_session: aiohttp.ClientSession, mock_aioresponse: aiointercept
+) -> None:
+    """Thermostat CSV history downloads return the raw body text."""
+    nexia = NexiaHome(aiohttp_session)
+    devices_json = json.loads(await load_fixture("single_zone_xl1050.json"))
+    nexia.update_from_json(devices_json)
+    thermostat = nexia.get_thermostat_by_id(345678)
+
+    daily_csv = "date,temp\n2026-06-15,70\n"
+    monthly_csv = "month,temp\n2026-06,68\n"
+    mock_aioresponse.get(
+        "https://www.mynexia.com/xxl_history/345678/daily_history.csv",
+        body=daily_csv,
+    )
+    mock_aioresponse.get(
+        "https://www.mynexia.com/xxl_history/345678/monthly_history.csv",
+        body=monthly_csv,
+    )
+
+    assert await thermostat.get_daily_history_csv() == daily_csv
+    assert await thermostat.get_monthly_history_csv() == monthly_csv

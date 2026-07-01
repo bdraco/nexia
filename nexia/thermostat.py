@@ -665,6 +665,65 @@ class NexiaThermostat:
             self.update_thermostat_json((await response.json())["result"])
 
     ########################################################################
+    # History Download Methods
+
+    def _history_url(self, period: str, extension: str) -> str:
+        """Build the url for a thermostat history download.
+
+        :param period: "daily" or "monthly"
+        :param extension: "json" or "csv"
+        :return: str
+        """
+        return (
+            f"{self._nexia_home.root_url}/xxl_history/"
+            f"{self.thermostat_id}/{period}_history.{extension}"
+        )
+
+    async def get_daily_history_json(self) -> Any:
+        """Download the past week of history for this thermostat as JSON.
+
+        The payload is returned unmodified as parsed by the service; the
+        library makes no assumptions about its shape.
+        :return: parsed JSON (typically a dict or list).
+        """
+        async with await self._nexia_home._get_url(  # noqa: SLF001
+            self._history_url("daily", "json")
+        ) as response:
+            return await response.json()
+
+    async def get_monthly_history_json(self) -> Any:
+        """Download the past month of history for this thermostat as JSON.
+
+        The payload is returned unmodified as parsed by the service; the
+        library makes no assumptions about its shape.
+        :return: parsed JSON (typically a dict or list).
+        """
+        async with await self._nexia_home._get_url(  # noqa: SLF001
+            self._history_url("monthly", "json")
+        ) as response:
+            return await response.json()
+
+    async def get_daily_history_csv(self) -> str:
+        """Download the past week of history for this thermostat as CSV text.
+
+        :return: the raw CSV body as a string.
+        """
+        async with await self._nexia_home._get_url(  # noqa: SLF001
+            self._history_url("daily", "csv")
+        ) as response:
+            return await response.text()
+
+    async def get_monthly_history_csv(self) -> str:
+        """Download the past month of history for this thermostat as CSV text.
+
+        :return: the raw CSV body as a string.
+        """
+        async with await self._nexia_home._get_url(  # noqa: SLF001
+            self._history_url("monthly", "csv")
+        ) as response:
+            return await response.text()
+
+    ########################################################################
     # Zone Get Methods
 
     def get_zone_ids(self) -> list[int | str]:
