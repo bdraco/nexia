@@ -962,7 +962,10 @@ async def test_issue_79891(aiohttp_session: aiohttp.ClientSession) -> None:
     assert zone.get_preset() is None  # No preset_selected setting
     assert zone.get_status() == "auto"
     assert zone.get_setpoint_status() == "Run Schedule"  # No preset to append
-    assert zone.is_calling() is True
+    # System Idle + blower off + compressor speed 0: operating_state "auto" is the
+    # mode, not active demand, so the zone must not report calling (phantom HVAC
+    # action in HA otherwise).
+    assert zone.is_calling() is False
     assert zone.is_in_permanent_hold() is False
 
 

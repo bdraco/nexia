@@ -37,6 +37,11 @@ if TYPE_CHECKING:
 
 UX360_IDLE_STATES = {"idle"}
 UX360_ACTIVE_STATES = {"cooling", "heating"}
+# operating_state values that mean a (non-native, non-UX360) zone is NOT calling.
+# Damper systems report active states as DAMPER_OPEN / "Relieving Air"; devices like
+# the XR724 instead report the mode/idle here ("auto", "idle"), which must not be
+# mistaken for active demand.
+NON_CALLING_OPERATING_STATES = {DAMPER_CLOSED, "auto", "idle"}
 RUN_MODE_KEYS = (
     "run_mode",
     "thermostat_run_mode",  # ux360
@@ -297,7 +302,10 @@ class NexiaThermostatZone:
 
         # Other systems
         operating_state = self._get_zone_key("operating_state")
-        return not (not operating_state or operating_state == DAMPER_CLOSED)
+        return (
+            bool(operating_state)
+            and operating_state not in NON_CALLING_OPERATING_STATES
+        )
 
     def is_native_zone(self) -> bool:
         """Returns True if the zone is a NativeZone
