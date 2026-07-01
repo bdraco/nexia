@@ -14,6 +14,7 @@ import pytest
 from aiointercept import aiointercept
 from yarl import URL
 
+from nexia.automation import NexiaAutomation
 from nexia.home import (
     LoginFailedException,
     NexiaHome,
@@ -2529,3 +2530,23 @@ async def test_check_heat_cool_setpoints_accepts_in_range(
     zone.check_heat_cool_setpoints(heat_temperature=69, cool_temperature=78)
     # Boundary values (exactly at the limits) are allowed.
     zone.check_heat_cool_setpoints(heat_temperature=55, cool_temperature=99)
+
+
+async def test_automation_enabled_coerces_to_bool() -> None:
+    """`enabled` honors its `-> bool` contract even when the API value is not a
+    native bool (py.typed downstream consumers rely on the annotation).
+    """
+    automation = NexiaAutomation(MagicMock(), {"id": 1, "enabled": 1})
+    result = automation.enabled
+    assert result is True
+    assert isinstance(result, bool)
+
+
+async def test_is_emergency_heat_active_coerces_to_bool() -> None:
+    """`is_emergency_heat_active` returns a real bool, not the raw setting value."""
+    thermostat = MagicMock()
+    thermostat.has_emergency_heat.return_value = True
+    thermostat.get_thermostat_settings_key.return_value = {"current_value": 1}
+    result = NexiaThermostat.is_emergency_heat_active(thermostat)
+    assert result is True
+    assert isinstance(result, bool)
