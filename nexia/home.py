@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import datetime
 import logging
+from http import HTTPStatus
 from typing import Any
 
 import aiohttp
@@ -49,6 +50,13 @@ BRAND_TO_URL = {
     BRAND_TRANE: TRANE_ROOT_URL,
     BRAND_NEXIA: NEXIA_ROOT_URL,
 }
+
+MAX_INFO_LOG_FAILS = 4
+INFO_LOG_EXCEPTIONS: tuple[type[Exception], ...] = (
+    TimeoutError,
+    aiohttp.ClientConnectionError,
+)
+INFO_LOG_STATUSES = {HTTPStatus.SERVICE_UNAVAILABLE}
 
 
 def extract_children_from_devices_json(
@@ -411,24 +419,39 @@ class NexiaHome:
 
     async def _load_current_room_iq_states(self) -> None:
         """Load the current state of all monitored zones' RoomIQ sensors in parallel."""
-        load_current_sensor_state_coroutines = (
-            zone.load_current_sensor_state()
+        monitored_zones = [
+            zone
             for therm in self.thermostats
             for zone in therm.zones
             if zone.has_room_iq_monitor()
-        )
+        ]
         results = await asyncio.gather(
-            *load_current_sensor_state_coroutines, return_exceptions=True
+            *(
+                zone.load_current_sensor_state(handle_timeouts=False)
+                for zone in monitored_zones
+            ),
+            return_exceptions=True,
         )
-        for result in results:
-            if isinstance(result, Exception):
+        for zone, result in zip(monitored_zones, results, strict=True):
+            if result is True:
+                zone.consecutive_load_sensor_fails = 0
+            else:
+                zone.consecutive_load_sensor_fails += 1
+
+            if isinstance(result, BaseException):
                 # stale data beats no data - just log this and continue
-                _LOGGER.exception(
-                    "Failed to load RoomIQ sensor state: Exception %s: %s",
-                    result.__class__.__name__,
-                    str(result),
-                    exc_info=result,
+                info = isinstance(result, INFO_LOG_EXCEPTIONS) or (
+                    isinstance(result, aiohttp.ClientResponseError)
+                    and result.status in INFO_LOG_STATUSES
                 )
+                if info and zone.consecutive_load_sensor_fails <= MAX_INFO_LOG_FAILS:
+                    level = logging.INFO
+                else:
+                    level = logging.ERROR
+                msg = "Failed to load RoomIQ sensor for zone %s: Exception %s: %s"
+                z_name = zone.get_name()
+                e_name = result.__class__.__name__
+                _LOGGER.log(level, msg, z_name, e_name, str(result), exc_info=result)
 
     async def update(self, force_update: bool = True) -> dict[str, Any] | None:
         """Updates the nexia status.

@@ -7,7 +7,7 @@ import logging
 import os
 from os.path import dirname
 from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import aiohttp
 import pytest
@@ -15,6 +15,7 @@ from aiointercept import aiointercept
 from yarl import URL
 
 from nexia.home import (
+    MAX_INFO_LOG_FAILS,
     LoginFailedException,
     NexiaHome,
     _extract_devices_from_houses_json,
@@ -1413,17 +1414,28 @@ async def test_sensor_access(
     nexia.log_response = False
 
     # execute no completion code path
+    polling_url = "https://www.mynexia.com/backstage/announcements/6a31e745716789b84603036489fe8d1e35ca80fa50000000"
     mock_aioresponse.post(
         "https://www.mynexia.com/mobile/xxl_zones/85034552/request_current_sensor_state",
         payload={
             "success": True,
             "error": None,
-            "result": {
-                "polling_path": "https://www.mynexia.com/backstage/announcements/6a31e745716789b84603036489fe8d1e35ca80fa50000000"
-            },
+            "result": {"polling_path": polling_url},
         },
     )
     assert await zone.load_current_sensor_state(max_polls=0) is False
+    mock_aioresponse.post(
+        "https://www.mynexia.com/mobile/xxl_zones/85034552/request_current_sensor_state",
+        payload={
+            "success": True,
+            "error": None,
+            "result": {"polling_path": polling_url},
+        },
+    )
+    with pytest.raises(
+        TimeoutError, match="Gave up waiting while loading current sensor state"
+    ):
+        await zone.load_current_sensor_state(max_polls=0, handle_timeouts=False)
 
     # execute normal code path
     polling_url = "https://www.mynexia.com/backstage/announcements/6a31e745716789b84603036489fe8d1e35ca80fa5dd381e5"
@@ -1439,7 +1451,7 @@ async def test_sensor_access(
     mock_aioresponse.get(
         polling_url,
         payload={
-            "status": "success, altered to enhance test coverage",
+            "status": "success",
             "options": {},
         },
     )
@@ -1540,15 +1552,85 @@ async def test_room_iq_sensor_monitor(
 
         # Make sure we update current sensor state now
         assert await nexia.update() is not None
-        mock_load_current_sensor_state.assert_awaited_once_with()
+        mock_load_current_sensor_state.assert_awaited_once_with(handle_timeouts=False)
 
         # Force exception path
-        mock_load_current_sensor_state.side_effect = aiohttp.ServerTimeoutError
+        mock_load_current_sensor_state.side_effect = asyncio.InvalidStateError
         assert await nexia.update() is not None
+        assert mock_load_current_sensor_state.await_count == 2
 
     # Remove the last one
     zone.remove_room_iq_monitor("sensor.center_roomiq_temperature")
     assert nexia.any_room_iq_monitors() is False
+
+
+@patch("logging.Logger.log")
+@patch("nexia.zone.NexiaThermostatZone.load_current_sensor_state")
+async def test_room_iq_sensor_exception(
+    mock_load_sensor: AsyncMock,
+    mock_log: MagicMock,
+    aiohttp_session: aiohttp.ClientSession,
+    mock_aioresponse: aiointercept,
+) -> None:
+    """Test exception handling on RoomIQ sensor update."""
+    nexia = NexiaHome(aiohttp_session, house_id=2582941)
+    nexia.mobile_id = 5400000
+
+    mock_aioresponse.get(
+        "https://www.mynexia.com/mobile/houses/2582941",
+        body=await load_fixture("sensors_xl1050_house.json"),
+        repeat=True,
+    )
+
+    # Add a monitor
+    assert await nexia.update() is not None
+    zone = nexia.get_thermostat_by_id(5378307).get_zone_by_id(85034552)
+    zone.add_room_iq_monitor("sensor.upstairs_roomiq_humidity")
+    mock_log.assert_not_called()
+
+    # Test log level on exception paths
+    e_msg = "Gave up waiting while loading current sensor state"
+    mock_load_sensor.side_effect = TimeoutError(e_msg)
+    assert await nexia.update() is not None
+    mock_load_sensor.assert_awaited_once()
+    msg = "Failed to load RoomIQ sensor for zone %s: Exception %s: %s"
+    z_name = "Center NativeZone"
+    e_name = "TimeoutError"
+    args = [msg, z_name, e_name, e_msg]
+    mock_log.assert_called_with(logging.INFO, *args, **mock_log.call_args.kwargs)
+
+    mock_load_sensor.side_effect = asyncio.InvalidStateError
+    assert await nexia.update() is not None
+    args[2] = "InvalidStateError"
+    args[3] = ""
+    mock_log.assert_called_with(logging.ERROR, *args, **mock_log.call_args.kwargs)
+
+    mock_load_sensor.side_effect = aiohttp.ClientResponseError(
+        request_info=Mock(), history=(), status=500, message="mock error"
+    )
+    mock_load_sensor.side_effect.request_info.real_url = "mock:url"
+    assert await nexia.update() is not None
+    args[2] = "ClientResponseError"
+    args[3] = "500, message='mock error', url='mock:url'"
+    mock_log.assert_called_with(logging.ERROR, *args, **mock_log.call_args.kwargs)
+
+    mock_load_sensor.side_effect.status = 503
+    assert await nexia.update() is not None
+    args[3] = "503, message='mock error', url='mock:url'"
+    mock_log.assert_called_with(logging.INFO, *args, **mock_log.call_args.kwargs)
+
+    # Cause too many consecutive fails
+    assert zone.consecutive_load_sensor_fails == MAX_INFO_LOG_FAILS
+    assert await nexia.update() is not None
+    mock_log.assert_called_with(logging.ERROR, *args, **mock_log.call_args.kwargs)
+
+    # Test return True path
+    mock_load_sensor.side_effect = None
+    mock_load_sensor.return_value = True
+    mock_log.reset_mock()
+    assert await nexia.update() is not None
+    assert zone.consecutive_load_sensor_fails == 0
+    mock_log.assert_not_called()
 
 
 async def test_clamp_to_predefined_values() -> None:
