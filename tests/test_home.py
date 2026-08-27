@@ -1435,7 +1435,7 @@ async def test_sensor_access(
     with pytest.raises(
         TimeoutError, match="Gave up waiting while loading current sensor state"
     ):
-        await zone.load_current_sensor_state(max_polls=0, handle_timeouts=False)
+        await zone.load_current_sensor_state(max_polls=0, raise_on_timeout=True)
 
     # execute normal code path
     polling_url = "https://www.mynexia.com/backstage/announcements/6a31e745716789b84603036489fe8d1e35ca80fa5dd381e5"
@@ -1552,7 +1552,7 @@ async def test_room_iq_sensor_monitor(
 
         # Make sure we update current sensor state now
         assert await nexia.update() is not None
-        mock_load_current_sensor_state.assert_awaited_once_with(handle_timeouts=False)
+        mock_load_current_sensor_state.assert_awaited_once_with(raise_on_timeout=True)
 
         # Force exception path
         mock_load_current_sensor_state.side_effect = asyncio.InvalidStateError
@@ -1597,13 +1597,14 @@ async def test_room_iq_sensor_exception(
     z_name = "Center NativeZone"
     e_name = "TimeoutError"
     args = [msg, z_name, e_name, e_msg]
-    mock_log.assert_called_with(logging.INFO, *args, **mock_log.call_args.kwargs)
+    mock_log.assert_called_with(logging.INFO, *args, exc_info=None)
 
-    mock_load_sensor.side_effect = asyncio.InvalidStateError
+    mock_load_sensor.side_effect = asyncio.InvalidStateError()
     assert await nexia.update() is not None
     args[2] = "InvalidStateError"
     args[3] = ""
-    mock_log.assert_called_with(logging.ERROR, *args, **mock_log.call_args.kwargs)
+    kwargs = {"exc_info": mock_load_sensor.side_effect}
+    mock_log.assert_called_with(logging.ERROR, *args, **kwargs)
 
     mock_load_sensor.side_effect = aiohttp.ClientResponseError(
         request_info=Mock(), history=(), status=500, message="mock error"
@@ -1612,17 +1613,18 @@ async def test_room_iq_sensor_exception(
     assert await nexia.update() is not None
     args[2] = "ClientResponseError"
     args[3] = "500, message='mock error', url='mock:url'"
-    mock_log.assert_called_with(logging.ERROR, *args, **mock_log.call_args.kwargs)
+    kwargs = {"exc_info": mock_load_sensor.side_effect}
+    mock_log.assert_called_with(logging.ERROR, *args, **kwargs)
 
     mock_load_sensor.side_effect.status = 503
     assert await nexia.update() is not None
     args[3] = "503, message='mock error', url='mock:url'"
-    mock_log.assert_called_with(logging.INFO, *args, **mock_log.call_args.kwargs)
+    mock_log.assert_called_with(logging.INFO, *args, exc_info=None)
 
     # Cause too many consecutive fails
     assert zone.consecutive_load_sensor_fails == MAX_INFO_LOG_FAILS
     assert await nexia.update() is not None
-    mock_log.assert_called_with(logging.ERROR, *args, **mock_log.call_args.kwargs)
+    mock_log.assert_called_with(logging.ERROR, *args, **kwargs)
 
     # Test return True path
     mock_load_sensor.side_effect = None

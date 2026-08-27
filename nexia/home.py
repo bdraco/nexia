@@ -54,9 +54,14 @@ BRAND_TO_URL = {
 MAX_INFO_LOG_FAILS = 4
 INFO_LOG_EXCEPTIONS: tuple[type[Exception], ...] = (
     TimeoutError,
+    asyncio.TimeoutError,
     aiohttp.ClientConnectionError,
 )
-INFO_LOG_STATUSES = {HTTPStatus.SERVICE_UNAVAILABLE}
+INFO_LOG_STATUSES = {
+    HTTPStatus.BAD_GATEWAY,
+    HTTPStatus.SERVICE_UNAVAILABLE,
+    HTTPStatus.GATEWAY_TIMEOUT,
+}
 
 
 def extract_children_from_devices_json(
@@ -427,7 +432,7 @@ class NexiaHome:
         ]
         results = await asyncio.gather(
             *(
-                zone.load_current_sensor_state(handle_timeouts=False)
+                zone.load_current_sensor_state(raise_on_timeout=True)
                 for zone in monitored_zones
             ),
             return_exceptions=True,
@@ -446,12 +451,14 @@ class NexiaHome:
                 )
                 if info and zone.consecutive_load_sensor_fails <= MAX_INFO_LOG_FAILS:
                     level = logging.INFO
+                    e_info = None
                 else:
                     level = logging.ERROR
+                    e_info = result
                 msg = "Failed to load RoomIQ sensor for zone %s: Exception %s: %s"
                 z_name = zone.get_name()
                 e_name = result.__class__.__name__
-                _LOGGER.log(level, msg, z_name, e_name, str(result), exc_info=result)
+                _LOGGER.log(level, msg, z_name, e_name, str(result), exc_info=e_info)
 
     async def update(self, force_update: bool = True) -> dict[str, Any] | None:
         """Updates the nexia status.

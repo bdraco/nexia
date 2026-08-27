@@ -500,10 +500,11 @@ Note: This service does not update data in this zone instance -
 many of the thermostat services do so.
 This service returns a bool indicating if it completed successfully.
 
-| Service data attribute | Optional | Default | Description                                    |
-| ---------------------- | -------- | ------- | ---------------------------------------------- |
-| `polling_delay`        | yes      | 5.0     | seconds to wait before each polling attempt    |
-| `max_polls`            | yes      | 8       | maximum number of times to poll for completion |
+| Service data attribute | Optional | Default | Description                                                   |
+| ---------------------- | -------- | ------- | ------------------------------------------------------------- |
+| `polling_delay`        | yes      | 5.0     | seconds to wait before each polling attempt                   |
+| `max_polls`            | yes      | 8       | maximum number of times to poll for completion                |
+| `raise_on_timeout`     | yes      | `False` | raise `TimeoutError` instead of logging and returning `False` |
 
 ### Service `add_room_iq_monitor`
 

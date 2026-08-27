@@ -640,17 +640,12 @@ class NexiaThermostatZone:
             )
 
     async def select_room_iq_sensors(
-        self,
-        active_sensor_ids: Iterable[int],
-        polling_delay=5.0,
-        max_polls=8,
-        handle_timeouts=True,
+        self, active_sensor_ids: Iterable[int], polling_delay=5.0, max_polls=8
     ) -> bool:
         """Select which RoomIQ sensors are included in the zone average.
         :param active_sensor_ids: collection of RoomIQ sensor identifiers to form the zone average
         :param polling_delay: seconds to wait before each polling attempt
         :param max_polls: maximum number of times to poll for completion
-        :param handle_timeouts: handle timeout exceptions here
         :return: bool indicating completed
         """
         if not active_sensor_ids:
@@ -679,16 +674,16 @@ class NexiaThermostatZone:
             "selecting active sensors",
             polling_delay,
             max_polls,
-            handle_timeouts,
+            raise_on_timeout=False,
         )
 
     async def load_current_sensor_state(
-        self, polling_delay=5.0, max_polls=8, handle_timeouts=True
+        self, polling_delay=5.0, max_polls=8, raise_on_timeout=False
     ) -> bool:
         """Load the current state of a zone's sensors into the physical thermostat.
         :param polling_delay: seconds to wait before each polling attempt
         :param max_polls: maximum number of times to poll for completion
-        :param handle_timeouts: handle timeout exceptions here
+        :param raise_on_timeout: raise TimeoutError instead of logging and returning False
         :return: bool indicating completed
         """
         req_cur_state = self.API_MOBILE_ZONE_URL.format(
@@ -700,7 +695,7 @@ class NexiaThermostatZone:
             "loading current sensor state",
             polling_delay,
             max_polls,
-            handle_timeouts,
+            raise_on_timeout,
         )
 
     async def _post_and_await_async_completion(
@@ -710,7 +705,7 @@ class NexiaThermostatZone:
         target: str,
         polling_delay: float,
         max_polls: int,
-        handle_timeouts: bool,
+        raise_on_timeout: bool,
     ) -> bool:
         """Post a request that returns an asynchronous url to poll for completion.
         :param request_url: url for service being requested
@@ -718,7 +713,7 @@ class NexiaThermostatZone:
         :param target: description of what is being accomplished
         :param polling_delay: seconds to wait before each polling attempt
         :param max_polls: maximum number of times to poll for completion
-        :param handle_timeouts: handle timeouts here
+        :param raise_on_timeout: raise TimeoutError instead of logging and returning False
         :return: bool indicating completed
         """
         async with await self._nexia_home.post_url(request_url, json_data) as response:
@@ -744,12 +739,12 @@ class NexiaThermostatZone:
             attempts -= 1
         # end while waiting for status
 
-        if handle_timeouts:
-            msg = "Gave up waiting while %s for zone %s"
-            _LOGGER.error(msg, target, self.get_name())
-            return False
+        if raise_on_timeout:
+            raise TimeoutError(f"Gave up waiting while {target}")
 
-        raise TimeoutError(f"Gave up waiting while {target}")
+        msg = "Gave up waiting while %s for zone %s"
+        _LOGGER.error(msg, target, self.get_name())
+        return False
 
     def add_room_iq_monitor(self, monitor_id: str) -> None:
         """Register a subscriber for this zone's RoomIQ sensor state updates.
