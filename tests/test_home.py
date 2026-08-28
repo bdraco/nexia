@@ -1622,7 +1622,7 @@ async def test_room_iq_sensor_exception(
     mock_log.assert_called_with(logging.INFO, *args, exc_info=None)
 
     # Cause too many consecutive fails
-    assert zone.consecutive_load_sensor_fails == MAX_INFO_LOG_FAILS
+    assert nexia._consecutive_room_iq_load_fails[zone.zone_id] == MAX_INFO_LOG_FAILS
     assert await nexia.update() is not None
     mock_log.assert_called_with(logging.ERROR, *args, **kwargs)
 
@@ -1631,7 +1631,7 @@ async def test_room_iq_sensor_exception(
     mock_load_sensor.return_value = True
     mock_log.reset_mock()
     assert await nexia.update() is not None
-    assert zone.consecutive_load_sensor_fails == 0
+    assert nexia._consecutive_room_iq_load_fails[zone.zone_id] == 0
     mock_log.assert_not_called()
 
 

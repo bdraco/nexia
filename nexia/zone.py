@@ -132,7 +132,6 @@ class NexiaThermostatZone:
         self.thermostat = nexia_thermostat
         self.zone_id = make_zone_id(nexia_thermostat, zone_json)
         self._room_iq_monitors: set[str] = set()
-        self.consecutive_load_sensor_fails = 0
 
     @property
     def API_MOBILE_ZONE_URL(self) -> str:  # pylint: disable=invalid-name
@@ -678,7 +677,10 @@ class NexiaThermostatZone:
         )
 
     async def load_current_sensor_state(
-        self, polling_delay=5.0, max_polls=8, raise_on_timeout=False
+        self,
+        polling_delay: float = 5.0,
+        max_polls: int = 8,
+        raise_on_timeout: bool = False,
     ) -> bool:
         """Load the current state of a zone's sensors into the physical thermostat.
         :param polling_delay: seconds to wait before each polling attempt

@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import datetime
 import logging
+from collections import Counter
 from http import HTTPStatus
 from typing import Any
 
@@ -144,6 +145,7 @@ class NexiaHome:
         self.loop = asyncio.get_running_loop()
         self.log_response = True
         self._update_in_progress: asyncio.Future[None] | None = None
+        self._consecutive_room_iq_load_fails: Counter[str | int] = Counter()
 
     @property
     def API_MOBILE_PHONE_URL(self) -> str:  # pylint: disable=invalid-name
@@ -438,10 +440,9 @@ class NexiaHome:
             return_exceptions=True,
         )
         for zone, result in zip(monitored_zones, results, strict=True):
-            if result is True:
-                zone.consecutive_load_sensor_fails = 0
-            else:
-                zone.consecutive_load_sensor_fails += 1
+            fails = self._consecutive_room_iq_load_fails
+            consecutive_fails = 0 if result is True else fails[zone.zone_id] + 1
+            fails[zone.zone_id] = consecutive_fails
 
             if isinstance(result, BaseException):
                 # stale data beats no data - just log this and continue
@@ -449,7 +450,7 @@ class NexiaHome:
                     isinstance(result, aiohttp.ClientResponseError)
                     and result.status in INFO_LOG_STATUSES
                 )
-                if info and zone.consecutive_load_sensor_fails <= MAX_INFO_LOG_FAILS:
+                if info and consecutive_fails <= MAX_INFO_LOG_FAILS:
                     level = logging.INFO
                     e_info = None
                 else:
